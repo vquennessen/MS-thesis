@@ -12,7 +12,7 @@ parameters = function(species) {
     stop("Study species must be a character string.")
   }
   
-  if (study_species == "black rockfish") {
+  if (species == "black rockfish") {
     # source: Cope et al., 2015
     max_age <- 40                           ## maximum age
     M <- 0.17                               ## natural mortality
@@ -39,5 +39,7 @@ parameters = function(species) {
     x <- 15.42                              # mean of positive transects
     sp <- 16.97                             # std of positive transects
   }
+  
+  
   
 }
