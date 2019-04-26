@@ -28,15 +28,17 @@ r <- 0.77                               # Proportion of positive transects
                                         #       in PISCO monitoring data
 x <- 15.42                              # mean of positive transects
 sp <- 16.97                             # std of positive transects
-fleet_a <- c()                          # fleet alpha values
-fleet_b <- c()                          # fleet beta values
+alpha <- 1                              # selectivity paramter
+beta <- 1                               # selectivity paramter
+# TODO: get actual alpha and beta values / fleet values???
 
 
 ##### Population Dynamics ######################################################
 
 s <- 5            # number of areas
 t <- 50           # number of timesteps (years)
-E <- 0.10         # nominal fishing effort in each area
+E <- 0.10         # nominal fishing effort in each area 
+# TODO: update E value
 
 # Initialize arrays 
 n <- rec_age:max_age
@@ -44,15 +46,16 @@ N <- array(rep(0, length(n)*s*t), c(length(n), s, t))
 B <- array(rep(0, s*t), c(s, t))
 
 # Length at age
-age <- array(rep(0, length(max_age)), length(max_age))
+age <- array(rep(0, max_age), max_age)
 L_inf <- L1f + (L2f - L1f)/(1 - exp(-1*Kf*(a2f - a1f)))
 L <- L_inf + (L1f - L_inf)*exp(-1*Kf*(age - a1f))
 
 # Weight at age
 W <- af*L^bf
 
-# Maturity at age
-
+# Maturity at length
+M <- array(rep(0, max_age), max_age)
+M <- (1)/(1 + exp(k_mat(L - L50)))
 
 # Recruitment
 epsilon <- array(rep(0, t), t)
@@ -66,5 +69,8 @@ q <- (s*Fb)/(s*E)
 Sp <- array(rep(0, n*length(fleet_a)), c(n, length(fleet_a)))
 f <- array(rep(0, length(n)*s*t), c(length(n), s, t))
 
+Sp1 <- (1)/(1 + exp(-1*alpha*(L - L50)))
+Sp2 <- 1 - (1 - Ffin)/(1 + exp(-1*beta*(L - L50)))
+# TODO: Figure out what Ffin is
 
 # Population size for different ages
