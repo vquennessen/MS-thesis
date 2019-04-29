@@ -14,7 +14,7 @@ parameters = function(species) {
   }
   
   if (species == "black rockfish") {
-    # source: Cope et al., 2015
+    # source: Babcock & MacCall 2011
     max_age <- 35                           # maximum age
     M <- 0.14                               # natural mortality
     rec_age <- 2                            # age at recruitment
@@ -41,6 +41,9 @@ parameters = function(species) {
     sp <- 16.97                             # std of positive transects
     alpha <- c(0, 0, 0)                     # selectivity parameters - per fleet
     beta <- c(0, 0, 0)                      # selectivity parameters - per fleet
+    cf <- c(0, 0, 0)                        # fraction of fisheries caught/fleet
+    # TODO: get actual alpha and beta values / fleet values???
+    
   }
   
   output = list(max_age, M, rec_age, af, bf, am, bm, a1f, Lif, a2f, L2f, Kf,
