@@ -1,8 +1,9 @@
 #' Loads life history characteristic parameters for selected species
-#' 
+#'
 #' @param species a character string
 #' 
-#' @return the parameters needed to run the popDyn function
+#' @return a list of species life history characteristic parameters
+
 
 parameters = function(species) {
   
@@ -14,32 +15,38 @@ parameters = function(species) {
   
   if (species == "black rockfish") {
     # source: Cope et al., 2015
-    max_age <- 40                           ## maximum age
-    M <- 0.17                               ## natural mortality
-    rec_age <- 3                            ## age at recruitment
-    af <- 2.6e-5; bf <- 2.88                ## weight at length parameters (f)
-    am <- 2.58e-5; bm <- 2.89               ## weight at length parameters (m)
-    a1f <- 1; L1f <- 20.32;                 ## growth parameters (f)
-    a2f <- 40; L2f <- 49.67; Kf <- 0.21  
-    a1m <- 1; L1m <- 17.47;                 ## growth parameters (m)
-    a2m <- 40; L2m <- 43.27; Km <- 0.34  
-    L50 <- 43.69                            ## length at 50% maturity
-    k_mat <- -0.66                          ## slope of maturity curve
+    max_age <- 35                           # maximum age
+    M <- 0.14                               # natural mortality
+    rec_age <- 2                            # age at recruitment
+    af <- 1.68e-5; bf <- 3                  # weight at length parameters (f)
+    am <- 1.68e-5; bm <- 3                  # weight at length parameters (m)
+    a1f <- 5; L1f <- 32.21;                 # growth parameters (f)
+    a2f <- 15; L2f <- 47.95; Kf <- 0.2022  
+    a1m <- 5; L1m <- 31.88;                 # growth parameters (m)
+    a2m <- 15; L2m <- 45.39; Km <- 0.1979  
+    L50 <- 39.53                            # length at 50% maturity
+    k_mat <- -0.4103                        # slope of maturity curve
     ldp <- 0.1                              # larval drift proportion
-    R0 <- 3666                              ## unfished recruitment
-    h <- 0.77                               ## steepness
+    R0 <- 100000                            # unfished recruitment
+    h <- 0.65                               # steepness
     phi <- 1.1                              # unfished recruits per spawner
-    sigma_R <- 0.5                          ## recruitment standard deviation
+    sigma_R <- 0.5                          # recruitment standard deviation
     rho_R <- 0                              # recruitment autocorrelation
     p <- 0.1                                # adult movement proportion
-    D <- 0.604                              ## depletion
+    D <- 0.488                              # depletion
     Fb <- 0.2                               # fishing mortality to cause D
     r <- 0.77                               # Proportion of positive transects 
                                             #       in PISCO monitoring data
     x <- 15.42                              # mean of positive transects
     sp <- 16.97                             # std of positive transects
+    alpha <- c(0, 0, 0)                     # selectivity parameters - per fleet
+    beta <- c(0, 0, 0)                      # selectivity parameters - per fleet
   }
   
+  output = list(max_age, M, rec_age, af, bf, am, bm, a1f, Lif, a2f, L2f, Kf,
+                a1m, L1m, a2m, L2m, Km, L50, k_mat, ldp, R0, h, phi, sigma_R,
+                rho_R, p, D, Fb, r, x, sp, alpha, beta)
   
+  return(output)
   
 }
