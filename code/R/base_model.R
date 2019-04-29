@@ -1,36 +1,42 @@
 #' Runs age-structured population dynamics biological sub-model. 
 
+##### Source functions #########################################################
+
+source("./code/R/parameters.R")
+
 ##### Load life history characteristics for species ############################
 
-### Black rockfish (Sebastes melanops) ###
+par <- parameters("black rockfish")
 
-max_age <- 40                           ## maximum age
-M <- 0.17                               ## natural mortality
-rec_age <- 3                            ## age at recruitment
-af <- 2.6e-5; bf <- 2.88                ## weight at length parameters (f)
-am <- 2.58e-5; bm <- 2.89               ## weight at length parameters (m)
-a1f <- 1; L1f <- 20.32;                 ## growth parameters (f)
-a2f <- 40; L2f <- 49.67; Kf <- 0.21  
-a1m <- 1; L1m <- 17.47;                 ## growth parameters (m)
-a2m <- 40; L2m <- 43.27; Km <- 0.34  
-L50 <- 43.69                            ## length at 50% maturity
-k_mat <- -0.66                          ## slope of maturity curve
-ldp <- 0.1                              # larval drift proportion
-R0 <- 3666                              ## unfished recruitment
-h <- 0.77                               ## steepness
-phi <- 1.1                              # unfished recruits per spawner
-sigma_R <- 0.5                          ## recruitment standard deviation
-rho_R <- 0                              # recruitment autocorrelation
-p <- 0.1                                # adult movement proportion
-D <- 0.604                              ## depletion
-Fb <- 0.2                               # fishing mortality to cause D
-r <- 0.77                               # Proportion of positive transects 
-                                        #       in PISCO monitoring data
-x <- 15.42                              # mean of positive transects
-sp <- 16.97                             # std of positive transects
-fleet_alpha <- 1                        # selectivity paramter
-fleet_beta <- 1                         # selectivity paramter
-# TODO: get actual alpha and beta values / fleet values???
+max_age <- par[[1]]                       # maximum age
+M <- par[[2]]                             # natural mortality
+rec_age <- par[[3]]                       # age at recruitment
+af <- par[[4]]; bf <- par[[5]]            # weight at length parameters (f)
+am <- par[[6]]; bm <- par[[7]]            # weight at length parameters (m)
+a1f <- par[[8]]; L1f <- par[[9]];         # growth parameters (f)
+a2f <- par[[10]]; L2f <- par[[11]]; 
+Kf <- par[[12]]  
+a1m <- par[[13]]; L1m <- par[[14]];       # growth parameters (m)
+a2m <- par[[15]]; L2m <- par[[16]]; 
+Km <- par[[17]]  
+L50 <- par[[18]]                          # length at 50% maturity
+k_mat <- par[[19]]                        # slope of maturity curve
+ldp <- par[[20]]                          # larval drift proportion
+R0 <- par[[21]]                           # unfished recruitment
+h <- par[[22]]                            # steepness
+phi <- par[[23]]                          # unfished recruits per spawner
+sigma_R <- par[[24]]                      # recruitment standard deviation
+rho_R <- par[[25]]                        # recruitment autocorrelation
+p <- par[[26]]                            # adult movement proportion
+D <- par[[27]]                            # depletion
+Fb <- par[[28]]                           # fishing mortality to cause D
+r <- par[[29]]                            # Proportion of positive transects 
+                                          #       in PISCO monitoring data
+x <- par[[30]]                            # mean of positive transects
+sp <- par[[31]]                           # std of positive transects
+alpha <- par[[32]]                        # selectivity parameter
+beta <- par[[33]]                         # selectivity parameter
+Cf <- par[[34]]                           # fraction of fishery caught / fleet
 
 
 ##### Population Dynamics ######################################################

@@ -41,14 +41,14 @@ parameters = function(species) {
     sp <- 16.97                             # std of positive transects
     alpha <- c(0, 0, 0)                     # selectivity parameters - per fleet
     beta <- c(0, 0, 0)                      # selectivity parameters - per fleet
-    cf <- c(0, 0, 0)                        # fraction of fisheries caught/fleet
+    cf <- c(0, 0, 0)                        # fraction of fishery caught / fleet
     # TODO: get actual alpha and beta values / fleet values???
     
   }
   
-  output = list(max_age, M, rec_age, af, bf, am, bm, a1f, Lif, a2f, L2f, Kf,
+  output = list(max_age, M, rec_age, af, bf, am, bm, a1f, L1f, a2f, L2f, Kf,
                 a1m, L1m, a2m, L2m, Km, L50, k_mat, ldp, R0, h, phi, sigma_R,
-                rho_R, p, D, Fb, r, x, sp, alpha, beta)
+                rho_R, p, D, Fb, r, x, sp, alpha, beta, cf)
   
   return(output)
   
