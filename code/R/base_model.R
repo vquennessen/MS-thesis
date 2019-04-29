@@ -3,6 +3,7 @@
 ##### Source functions #########################################################
 
 source("./code/R/parameters.R")
+source("./code/R/weight_at_age.R")
 
 ##### Load life history characteristics for species ############################
 
@@ -38,7 +39,6 @@ alpha <- par[[32]]                        # selectivity parameter
 beta <- par[[33]]                         # selectivity parameter
 Cf <- par[[34]]                           # fraction of fishery caught / fleet
 
-
 ##### Population Dynamics ######################################################
 
 s <- 5            # number of areas
@@ -46,20 +46,8 @@ t <- 50           # number of timesteps (years)
 E <- 0.10         # nominal fishing effort in each area 
 # TODO: update E value
 
-# Initialize arrays 
-n <- rec_age:max_age
-N <- array(rep(0, length(n)*s*t), c(length(n), s, t))
-B <- array(rep(0, s*t), c(s, t))
-
-# Length at age
-# Based on Babcock & MacCall (2011): Eq. (10)
-age <- array(rep(0, max_age), max_age)
-L_inf <- L1f + (L2f - L1f)/(1 - exp(-1*Kf*(a2f - a1f)))
-L <- L_inf + (L1f - L_inf)*exp(-1*Kf*(age - a1f))
-
 # Weight at age
-# Based on Babcock & MacCall (2011): Eq. (11)
-W <- af*L^bf
+W <- weight_at_age(max_age, a1f, a2f, L1f, L2f, Kf, af, bf)
 
 # Maturity at length
 M <- array(rep(0, max_age), max_age)
@@ -73,6 +61,7 @@ for (i in 2:t) {
 }
 
 # Spawning Stock Biomass
+B <- array(rep(0, s*t), c(s, t))
 
 
 # Recruitment
@@ -101,4 +90,5 @@ f <- array(rep(0, length(n)*s*t), c(length(n), s, t))
 
 # Population size for different ages
 # Based on Babcock & MacCall (2011): Eq. (1)
-
+n <- rec_age:max_age
+N <- array(rep(0, length(n)*s*t), c(length(n), s, t))
