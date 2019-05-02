@@ -3,7 +3,9 @@
 ##### Source functions #########################################################
 
 source("./code/R/parameters.R")
+source("./code/R/length_at_age.R")
 source("./code/R/weight_at_age.R")
+source("./code/R/fraction_mature_at_age.R")
 
 ##### Load life history characteristics for species ############################
 
@@ -46,8 +48,11 @@ t <- 50           # number of timesteps (years)
 E <- 0.10         # nominal fishing effort in each area 
 # TODO: update E value
 
+# Length at age
+L <- length_at_age(max_age, L1f, L2f, Kf, a1f, a2f)
+
 # Weight at age
-W <- weight_at_age(max_age, a1f, a2f, L1f, L2f, Kf, af, bf)
+W <- weight_at_age(L, af, bf)
 
 # Maturity at length
 M <- array(rep(0, max_age), max_age)
