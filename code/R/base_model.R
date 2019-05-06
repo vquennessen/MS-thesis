@@ -55,8 +55,8 @@ L <- length_at_age(max_age, L1f, L2f, Kf, a1f, a2f)
 W <- weight_at_age(L, af, bf)
 
 # Maturity at length
-M <- array(rep(0, max_age), max_age)
-M <- (1)/(1 + exp(k_mat*(L - L50)))
+M <- fraction_mature_at_age(max_age, k_mat, L, L50)
+
 
 # Based on Babcock & MacCall (2011): Eq. (4)
 epsilon <- array(rep(0, t), t)
@@ -68,7 +68,6 @@ for (i in 2:t) {
 # Spawning Stock Biomass
 B <- array(rep(0, s*t), c(s, t))
 
-
 # Recruitment
 # Based on Babcock & MacCall (2011): Eq. (3)
 R <- array(rep(0, s*t), c(s, t))
@@ -78,16 +77,6 @@ R <- array(rep(0, s*t), c(s, t))
 q <- (s*Fb)/(s*E)
 
 # Selectivity
-# Based on Babcock & MacCall (2011): Eq. (8)
-Sp1 <- (1)/(1 + exp(-1*fleet_alpha[1]*(L - L50)))
-# Based on Babcock & MacCall (2011): Eq. (9)
-Sp2 <- 1 - (1 - Ffin)/(1 + exp(-1*fleet_beta[1]*(L - L50)))
-# TODO: Figure out what Ffin is
-# TODO: Figure out selectivity, alpha and beta values
-
-# Selectivity at Age
-# Based on Babcock & MacCall (2011): Eq. (7)
-Sp <- array(rep(0, n*length(fleet_alpha)), c(n, length(fleet_alpha)))
 
 # Fishing Mortality
 # Based on Babcock & MacCall (2011): Eq. (5)
