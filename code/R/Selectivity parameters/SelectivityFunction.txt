@@ -1,0 +1,17 @@
+Public Function selectivity(length, init, slope, infl, switch, ful, infldown, slopedown, final)
+ upcurve = 1 / (1 + Exp(-slope * (length - infl)))
+ If switch > 0.0001 Then
+  downcurve = 1 - (1 - final) / (1 + Exp(-slopedown * (length - infldown)))
+ Else
+  downcurve = 1
+ End If
+ If length <= init Then
+  selectivity = 0
+ ElseIf switch = 0 Or length <= switch Then
+  selectivity = upcurve
+ ElseIf length > switch And length <= ful And switch > 0 Then
+  selectivity = 1
+ ElseIf length >= full And switch > 0 Then
+  selectivity = downcurve
+ End If
+End Function
