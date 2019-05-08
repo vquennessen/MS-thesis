@@ -45,6 +45,8 @@ parameters = function(species) {
     beta <- c(1.28, 0.419, 0)               # selectivity parameters - per fleet
     cf <- c(0.71, 0.28, 0.01)               # fraction of fishery caught / fleet
     F_fin <- c(0.265, 0.29, 0)              # F_fin  
+    L50_up <- c(25.2, 33.2, 46)             # L50 value for upcurve
+    L50_down <- c(36.7, 46.4, 50)           # L50 value for downcurve
                                             
     
     # TODO: get actual alpha and beta values / fleet values???

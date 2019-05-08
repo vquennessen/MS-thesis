@@ -37,10 +37,14 @@ r <- par[[29]]                            # Proportion of positive transects
                                           #       in PISCO monitoring data
 x <- par[[30]]                            # mean of positive transects
 sp <- par[[31]]                           # std of positive transects
-alpha <- par[[32]]                        # selectivity parameter
-beta <- par[[33]]                         # selectivity parameter
+
+                                          ##### selectivity parameters #########
+alpha <- par[[32]]                        # slope for upcurve
+beta <- par[[33]]                         # slope for downcurve
 cf <- par[[34]]                           # fraction of fishery caught / fleet
 F_fin <- par[[35]]                        # F_fin for fishery, 0 if asymptotic
+L50_up <- par[[36]]                       # L50 for upcurve
+L50_down <- par[[37]]                     # L50 for downcurve
 
 ##### Population Dynamics ######################################################
 
