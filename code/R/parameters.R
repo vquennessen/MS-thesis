@@ -41,8 +41,8 @@ parameters = function(species) {
     sp <- 16.97                             # std of positive transects
                                             
                                             #### fleets: sport, hook, trawl ####
-    alpha <- c(0, 0, 0)                     # selectivity parameters - per fleet
-    beta <- c(0, 0, 0)                      # selectivity parameters - per fleet
+    alpha <- c(0.45, 0.369, 0.426)          # selectivity parameters - per fleet
+    beta <- c(1.28, 0.419, 0)               # selectivity parameters - per fleet
     cf <- c(0.71, 0.28, 0.01)               # fraction of fishery caught / fleet
     F_fin <- c(0.265, 0.29, 0)              # F_fin  
                                             
