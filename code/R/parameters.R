@@ -39,10 +39,13 @@ parameters = function(species) {
                                             #       in PISCO monitoring data
     x <- 15.42                              # mean of positive transects
     sp <- 16.97                             # std of positive transects
+                                            
+                                            #### fleets: sport, hook, trawl ####
     alpha <- c(0, 0, 0)                     # selectivity parameters - per fleet
     beta <- c(0, 0, 0)                      # selectivity parameters - per fleet
     cf <- c(0.71, 0.28, 0.01)               # fraction of fishery caught / fleet
-                                            # fleets: sport, hook, trawl
+    F_fin <- c(0.265, 0.29, 0)              # F_fin  
+                                            
     
     # TODO: get actual alpha and beta values / fleet values???
     

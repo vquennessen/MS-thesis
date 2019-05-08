@@ -39,7 +39,8 @@ x <- par[[30]]                            # mean of positive transects
 sp <- par[[31]]                           # std of positive transects
 alpha <- par[[32]]                        # selectivity parameter
 beta <- par[[33]]                         # selectivity parameter
-Cf <- par[[34]]                           # fraction of fishery caught / fleet
+cf <- par[[34]]                           # fraction of fishery caught / fleet
+F_fin <- par[[35]]                        # F_fin for fishery, 0 if asymptotic
 
 ##### Population Dynamics ######################################################
 
