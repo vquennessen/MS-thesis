@@ -6,6 +6,7 @@ source("./code/R/parameters.R")
 source("./code/R/length_at_age.R")
 source("./code/R/weight_at_age.R")
 source("./code/R/fraction_mature_at_age.R")
+source("./code/R/selectivity_at_age.R")
 
 ##### Load life history characteristics for species ############################
 
@@ -39,16 +40,22 @@ x <- par[[30]]                            # mean of positive transects
 sp <- par[[31]]                           # std of positive transects
 
                                           ##### selectivity parameters #########
-alpha <- par[[32]]                        # slope for upcurve
-beta <- par[[33]]                         # slope for downcurve
-cf <- par[[34]]                           # fraction of fishery caught / fleet
-F_fin <- par[[35]]                        # F_fin for fishery, 0 if asymptotic
-L50_up <- par[[36]]                       # L50 for upcurve
-L50_down <- par[[37]]                     # L50 for downcurve
+fleets <- par[[32]]                       # fishery fleet names
+alpha <- par[[33]]                        # slope for upcurve
+beta <- par[[34]]                         # slope for downcurve
+start <- par[[35]]                        # length at initial vulnerability
+F_fin <- par[[36]]                        # F_fin for fishery, 0 if asymptotic
+L50_up <- par[[37]]                       # L50 for upcurve
+L50_down <- par[[38]]                     # L50 for downcurve
+cf <- par[[39]]                           # fraction of fishery caught / fleet
+switch <- par[[40]]                       # length where selectivity switches 
+                                          #       from upcurve to 1
+full <- par[[41]]                         # length at which downcurve starts
+
 
 ##### Population Dynamics ######################################################
 
-s <- 5            # number of areas
+A <- 5            # number of areas
 t <- 50           # number of timesteps (years)
 E <- 0.10         # nominal fishing effort in each area 
 # TODO: update E value
@@ -59,9 +66,12 @@ L <- length_at_age(max_age, L1f, L2f, Kf, a1f, a2f)
 # Weight at age
 W <- weight_at_age(L, af, bf)
 
-# Maturity at length
+# Maturity at age
 M <- fraction_mature_at_age(max_age, k_mat, L, L50)
 
+# Selectivity at age
+S <- selectivity_at_age(L, fleets, alpha, beta, start, F_fin, L50_up, L50_down, 
+                        cf, switch, full)
 
 # Based on Babcock & MacCall (2011): Eq. (4)
 epsilon <- array(rep(0, t), t)
@@ -80,8 +90,6 @@ R <- array(rep(0, s*t), c(s, t))
 # Catchability
 # Based on Babcock & MacCall (2011): Eq. (6)
 q <- (s*Fb)/(s*E)
-
-# Selectivity
 
 # Fishing Mortality
 # Based on Babcock & MacCall (2011): Eq. (5)

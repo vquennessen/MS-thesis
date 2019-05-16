@@ -42,10 +42,10 @@ parameters = function(species) {
                                             
                                             #### fleets: sport, hook, trawl ####
     fleets <- c('sport', 'hook', 'trawl')   # names of fleets
-    alpha <- c(0.45, 0.369, 0.426)          # selectivity parameters - per fleet
-    beta <- c(1.28, 0.419, 0)               # selectivity parameters - per fleet
+    alpha <- c(0.45, 0.369, 0.426)          # slope of upcurve per fleet
+    beta <- c(1.28, 0.419, 0)               # slope of downcurve per fleet
     start <- c(20, 20, 20)                  # vulnerability start length / fleet
-    F_fin <- c(0.265, 0.29, 0)              # F_fin  
+    F_fin <- c(0.265, 0.29, 0)              # final selectivity if dome-shaped 
     L50_up <- c(25.2, 33.2, 46)             # L50 value for upcurve
     L50_down <- c(36.7, 46.4, 50)           # L50 value for downcurve
     cf <- c(0.71, 0.28, 0.01)               # fraction of fishery caught / fleet
@@ -53,14 +53,12 @@ parameters = function(species) {
                                             #       from upcurve to 1
     full <- c(31, 39, 0)                    # length at which downcurve starts
                                             
-    
-    # TODO: get actual alpha and beta values / fleet values???
-    
   }
   
   output = list(max_age, M, rec_age, af, bf, am, bm, a1f, L1f, a2f, L2f, Kf,
                 a1m, L1m, a2m, L2m, Km, L50, k_mat, ldp, R0, h, phi, sigma_R,
-                rho_R, p, D, Fb, r, x, sp, alpha, beta, cf, F_fin)
+                rho_R, p, D, Fb, r, x, sp, fleets, alpha, beta, start, F_fin, 
+                L50_up, L50_down, cf, switch, full)
   
   return(output)
   
