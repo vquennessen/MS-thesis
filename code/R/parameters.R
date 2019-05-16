@@ -41,12 +41,14 @@ parameters = function(species) {
     sp <- 16.97                             # std of positive transects
                                             
                                             #### fleets: sport, hook, trawl ####
+    fleets <- c('sport', 'hook', 'trawl')   # names of fleets
     alpha <- c(0.45, 0.369, 0.426)          # selectivity parameters - per fleet
     beta <- c(1.28, 0.419, 0)               # selectivity parameters - per fleet
-    cf <- c(0.71, 0.28, 0.01)               # fraction of fishery caught / fleet
+    start <- c(20, 20, 20)                  # vulnerability start length / fleet
     F_fin <- c(0.265, 0.29, 0)              # F_fin  
     L50_up <- c(25.2, 33.2, 46)             # L50 value for upcurve
     L50_down <- c(36.7, 46.4, 50)           # L50 value for downcurve
+    cf <- c(0.71, 0.28, 0.01)               # fraction of fishery caught / fleet
                                             
     
     # TODO: get actual alpha and beta values / fleet values???
