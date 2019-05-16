@@ -49,6 +49,9 @@ parameters = function(species) {
     L50_up <- c(25.2, 33.2, 46)             # L50 value for upcurve
     L50_down <- c(36.7, 46.4, 50)           # L50 value for downcurve
     cf <- c(0.71, 0.28, 0.01)               # fraction of fishery caught / fleet
+    switch <- c(29, 29, 0)                  # length where selectivity switches 
+                                            #       from upcurve to 1
+    full <- c(31, 39, 0)                    # length at which downcurve starts
                                             
     
     # TODO: get actual alpha and beta values / fleet values???
