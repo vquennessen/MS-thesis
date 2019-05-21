@@ -73,6 +73,9 @@ M <- fraction_mature_at_age(max_age, k_mat, L, L50)
 S <- selectivity_at_age(L, fleets, alpha, beta, start, F_fin, L50_up, L50_down, 
                         cf, switch, full)
 
+# Fishing mortality
+FM <- fishing_mortality(A, Fb, E, S)
+
 # Based on Babcock & MacCall (2011): Eq. (4)
 epsilon <- array(rep(0, t), t)
 nu <- rnorm(t, 0, sigma_R)
@@ -86,14 +89,6 @@ B <- array(rep(0, s*t), c(s, t))
 # Recruitment
 # Based on Babcock & MacCall (2011): Eq. (3)
 R <- array(rep(0, s*t), c(s, t))
-
-# Catchability
-# Based on Babcock & MacCall (2011): Eq. (6)
-q <- (s*Fb)/(s*E)
-
-# Fishing Mortality
-# Based on Babcock & MacCall (2011): Eq. (5)
-f <- array(rep(0, length(n)*s*t), c(length(n), s, t))
 
 # Population size for different ages
 # Based on Babcock & MacCall (2011): Eq. (1)
