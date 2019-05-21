@@ -7,6 +7,9 @@ source("./code/R/length_at_age.R")
 source("./code/R/weight_at_age.R")
 source("./code/R/fraction_mature_at_age.R")
 source("./code/R/selectivity_at_age.R")
+source("./code/R/fishing_mortality.R")
+source("./code/R/epsilon.R")
+source("./code/R/recruitment.R")
 
 ##### Load life history characteristics for species ############################
 
