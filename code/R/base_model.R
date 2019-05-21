@@ -58,7 +58,6 @@ full <- par[[41]]                         # length at which downcurve starts
 A <- 5            # number of areas
 t <- 50           # number of timesteps (years)
 E <- 0.10         # nominal fishing effort in each area 
-# TODO: update E value
 
 # Length at age
 L <- length_at_age(max_age, L1f, L2f, Kf, a1f, a2f)
@@ -76,19 +75,19 @@ S <- selectivity_at_age(L, fleets, alpha, beta, start, F_fin, L50_up, L50_down,
 # Fishing mortality
 FM <- fishing_mortality(A, Fb, E, S)
 
-# Based on Babcock & MacCall (2011): Eq. (4)
-epsilon <- array(rep(0, t), t)
-nu <- rnorm(t, 0, sigma_R)
-for (i in 2:t) {
-  epsilon[i] <- rho_R*epsilon[i-1] + nu[i]*sqrt(1 + rho_R^2)
-}
+# Recruitment error
+e <- epsilon(t, sigma_R, rho_R)
 
-# Spawning Stock Biomass
-B <- array(rep(0, s*t), c(s, t))
+# Initialize age-structured population size matrix
+# Each row is a timestep, each column is an age
+N <- array(rep(0, t*max_age), c(t, max_age))
+
+# Initial age structure
+n <- 100          # start with 100 individuals in each age
+N[1, ] <- array(rep(n, max_age), c(1, max_age))
 
 # Recruitment
-# Based on Babcock & MacCall (2011): Eq. (3)
-R <- array(rep(0, s*t), c(s, t))
+
 
 # Population size for different ages
 # Based on Babcock & MacCall (2011): Eq. (1)
