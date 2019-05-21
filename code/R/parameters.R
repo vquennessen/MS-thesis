@@ -25,7 +25,7 @@ parameters = function(species) {
     a1m <- 5; L1m <- 31.88;                 # growth parameters (m)
     a2m <- 15; L2m <- 45.39; Km <- 0.1979  
     L50 <- 39.53                            # length at 50% maturity
-    k_mat <- -0.4103                        # slope of maturity curve
+    k_mat <- 0.4103                         # slope of maturity curve
     ldp <- 0.1                              # larval drift proportion
     R0 <- 100000                            # unfished recruitment
     h <- 0.65                               # steepness
