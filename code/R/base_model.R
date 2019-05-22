@@ -42,19 +42,21 @@ r <- par[[29]]                            # Proportion of positive transects
                                           #       in PISCO monitoring data
 x <- par[[30]]                            # mean of positive transects
 sp <- par[[31]]                           # std of positive transects
+B0 <- par[[32]]                           # unfished spawning stock biomass, in
+                                          #       metric tons
 
-                                          ##### selectivity parameters #########
-fleets <- par[[32]]                       # fishery fleet names
-alpha <- par[[33]]                        # slope for upcurve
-beta <- par[[34]]                         # slope for downcurve
-start <- par[[35]]                        # length at initial vulnerability
-F_fin <- par[[36]]                        # F_fin for fishery, 0 if asymptotic
-L50_up <- par[[37]]                       # L50 for upcurve
-L50_down <- par[[38]]                     # L50 for downcurve
-cf <- par[[39]]                           # fraction of fishery caught / fleet
-switch <- par[[40]]                       # length where selectivity switches 
+                                          ####### selectivity parameters #######
+fleets <- par[[33]]                       # fishery fleet names
+alpha <- par[[34]]                        # slope for upcurve
+beta <- par[[35]]                         # slope for downcurve
+start <- par[[36]]                        # length at initial vulnerability
+F_fin <- par[[37]]                        # F_fin for fishery, 0 if asymptotic
+L50_up <- par[[38]]                       # L50 for upcurve
+L50_down <- par[[39]]                     # L50 for downcurve
+cf <- par[[40]]                           # fraction of fishery caught / fleet
+switch <- par[[41]]                       # length where selectivity switches 
                                           #       from upcurve to 1
-full <- par[[41]]                         # length at which downcurve starts
+full <- par[[42]]                         # length at which downcurve starts
 
 
 ##### Population Dynamics - Non-Time Varying ###################################
