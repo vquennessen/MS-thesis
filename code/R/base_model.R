@@ -60,7 +60,7 @@ full <- par[[41]]                         # length at which downcurve starts
 ##### Population Dynamics - Non-Time Varying ###################################
 
 A <- 5            # number of areas
-Time <- 50           # number of timesteps (years)
+time <- 50        # number of timesteps (years)
 E <- 0.10         # nominal fishing effort in each area 
 
 # Length at age
@@ -85,33 +85,33 @@ S <- selectivity_at_age(L, fleets, alpha, beta, start, F_fin, L50_up, L50_down,
 FM <- fishing_mortality(A, Fb, E, S)
 
 # Recruitment error
-# Dimensions = 1 * t
-e <- epsilon(t, sigma_R, rho_R)
+# Dimensions = 1 * time
+e <- epsilon(Time, sigma_R, rho_R)
 
 # Initialize age-structured population size matrix
-# Dimensions = age * area * t
-N <- array(rep(0, max_age*A*t), c(max_age, A, t))
+# Dimensions = age * area * time
+N <- array(rep(0, max_age*A*time), c(max_age, A, time))
 
 # Initial age structure
 n <- 100          # start with 100 individuals in each area at t = 1
 N[, , 1] <- array(rep(n, max_age), c(1, max_age))
 
 # Initialize spawning stock biomass array
-# Dimensions = area * t
-SSB <- array(rep(0, A*t), c(A, t))
+# Dimensions = area * time
+SSB <- array(rep(NA, A*time), c(A, time))
 
 # Initialize recruitment vector, 
 # Dimensions = area * time
-R <- array(rep(0, A*t), c(A, t))
+R <- array(rep(0, A*time), c(A, time))
 
 ##### Population Dynamics - Time Varying #######################################
 
 for (a in 1:A) {
   
-  for (t in 2:Time) {
+  for (t in 2:time) {
     
     # Calculate spawning stock biomass
-    B[a, t] <- sum(N[, a, t-1] * W * M)
+    B[a, t] <- spawning_stock_biomass(N[, a, t-1] * W * M)
     
     # Add recruits to population
     
