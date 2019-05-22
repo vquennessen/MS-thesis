@@ -1,0 +1,39 @@
+Public Function selectivity(length, init, slope, infl, switch, ful, infldown, slopedown, final)
+
+# length
+# init = initial length at which fish are vulnerable to fishing?
+# slope = alpha
+# inf1 = L50 on upcurve
+# switch = length at which switch from upcurve to downcurve
+# ful
+# inf1down = L50 on downcurve
+# slopedown = beta
+# final = F_fin
+
+# 1st selectivity curve
+ upcurve = 1 / (1 + Exp(-slope * (length - infl)))
+
+# double logisitic curve = dome-shaped selectivity
+ If switch > 0.0001 Then
+  downcurve = 1 - (1 - final) / (1 + Exp(-slopedown * (length - infldown)))
+
+# single logistic curve = asymptotic selectivity 
+ Else
+  downcurve = 1
+ End If
+ 
+# if length is less than or equal to initial size at vulnerability (?) then selectivity = 0
+If length <= init Then
+  selectivity = 0
+
+# otherwise, if switch = 0 or length < switch length, then do upcurve 
+ ElseIf switch = 0 Or length <= switch Then
+  selectivity = upcurve
+
+# if length > switch length, AND length <= ful, AND switch > 0
+ ElseIf length > switch And length <= ful And switch > 0 Then
+  selectivity = 1
+ ElseIf length >= full And switch > 0 Then
+  selectivity = downcurve
+ End If
+End Function
