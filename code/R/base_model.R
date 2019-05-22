@@ -56,10 +56,10 @@ switch <- par[[40]]                       # length where selectivity switches
 full <- par[[41]]                         # length at which downcurve starts
 
 
-##### Population Dynamics ######################################################
+##### Population Dynamics - Non-Time Varying ###################################
 
 A <- 5            # number of areas
-t <- 50           # number of timesteps (years)
+Time <- 50           # number of timesteps (years)
 E <- 0.10         # nominal fishing effort in each area 
 
 # Length at age
@@ -82,17 +82,22 @@ FM <- fishing_mortality(A, Fb, E, S)
 e <- epsilon(t, sigma_R, rho_R)
 
 # Initialize age-structured population size matrix
-# Each row is a timestep, each column is an age
-N <- array(rep(0, t*max_age), c(t, max_age))
+# Dimensions = time * age * area
+N <- array(rep(0, t*max_age*A), c(t, max_age, A))
 
 # Initial age structure
-n <- 100          # start with 100 individuals in each age
+n <- 100          # start with 100 individuals in each area
 N[1, ] <- array(rep(n, max_age), c(1, max_age))
 
-# Recruitment
+# Initialize recruitment vector, 
+# Dimensions = area * time
+R <- array(rep(0, A*t), c(A, t))
 
+##### Population Dynamics - Time Varying #######################################
 
-# Population size for different ages
-# Based on Babcock & MacCall (2011): Eq. (1)
-n <- rec_age:max_age
-N <- array(rep(0, length(n)*s*t), c(length(n), s, t))
+for (t in 1:Time) {
+  
+  # Recruitment
+  
+  
+}
