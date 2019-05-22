@@ -23,6 +23,7 @@
 
 spawning_stock_biomass <- function(N, W, M) {
   
+  # Dimensions = 1 * age
   B <- sum(N*W*M)
   
   return(B)
