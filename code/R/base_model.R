@@ -9,6 +9,7 @@ source("./code/R/fraction_mature_at_age.R")
 source("./code/R/selectivity_at_age.R")
 source("./code/R/fishing_mortality.R")
 source("./code/R/epsilon.R")
+source("./code/R/spawning_stock_biomass.R")
 source("./code/R/recruitment.R")
 
 ##### Load life history characteristics for species ############################
@@ -63,31 +64,41 @@ Time <- 50           # number of timesteps (years)
 E <- 0.10         # nominal fishing effort in each area 
 
 # Length at age
+# Dimensions = 1 * age
 L <- length_at_age(max_age, L1f, L2f, Kf, a1f, a2f)
 
 # Weight at age
+# Dimensions = 1 * age
 W <- weight_at_age(L, af, bf)
 
 # Maturity at age
+# Dimensions = 1 * age
 M <- fraction_mature_at_age(max_age, k_mat, L, L50)
 
 # Selectivity at age
+# Dimensions = 1 * age
 S <- selectivity_at_age(L, fleets, alpha, beta, start, F_fin, L50_up, L50_down, 
                         cf, switch, full)
 
 # Fishing mortality
+# Dimensions = age * area
 FM <- fishing_mortality(A, Fb, E, S)
 
 # Recruitment error
+# Dimensions = 1 * t
 e <- epsilon(t, sigma_R, rho_R)
 
 # Initialize age-structured population size matrix
-# Dimensions = time * age * area
-N <- array(rep(0, t*max_age*A), c(t, max_age, A))
+# Dimensions = age * area * t
+N <- array(rep(0, max_age*A*t), c(max_age, A, t))
 
 # Initial age structure
-n <- 100          # start with 100 individuals in each area
-N[1, ] <- array(rep(n, max_age), c(1, max_age))
+n <- 100          # start with 100 individuals in each area at t = 1
+N[, , 1] <- array(rep(n, max_age), c(1, max_age))
+
+# Initialize spawning stock biomass array
+# Dimensions = area * t
+SSB <- array(rep(0, A*t), c(A, t))
 
 # Initialize recruitment vector, 
 # Dimensions = area * time
@@ -95,9 +106,16 @@ R <- array(rep(0, A*t), c(A, t))
 
 ##### Population Dynamics - Time Varying #######################################
 
-for (t in 1:Time) {
+for (a in 1:A) {
   
-  # Recruitment
-  
+  for (t in 2:Time) {
+    
+    # Calculate spawning stock biomass
+    B[a, t] <- sum(N[, a, t-1] * W * M)
+    
+    # Add recruits to population
+    
+    
+  }
   
 }
