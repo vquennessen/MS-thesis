@@ -41,6 +41,7 @@ fishing_mortality <- function(A, Fb, E, S) {
   
   # Fishing mortality
   # Based on Babcock & MacCall (2011): Eq. (5)
+  # Dimensions = age * area
   fishing_M <- catchability * selectivity %*% effort
   
   return(fishing_M)
