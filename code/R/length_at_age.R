@@ -8,9 +8,8 @@
 #' @param a1f       age 1, female, a number (> 0)
 #' @param a2f       age 2, female, a number (> a1f)
 
-length_at_age = function(max_age, L1f, L2f, Kf, a1f, a2f) {
+length_at_age = function(age, L1f, L2f, Kf, a1f, a2f) {
   
-  age <- 1:max_age
   L_inf <- L1f + (L2f - L1f)/(1 - exp(-1*Kf*(a2f - a1f)))
   L <- L_inf + (L1f - L_inf)*exp(-1*Kf*(age - a1f))
   

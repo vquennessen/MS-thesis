@@ -11,9 +11,9 @@
 #' L <- length_at_age(35, 32.21, 47.95, 0.2022, 5, 15)
 #' fraction_mat_at_age(35, -0.4103, L, 39.53)
 
-fraction_mature_at_age = function(max_age, k_mat, L, L50) {
+fraction_mature_at_age = function(n, k_mat, L, L50) {
   
-  M <- array(rep(0, max_age), max_age)
+  M <- array(rep(0, n), c(1, n))
   M <- (1)/(1 + exp(k_mat*(L - L50)))
   
   return(M)

@@ -61,13 +61,15 @@ full <- par[[42]]                         # length at which downcurve starts
 
 ##### Population Dynamics - Non-Time Varying ###################################
 
-A <- 5            # number of areas
-time <- 50        # number of timesteps (years)
-E <- 0.10         # nominal fishing effort in each area 
+A <- 5                               # number of areas
+time <- 50                           # number of timesteps (years)
+E <- 0.10                            # nominal fishing effort in each area 
+age <- rec_age:max_age               # ages for which fish have recruited
+n <- length(age)
 
 # Length at age
 # Dimensions = 1 * age
-L <- length_at_age(max_age, L1f, L2f, Kf, a1f, a2f)
+L <- length_at_age(age, L1f, L2f, Kf, a1f, a2f)
 
 # Weight at age
 # Dimensions = 1 * age
@@ -75,7 +77,7 @@ W <- weight_at_age(L, af, bf)
 
 # Maturity at age
 # Dimensions = 1 * age
-M <- fraction_mature_at_age(max_age, k_mat, L, L50)
+M <- fraction_mature_at_age(n, k_mat, L, L50)
 
 # Selectivity at age
 # Dimensions = 1 * age
@@ -88,19 +90,19 @@ FM <- fishing_mortality(A, Fb, E, S)
 
 # Recruitment error
 # Dimensions = 1 * time
-e <- epsilon(Time, sigma_R, rho_R)
+e <- epsilon(time, sigma_R, rho_R)
 
 # Initialize age-structured population size matrix
 # Dimensions = age * area * time
-N <- array(rep(0, max_age*A*time), c(max_age, A, time))
+N <- array(rep(0, n*A*time), c(n, A, time))
 
 # Initial age structure
-n <- 100          # start with 100 individuals in each area at t = 1
-N[, , 1] <- array(rep(n, max_age), c(1, max_age))
+s <- 100          # start with 100 individuals in each area at t = 1
+N[, , 1] <- array(rep(s, n), c(1, 1, n))
 
 # Initialize spawning stock biomass array
 # Dimensions = area * time
-SSB <- array(rep(NA, A*time), c(A, time))
+B <- array(rep(NA, A*time), c(A, time))
 
 # Initialize recruitment vector, 
 # Dimensions = area * time
@@ -114,6 +116,9 @@ for (a in 1:A) {
     
     # Calculate spawning stock biomass
     B[a, t] <- spawning_stock_biomass(N[, a, t-1] * W * M)
+    
+    # Calculate recruitment
+    R <- recruitment(B[a, t], A, R0, h, B0, e[t], sigma_R)
     
     # Add recruits to population
     
