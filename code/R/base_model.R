@@ -11,6 +11,7 @@ source("./code/R/fishing_mortality.R")
 source("./code/R/epsilon.R")
 source("./code/R/spawning_stock_biomass.R")
 source("./code/R/recruitment.R")
+source("./code/R/pop_dynamics.R")
 
 ##### Load life history characteristics for species ############################
 
@@ -85,8 +86,12 @@ S <- selectivity_at_age(L, fleets, alpha, beta, start, F_fin, L50_up, L50_down,
                         cf, switch, full)
 
 # Fishing mortality
-# Dimensions = age * area
-FM <- fishing_mortality(A, Fb, E, S)
+# Initialize array
+# Dimensions = age * area * time
+FM <- array(rep(0, n*A*time), c(n, A, time))
+
+# First year of fishing mortality
+FM[, , 1] <- fishing_mortality(A, Fb, E, S)
 
 # Recruitment error
 # Dimensions = 1 * time
@@ -114,14 +119,7 @@ for (a in 1:A) {
   
   for (t in 2:time) {
     
-    # Calculate spawning stock biomass
-    B[a, t] <- spawning_stock_biomass(N[, a, t-1] * W * M)
-    
-    # Calculate recruitment
-    R <- recruitment(B[a, t], A, R0, h, B0, e[t], sigma_R)
-    
-    # Add recruits to population
-    
+    PD <- pop_dynamics(a, t, B, N, W, M, A, R0, h, B0, e, sigma_R, Fb, E, S)
     
   }
   
