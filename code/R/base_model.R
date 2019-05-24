@@ -120,6 +120,10 @@ for (a in 1:A) {
   for (t in 2:time) {
     
     PD <- pop_dynamics(a, t, B, N, W, M, A, R0, h, B0, e, sigma_R, Fb, E, S)
+    B <- PD[[1]]
+    R <- PD[[2]]
+    FM <- PD[[3]]
+    N <- PD[[4]]
     
   }
   
