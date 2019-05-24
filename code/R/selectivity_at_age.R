@@ -80,6 +80,7 @@ selectivity_at_age <- function(L, fleets, alpha, beta, start, F_fin, L50_up,
 
   # Selectivity at Age
   # Based on Babcock & MacCall (2011): Eq. (7)  
+  # Dimensions = 1 * age
   selectivity_at_age <- colSums(selectivity)
   
   return(selectivity_at_age)
