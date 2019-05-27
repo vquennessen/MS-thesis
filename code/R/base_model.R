@@ -107,11 +107,19 @@ N[, , 1] <- array(rep(s, n), c(1, 1, n))
 
 # Initialize spawning stock biomass array
 # Dimensions = area * time
-B <- array(rep(NA, A*time), c(A, time))
+SSB <- array(rep(NA, A*time), c(A, time))
 
-# Initialize recruitment vector, 
+# Initialize recruitment array, 
 # Dimensions = area * time
 R <- array(rep(0, A*time), c(A, time))
+
+# Initialize abundance array
+# Dimensions = area * time
+abundance <- array(rep(0, A*time), c(A, time))
+
+# Initialize biomass array
+# Dimensions = area * time
+biomass <- array(rep(0, A*time), c(A, time))
 
 ##### Population Dynamics - Time Varying #######################################
 
@@ -120,10 +128,13 @@ for (a in 1:A) {
   for (t in 2:time) {
     
     PD <- pop_dynamics(a, t, B, N, W, M, A, R0, h, B0, e, sigma_R, Fb, E, S)
-    B <- PD[[1]]
+    SSB <- PD[[1]]
     R <- PD[[2]]
     FM <- PD[[3]]
     N <- PD[[4]]
+    
+    abundance[a, t] <- sum(N[, a, t])
+    biomass[a, t] <- sum(N[, a, t]*W)
     
   }
   
