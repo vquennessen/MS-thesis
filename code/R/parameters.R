@@ -39,7 +39,7 @@ parameters = function(species) {
                                             #       in PISCO monitoring data
     x <- 15.42                              # mean of positive transects
     sp <- 16.97                             # std of positive transects
-    B0 <- 100000                            # unfished spawning stock biomass, 
+    B0 <- 20421.82                          # unfished spawning stock biomass, 
                                             #       in metric tons
     
     ### TODO: find actual B0
