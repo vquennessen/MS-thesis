@@ -78,7 +78,7 @@ W <- weight_at_age(L, af, bf)
 
 # Maturity at age
 # Dimensions = 1 * age
-M <- fraction_mature_at_age(n, k_mat, L, L50)
+Mat <- fraction_mature_at_age(n, k_mat, L, L50)
 
 # Selectivity at age
 # Dimensions = 1 * age
@@ -117,9 +117,15 @@ R <- array(rep(0, A*time), c(A, time))
 # Dimensions = area * time
 abundance <- array(rep(0, A*time), c(A, time))
 
+# Initial abundance
+abundance[, 1] <- sum(N[, , 1]) / 1000
+
 # Initialize biomass array
 # Dimensions = area * time
 biomass <- array(rep(0, A*time), c(A, time))
+
+# Initial biomass
+biomass[, 1] <- sum(N[, , t]*W) / 1000
 
 ##### Population Dynamics - Time Varying #######################################
 
@@ -127,15 +133,33 @@ for (a in 1:A) {
   
   for (t in 2:time) {
     
-    PD <- pop_dynamics(a, t, B, N, W, M, A, R0, h, B0, e, sigma_R, Fb, E, S)
+    PD <- pop_dynamics(a, t, SSB, N, W, Mat, A, R0, h, B0, e, sigma_R, Fb, E, S, 
+                       M)
     SSB <- PD[[1]]
     R <- PD[[2]]
     FM <- PD[[3]]
     N <- PD[[4]]
     
-    abundance[a, t] <- sum(N[, a, t])
-    biomass[a, t] <- sum(N[, a, t]*W)
+    abundance[a, t] <- sum(N[, a, t]) / 1000
+    biomass[a, t] <- sum(N[, a, t]*W) / 1000
     
   }
   
+}
+
+# plot abundance over time for 5 areas
+par(mfrow = c(1, A))
+plot(1:time, abundance[1, ], 
+     xlab = 'Time (years)', ylab = "Abundance (1000s of individuals)")
+for (x in 2:A) {
+  plot(1:time, abundance[x, ], ylab = '', yaxt = 'n', 
+       xlab = 'Time (years)')
+}
+
+# plot biomass over time for 5 areas
+par(mfrow = c(1, A))
+plot(1:time, biomass[1, ], type = 'l', ylab = 'Biomass (metric tons)')
+for (x in 2:A) {
+  plot(1:time, biomass[x, ], ylab = '', yaxt = 'n', type = 'l', 
+       xlab = 'Time (years)')
 }

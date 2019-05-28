@@ -2,11 +2,11 @@
 #'
 #' @param a area, a number (1, A)
 #' @param t time step, a number (1, time)
-#' @param B spawning stock biomass, a 2D numeric array (dimensions area x time)
+#' @param SSB spawning stock biomass, a 2D numeric array (dimensions area x time)
 #' @param N age-structured population, a 3D numeric array 
 #' (dimensions age x area x time)
 #' @param W weight at age, a numeric vector (length age)
-#' @param M fraction mature at age, a numeric vector (length age)
+#' @param Mat fraction mature at age, a numeric vector (length age)
 #' @param A total number of areas, a number ( > 0)
 #' @param R0 unfished recruitment, a number ( > 0)
 #' @param h steepness parameter, a number
@@ -18,6 +18,7 @@
 #' @param E nominal fishing effort in each area before reserve implementation,
 #' a number (0, 1)
 #' @param S selectivity at age, a numeric vector (length age)
+#' @param M natural mortality, a number (0, 1)
 #'
 #' @return B, R, FM, N - updated spawning stock biomass, recruitment, fishing
 #' mortality, and age-structured population size, after 1 time step
@@ -25,15 +26,14 @@
 #'
 #' @examples
 
-pop_dynamics <- function(a, t, SSB, N, W, M, A, R0, h, B0, e, sigma_R, Fb, E, S) 
-  
-  {
+pop_dynamics <- function(a, t, SSB, N, W, Mat, A, R0, h, B0, e, sigma_R, Fb, E, 
+                         S, M) {
   
   # Calculate spawning stock biomass
-  SSB[a, t] <- spawning_stock_biomass(N[, a, t-1] * W * M)
+  SSB[a, t] <- spawning_stock_biomass(N[, a, t-1], W, Mat)
   
   # Calculate recruitment
-  R <- recruitment(B[a, t], A, R0, h, B0, e[t], sigma_R)
+  R <- recruitment(SSB[a, t], A, R0, h, B0, e[t], sigma_R)
   
   # Add recruits to population
   N[1, a, t] <- R
@@ -42,10 +42,12 @@ pop_dynamics <- function(a, t, SSB, N, W, M, A, R0, h, B0, e, sigma_R, Fb, E, S)
   FM[, , t] <- fishing_mortality(A, Fb, E, S)
   
   # Step population foward in time
-  for (i in age) {
-    N[i, a, t] <- N[i-1, a, t-1] * exp(-1 * FM[i-1, a, t-1] + M)
+  for (i in (rec_age+1):max_age) {
+    N[i-1, a, t] <- N[i-2, a, t-1] * exp(-1 * (FM[i-2, a, t-1] + M))
   }
   
-  return(SSB, R, FM, N)
+  output <- list(SSB, R, FM, N)
+  
+  return(output)
   
 }

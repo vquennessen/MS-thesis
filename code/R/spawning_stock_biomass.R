@@ -4,7 +4,7 @@
 #' @param W weight at age, a numeric vector
 #' @param M fraction mature at age, a numeric vector
 #'
-#' @return B spawning stock biomass for the population
+#' @return SSB spawning stock biomass for the population
 #' @export
 #'
 #' @examples
@@ -24,8 +24,8 @@
 spawning_stock_biomass <- function(N, W, M) {
   
   # Dimensions = 1 * 1
-  B <- sum(N*W*M)
+  SSB <- sum(N*W*M)
   
-  return(B)
+  return(SSB)
   
 }
