@@ -12,6 +12,7 @@ source("./code/R/epsilon.R")
 source("./code/R/spawning_stock_biomass.R")
 source("./code/R/recruitment.R")
 source("./code/R/pop_dynamics.R")
+source("./code/R/initialize_arrays.R")
 
 ##### Load life history characteristics for species ############################
 
@@ -39,7 +40,7 @@ rho_R <- par[[25]]                        # recruitment autocorrelation
 p <- par[[26]]                            # adult movement proportion
 D <- par[[27]]                            # depletion
 Fb <- par[[28]]                           # fishing mortality to cause D
-r <- par[[29]]                            # Proportion of positive transects 
+r <- par[[29]]                            # proportion of positive transects 
                                           #       in PISCO monitoring data
 x <- par[[30]]                            # mean of positive transects
 sp <- par[[31]]                           # std of positive transects
@@ -62,70 +63,23 @@ full <- par[[42]]                         # length at which downcurve starts
 
 ##### Population Dynamics - Non-Time Varying ###################################
 
-A <- 5                               # number of areas
+A    <- 5                            # number of areas
 time <- 50                           # number of timesteps (years)
-E <- 0.10                            # nominal fishing effort in each area 
-age <- rec_age:max_age               # ages for which fish have recruited
-n <- length(age)
+E    <- 0.10                         # nominal fishing effort in each area 
+age  <- rec_age:max_age              # ages for which fish have recruited
+n    <- length(age)                  # number of age classes
 
-# Length at age
-# Dimensions = 1 * age
-L <- length_at_age(age, L1f, L2f, Kf, a1f, a2f)
+# Initialize arrays for time-varying dynamics
+IA <- initialize_arrays(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, 
+                        rho_R, fleets, alpha, beta, start, F_fin, L_50_up, 
+                        L50_down, cf, switch, full, age, n, A, time, E)
 
-# Weight at age
-# Dimensions = 1 * age
-W <- weight_at_age(L, af, bf)
-
-# Maturity at age
-# Dimensions = 1 * age
-Mat <- fraction_mature_at_age(n, k_mat, L, L50)
-
-# Selectivity at age
-# Dimensions = 1 * age
-S <- selectivity_at_age(L, fleets, alpha, beta, start, F_fin, L50_up, L50_down, 
-                        cf, switch, full)
-
-# Fishing mortality
-# Initialize array
-# Dimensions = age * area * time
-FM <- array(rep(0, n*A*time), c(n, A, time))
-
-# First year of fishing mortality
-FM[, , 1] <- fishing_mortality(A, Fb, E, S)
-
-# Recruitment error
-# Dimensions = 1 * time
-e <- epsilon(time, sigma_R, rho_R)
-
-# Initialize age-structured population size matrix
-# Dimensions = age * area * time
-N <- array(rep(0, n*A*time), c(n, A, time))
-
-# Initial age structure
-s <- 100          # start with 100 individuals in each area at t = 1
-N[, , 1] <- array(rep(s, n), c(1, 1, n))
-
-# Initialize spawning stock biomass array
-# Dimensions = area * time
-SSB <- array(rep(NA, A*time), c(A, time))
-
-# Initialize recruitment array, 
-# Dimensions = area * time
-R <- array(rep(0, A*time), c(A, time))
-
-# Initialize abundance array
-# Dimensions = area * time
-abundance <- array(rep(0, A*time), c(A, time))
-
-# Initial abundance
-abundance[, 1] <- sum(N[, , 1]) / 1000
-
-# Initialize biomass array
-# Dimensions = area * time
-biomass <- array(rep(0, A*time), c(A, time))
-
-# Initial biomass
-biomass[, 1] <- sum(N[, , t]*W) / 1000
+FM          <- IA[[1]]             # Fishing mortality rate, dim = age*area*time
+N           <- IA[[2]]             # Population size, dim = age*area*time
+SSB         <- IA[[3]]             # Spawning stock biomass, dim = area*time
+R           <- IA[[4]]             # Recruitment, dim = area*time
+abundance   <- IA[[5]]             # abundance, dim = area*time
+biomass     <- IA[[6]]             # biomass, dim = area*time
 
 ##### Population Dynamics - Time Varying #######################################
 
