@@ -46,6 +46,9 @@ pop_dynamics <- function(a, t, SSB, N, W, Mat, A, R0, h, B0, e, sigma_R, Fb, E,
     N[i-1, a, t] <- N[i-2, a, t-1] * exp(-1 * (FM[i-2, a, t-1] + M))
   }
   
+  N[max_age, a, t] <- N[max_age - 1, a, t-1] * exp(-1 * (FM[max_age - 1, a, t-1] + M)) 
+  + N[max_age, a, t-1] * exp(-1 * (FM[max_age, a, t-1] + M)) 
+  
   output <- list(SSB, R, FM, N)
   
   return(output)
