@@ -1,20 +1,18 @@
-sampling <- function(a, t, r, D, p, abundance) {
+sampling <- function(a, t, r, D, abundance, transects) {
   
-  # calculate delta
+  # Calculate delta
   # Based on Babcock & MacCall (2011): Eq. (13)
   delta <- r / D
   
-  # calculate probability of seeing a fish
+  # Calculate probability of seeing a fish
   # Based on Babcock & MacCall (2011): Eq. (12)
-  p[a, t] <-  delta * abundance[a, t]
+  p <-  delta * abundance[a, t]
   
-  # determine if species is seen at least once
-  observations <- 
-  trials <- 10
+  # Determine if species is seen at least once
+  # Dimensions = 1 * transects
+  presence <- rbinom(transects, 1, p)
   
-  presence[b] <- 
-  
-  # calculate species count given transects with positive visuals
+  # Calculate species count given transects with positive visuals
   
   
 }
