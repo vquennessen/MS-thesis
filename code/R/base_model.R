@@ -63,8 +63,12 @@ full <- par[[42]]                         # length at which downcurve starts
 
 ##### Population Dynamics - Non-Time Varying ###################################
 
+# Set model parameters
 A    <- 5                            # number of areas
-time <- 50                           # number of timesteps (years)
+time <- 50                           # number of timesteps (years) before 
+                                     #     reserve implementation
+time2 <- 50                          # number of timesteps (years) after
+                                     #     reserve implementation
 E    <- 0.10                         # nominal fishing effort in each area 
 age  <- rec_age:max_age              # ages for which fish have recruited
 n    <- length(age)                  # number of age classes
@@ -80,6 +84,7 @@ SSB         <- IA[[3]]             # Spawning stock biomass, dim = area*time
 R           <- IA[[4]]             # Recruitment, dim = area*time
 abundance   <- IA[[5]]             # abundance, dim = area*time
 biomass     <- IA[[6]]             # biomass, dim = area*time
+count_sp    <- IA[[7]]             # species count when sampling
 
 ##### Population Dynamics - Time Varying #######################################
 
@@ -96,6 +101,11 @@ for (a in 1:A) {
     
     abundance[a, t] <- sum(N[, a, t]) / 1000
     biomass[a, t] <- sum(N[, a, t]*W) / 1000
+    
+    if (t > time - 3) {
+      obs_density[a, t, 1] <- sampling()
+      obs_density[a, t, 2] <- sampling()
+    }
     
   }
   
