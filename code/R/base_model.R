@@ -78,22 +78,27 @@ IA <- initialize_arrays(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R,
                         rho_R, fleets, alpha, beta, start, F_fin, L_50_up, 
                         L50_down, cf, switch, full, age, n, A, time, E)
 
-FM          <- IA[[1]]             # Fishing mortality rate, dim = age*area*time
-N           <- IA[[2]]             # Population size, dim = age*area*time
-SSB         <- IA[[3]]             # Spawning stock biomass, dim = area*time
-R           <- IA[[4]]             # Recruitment, dim = area*time
-abundance   <- IA[[5]]             # abundance, dim = area*time
-biomass     <- IA[[6]]             # biomass, dim = area*time
-count_sp    <- IA[[7]]             # species count when sampling
+W           <- IA[[1]]             # Weight at age, dim = 1*age
+Mat         <- IA[[2]]
+FM          <- IA[[3]]             # Fishing mortality rate, dim = age*area*time
+N           <- IA[[4]]             # Population size, dim = age*area*time
+SSB         <- IA[[5]]             # Spawning stock biomass, dim = area*time
+R           <- IA[[6]]             # Recruitment, dim = area*time
+abundance   <- IA[[7]]             # abundance, dim = area*time
+biomass     <- IA[[8]]             # biomass, dim = area*time
+count_sp    <- IA[[9]]             # species count when sampling
+e           <- IA[[10]]            # epsilon
+S           <- IA[[11]]            # Selectivity at age
+L           <- IA[[12]]            # Length at age
 
 ##### Population Dynamics - Time Varying #######################################
 
 for (a in 1:A) {
   
-  for (t in 2:time) {
+  for (t in 3:time) {
     
-    PD <- pop_dynamics(a, t, SSB, N, W, Mat, A, R0, h, B0, e, sigma_R, Fb, E, S, 
-                       M)
+    PD <- pop_dynamics(a, t, rec_age, max_age, n, SSB, N, W, Mat, A, R0, h, 
+                       B0, e, sigma_R, Fb, E, S, M)
     SSB <- PD[[1]]
     R <- PD[[2]]
     FM <- PD[[3]]
@@ -102,28 +107,11 @@ for (a in 1:A) {
     abundance[a, t] <- sum(N[, a, t]) / 1000
     biomass[a, t] <- sum(N[, a, t]*W) / 1000
     
-    if (t > time - 3) {
-      obs_density[a, t, 1] <- sampling()
-      obs_density[a, t, 2] <- sampling()
-    }
+#    if (t > time - 3) {
+#      obs_density[a, t, 1] <- sampling()
+#      obs_density[a, t, 2] <- sampling()
+#    }
     
   }
   
-}
-
-# plot abundance over time for 5 areas
-par(mfrow = c(1, A))
-plot(1:time, abundance[1, ], 
-     xlab = 'Time (years)', ylab = "Abundance (1000s of individuals)")
-for (x in 2:A) {
-  plot(1:time, abundance[x, ], ylab = '', yaxt = 'n', 
-       xlab = 'Time (years)')
-}
-
-# plot biomass over time for 5 areas
-par(mfrow = c(1, A))
-plot(1:time, biomass[1, ], type = 'l', ylab = 'Biomass (metric tons)')
-for (x in 2:A) {
-  plot(1:time, biomass[x, ], ylab = '', yaxt = 'n', type = 'l', 
-       xlab = 'Time (years)')
 }

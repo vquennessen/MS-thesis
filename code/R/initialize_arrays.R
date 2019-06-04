@@ -52,21 +52,23 @@ initialize_arrays <- function(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb,
   # Dimensions = area * time
   abundance <- array(rep(0, A*time), c(A, time))
   
-  # Initial abundance
-  abundance[, 1] <- sum(N[, , 1]) / 1000
-  
   # Initialize biomass array
   # Dimensions = area * time
-  biomass <- array(rep(0, A*time), c(A, time))
+  biomass <- array(rep(0, A*time), c(A, time)) 
   
-  # Initial biomass
-  biomass[, 1] <- sum(N[, , 1]*W) / 1000
+  # Initial abundance and biomass
+  for (a in 1:A) {
+    for (t in 1:time) {
+      abundance[a, t] <- sum(N[, a, t]) / 1000
+      biomass[a, t] <- sum(N[, a, t] * W) / 1000
+    }
+  }
   
   # Initialize count array
   # Dimensions = area * time
   count_sp <- array(rep(0, A*time), c(A, time))
   
-  output <- list(FM, N, SSB, R, abundance, biomass, count_sp)
+  output <- list(W, Mat, FM, N, SSB, R, abundance, biomass, count_sp, e, S, L)
   
   return(output)
   
