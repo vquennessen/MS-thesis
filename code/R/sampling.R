@@ -1,4 +1,5 @@
-sampling <- function(a, t, r, D, abundance, transects, x, count_sp) {
+sampling <- function(a, t, r, D, abundance_all, abundance_mature, transects, 
+                     x, count_sp, nu) {
   
   # Calculate delta
   # Based on Babcock & MacCall (2011): Eq. (13)
@@ -6,23 +7,22 @@ sampling <- function(a, t, r, D, abundance, transects, x, count_sp) {
   
   # Calculate probability of seeing a fish
   # Based on Babcock & MacCall (2011): Eq. (12)
-  p <-  delta * abundance[a, t]
+  p_all <-  delta * abundance_all[a, t]
+  p_mature <-  delta * abundance_mature[a, t]
+  
   
   # Determine if species is seen at least once
   # Dimensions = 1 * transects
-  presence <- rbinom(transects, 1, p)
+  presence_all <- rbinom(transects, 1, p_all)
+  presence_mature <- rbinom(transects, 1, p_mature)
+  
   
   # Based on Babcock & MacCall (2011): Eq. (16)
   gamma_sp <- x / D
   
-  # Calculate standard deviation of normal variable
-  # Based on Babcock & MacCall (2011): Eq. (15)
-  sigma_sp <- sqrt(log(1 + (sp/x)^2))
-  
-  # TODO generate all rnorm values, then call on them for next calculation
-  
   # Calculate species count given transects with positive visuals
-  count_sp[a, t] <- presence*(gamma_sp*abundance[a, t]*exp(rnorm(1, 0, sigma_sp)))
+  count_sp[a, t, 1] <- presence_all*(gamma_sp*abundance_all[a, t]*exp(nu[a, t]))
+  count_sp[a, t, 2] <- presence_mature*(gamma_sp*abundance_mature[a, t]*exp(nu[a, t]))
   
   return(count_sp)
 }

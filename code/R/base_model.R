@@ -13,6 +13,7 @@ source("./code/R/spawning_stock_biomass.R")
 source("./code/R/recruitment.R")
 source("./code/R/pop_dynamics.R")
 source("./code/R/initialize_arrays.R")
+source("./code/R/sampling.R")
 
 ##### Load life history characteristics for species ############################
 
@@ -64,32 +65,36 @@ full <- par[[42]]                         # length at which downcurve starts
 ##### Population Dynamics - Non-Time Varying ###################################
 
 # Set model parameters
-A    <- 5                            # number of areas
-time <- 50                           # number of timesteps (years) before 
+A         <- 5                       # number of areas
+time      <- 50                      # number of timesteps (years) before 
                                      #     reserve implementation
-time2 <- 50                          # number of timesteps (years) after
+time2     <- 50                      # number of timesteps (years) after
                                      #     reserve implementation
-E    <- 0.10                         # nominal fishing effort in each area 
-age  <- rec_age:max_age              # ages for which fish have recruited
-n    <- length(age)                  # number of age classes
+E         <- 0.10                    # nominal fishing effort in each area 
+age       <- rec_age:max_age         # ages for which fish have recruited
+n         <- length(age)             # number of age classes
+transects <- 5                       # number of transects per PISCO protocol
 
 # Initialize arrays for time-varying dynamics
 IA <- initialize_arrays(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, 
                         rho_R, fleets, alpha, beta, start, F_fin, L_50_up, 
-                        L50_down, cf, switch, full, age, n, A, time, E)
+                        L50_down, cf, switch, full, age, n, A, time, E, x, sp)
 
-W           <- IA[[1]]             # Weight at age, dim = 1*age
-Mat         <- IA[[2]]
-FM          <- IA[[3]]             # Fishing mortality rate, dim = age*area*time
-N           <- IA[[4]]             # Population size, dim = age*area*time
-SSB         <- IA[[5]]             # Spawning stock biomass, dim = area*time
-R           <- IA[[6]]             # Recruitment, dim = area*time
-abundance   <- IA[[7]]             # abundance, dim = area*time
-biomass     <- IA[[8]]             # biomass, dim = area*time
-count_sp    <- IA[[9]]             # species count when sampling
-e           <- IA[[10]]            # epsilon
-S           <- IA[[11]]            # Selectivity at age
-L           <- IA[[12]]            # Length at age
+L                <- IA[[1]]       # Length at age, dim = 1*age
+W                <- IA[[2]]       # Weight at age, dim = 1*age
+Mat              <- IA[[3]]       # Fraction mature at age, dim = 1*age
+m                <- IA[[4]]       # Age at which fraction mature > 0.5
+S                <- IA[[5]]       # Selectivity at age
+FM               <- IA[[6]]       # Fishing mortality rate, dim = age*area*time
+e                <- IA[[7]]       # Recruitment error, dim = 1*time
+N                <- IA[[8]]       # Population size, dim = age*area*time
+SSB              <- IA[[9]]       # Spawning stock biomass, dim = area*time
+R                <- IA[[10]]      # Recruitment, dim = area*time
+abundance_all    <- IA[[11]]      # Abundance, dim = area*time
+abundance_mature <- IA[[12]]      # Abundance, dim = area*time
+biomass          <- IA[[13]]      # Biomass, dim = area*time
+count_sp         <- IA[[14]]      # Species count when sampling, dim = area*time
+nu               <- IA[[15]]      # Sampling normal variable, dim = area*time
 
 ##### Population Dynamics - Time Varying #######################################
 
@@ -104,12 +109,13 @@ for (a in 1:A) {
     FM <- PD[[3]]
     N <- PD[[4]]
     
-    abundance[a, t] <- sum(N[, a, t]) / 1000
-    biomass[a, t] <- sum(N[, a, t]*W) / 1000
+    abundance_all[a, t] <- sum(N[, a, t])
+    abundance_mature[a, t] <- sum(N[m:(max_age-1), a, t])
+    biomass[a, t] <- sum(N[, a, t] * W)
     
 #    if (t > time - 3) {
-#      obs_density[a, t, 1] <- sampling()
-#      obs_density[a, t, 2] <- sampling()
+#      count_sp[a, t] <- sampling(a, t, r, D, abundance_all, abundance_mature, 
+#                                 transects, x, count_sp, nu)
 #    }
     
   }
