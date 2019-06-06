@@ -70,7 +70,7 @@ time      <- 50                      # number of timesteps (years) before
                                      #     reserve implementation
 time2     <- 50                      # number of timesteps (years) after
                                      #     reserve implementation
-E         <- 0.10                    # nominal fishing effort in each area 
+E         <- rep(0.10, A)            # nominal fishing effort in each area 
 age       <- rec_age:max_age         # ages for which fish have recruited
 n         <- length(age)             # number of age classes
 transects <- 5                       # number of transects per PISCO protocol
@@ -107,9 +107,9 @@ for (a in 1:A) {
     PD <- pop_dynamics(a, t, rec_age, max_age, n, SSB, N, W, Mat, A, R0, h, 
                        B0, e, sigma_R, Fb, E, S, M)
     SSB <- PD[[1]]
-    R <- PD[[2]]
-    FM <- PD[[3]]
-    N <- PD[[4]]
+    R   <- PD[[2]]
+    FM  <- PD[[3]]
+    N   <- PD[[4]]
     
     abundance_all[a, t] <- sum(N[, a, t])
     abundance_mature[a, t] <- sum(N[m:(max_age-1), a, t])

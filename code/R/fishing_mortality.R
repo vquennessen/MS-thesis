@@ -33,7 +33,7 @@ fishing_mortality <- function(A, Fb, E, S) {
   selectivity <- array(rep(S, A), c(length(S), A))
   
   # dimensions = area * area
-  effort <- array(rep(E, A*A), c(A, A))
+  effort <- array(rep(E, A), c(A, A))
   
   # Catchability
   # Based on Babcock & MacCall (2011): Eq. (6)

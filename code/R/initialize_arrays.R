@@ -29,7 +29,7 @@ initialize_arrays <- function(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb,
   FM <- array(rep(0, n*A*time), c(n, A, time))
   
   # Initial fishing mortality
-  FM[, , 1] <- fishing_mortality(A, Fb, E, S)
+  FM[, , 1] <- fishing_mortality(A, Fb, E[1], S)
   
   # Recruitment error
   # Dimensions = 1 * time
