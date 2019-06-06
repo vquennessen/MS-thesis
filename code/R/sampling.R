@@ -7,9 +7,12 @@ sampling <- function(a, t, r, D, abundance_all, abundance_mature, transects,
   
   # Calculate probability of seeing a fish
   # Based on Babcock & MacCall (2011): Eq. (12)
-  p_all <-  delta * abundance_all[a, t]
-  p_mature <-  delta * abundance_mature[a, t]
   
+  #p_all <-  delta * abundance_all[a, t]
+  #p_mature <-  delta * abundance_mature[a, t]
+  p_all <- p_mature <- 0.45
+  
+  # TODO: figure out how to properly calculate probability
   
   # Determine if species is seen at least once
   # Dimensions = 1 * transects
@@ -21,8 +24,8 @@ sampling <- function(a, t, r, D, abundance_all, abundance_mature, transects,
   gamma_sp <- x / D
   
   # Calculate species count given transects with positive visuals
-  count_sp[a, t, 1] <- presence_all*(gamma_sp*abundance_all[a, t]*exp(nu[a, t]))
-  count_sp[a, t, 2] <- presence_mature*(gamma_sp*abundance_mature[a, t]*exp(nu[a, t]))
+  count_sp[a, t, , 1] <- presence_all*(gamma_sp*abundance_all[a, t]*exp(nu[a, t]))
+  count_sp[a, t, , 2] <- presence_mature*(gamma_sp*abundance_mature[a, t]*exp(nu[a, t]))
   
   return(count_sp)
 }

@@ -115,10 +115,10 @@ for (a in 1:A) {
     abundance_mature[a, t] <- sum(N[m:(max_age-1), a, t])
     biomass[a, t] <- sum(N[, a, t] * W)
     
-#    if (t > time - 3) {
-#      count_sp[a, t] <- sampling(a, t, r, D, abundance_all, abundance_mature, 
-#                                 transects, x, count_sp, nu)
-#    }
+    if (t > time - 3) {
+      count_sp <- sampling(a, t, r, D, abundance_all, abundance_mature, 
+                                 transects, x, count_sp, nu)
+    }
     
   }
   

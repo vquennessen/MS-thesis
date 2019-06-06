@@ -62,8 +62,8 @@ initialize_arrays <- function(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb,
   biomass <- array(rep(0, A*time), c(A, time)) 
   
   # Initialize count array
-  # Dimensions = area * time * 2
-  count_sp <- array(rep(0, A*time*2), c(A, time, 2))
+  # Dimensions = area * time * transects * 2
+  count_sp <- array(rep(0, A*time*transects*2), c(A, time, transects, 2))
   
   # Enter abundance and biomasses for time = 1, 2
   for (a in 1:A) {
