@@ -1,7 +1,7 @@
 initialize_arrays <- function(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb,
                               L50, sigma_R, rho_R, fleets, alpha, beta, start, 
                               F_fin, L_50_up, L50_down, cf, switch, full, age, 
-                              n, A, time, E, x, sp) {
+                              n, A, time, E, x, sp, initial) {
   
   # Length at age
   # Dimensions = 1 * age
@@ -40,8 +40,9 @@ initialize_arrays <- function(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb,
   N <- array(rep(0, n*A*time), c(n, A, time))
   
   # Initial age structure
-  initial <- 100          # start with 100 individuals in each area at t = 1
   N[, , 1] <- array(rep(initial, n), c(1, 1, n))
+  N[, , 2] <- array(rep(initial, n), c(1, 1, n))
+  
   
   # Initialize spawning stock biomass array
   # Dimensions = area * time
@@ -63,6 +64,17 @@ initialize_arrays <- function(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb,
   # Initialize count array
   # Dimensions = area * time * 2
   count_sp <- array(rep(0, A*time*2), c(A, time, 2))
+  
+  # Enter abundance and biomasses for time = 1, 2
+  for (a in 1:A) {
+    for (t in 1:2) {
+      abundance_all[a, t] <- sum(N[, a, t])
+      abundance_mature[a, t] <- sum(N[m:(max_age-1), a, t])
+      biomass[a, t] <- sum(N[, a, t] * W)
+    }
+    
+  }
+  
   
   # Calculate standard deviation of normal variable
   # Based on Babcock & MacCall (2011): Eq. (15)

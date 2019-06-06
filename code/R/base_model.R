@@ -74,11 +74,13 @@ E         <- 0.10                    # nominal fishing effort in each area
 age       <- rec_age:max_age         # ages for which fish have recruited
 n         <- length(age)             # number of age classes
 transects <- 5                       # number of transects per PISCO protocol
+initial   <- 1                       # number in each age class at t = 1, 2
 
 # Initialize arrays for time-varying dynamics
 IA <- initialize_arrays(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, 
                         rho_R, fleets, alpha, beta, start, F_fin, L_50_up, 
-                        L50_down, cf, switch, full, age, n, A, time, E, x, sp)
+                        L50_down, cf, switch, full, age, n, A, time, E, x, sp, 
+                        initial)
 
 L                <- IA[[1]]       # Length at age, dim = 1*age
 W                <- IA[[2]]       # Weight at age, dim = 1*age
