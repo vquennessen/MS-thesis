@@ -116,10 +116,25 @@ for (a in 1:A) {
     biomass[a, t] <- sum(N[, a, t] * W)
     
     if (t > time - 3) {
-      count_sp <- sampling(a, t, r, D, abundance_all, abundance_mature, 
+      count_sp[a, t, , ] <- sampling(a, t, r, D, abundance_all, abundance_mature, 
                                  transects, x, count_sp, nu)
     }
     
+  }
+  
+}
+
+##### Implement Reserve, and apply control rules ###############################
+
+
+for (a in 1:A) {
+  
+  for (t in 1:time2) {
+    
+    ### CR 1
+    DR1 <- density_ratio(a, t, count_sp, years_sampled, fished_areas_sampled, 
+                         fish_sampled)
+      
   }
   
 }
