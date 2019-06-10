@@ -73,7 +73,7 @@ time2     <- 50                      # number of timesteps (years) after
 E         <- rep(0.10, A)            # nominal fishing effort in each area 
 age       <- rec_age:max_age         # ages for which fish have recruited
 n         <- length(age)             # number of age classes
-transects <- 5                       # number of transects per PISCO protocol
+transects <- 24                      # number of transects per PISCO protocol
 initial   <- 1                       # number in each age class at t = 1, 2
 
 # Initialize arrays for time-varying dynamics
