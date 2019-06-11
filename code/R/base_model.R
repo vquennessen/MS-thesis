@@ -14,6 +14,9 @@ source("./code/R/recruitment.R")
 source("./code/R/pop_dynamics.R")
 source("./code/R/initialize_arrays.R")
 source("./code/R/sampling.R")
+source("./code/R/density_ratio.R")
+source("./code/R/management.R")
+source("./code/R/control_rule.R")
 
 ##### Load life history characteristics for species ############################
 
@@ -70,17 +73,19 @@ time      <- 50                      # number of timesteps (years) before
                                      #     reserve implementation
 time2     <- 50                      # number of timesteps (years) after
                                      #     reserve implementation
+timeT     <- time + time2            # total amount of timesteps (years)
 E         <- rep(0.10, A)            # nominal fishing effort in each area 
 age       <- rec_age:max_age         # ages for which fish have recruited
 n         <- length(age)             # number of age classes
 transects <- 24                      # number of transects per PISCO protocol
 initial   <- 1                       # number in each age class at t = 1, 2
+CR        <- 8                       # number of control rules
 
 # Initialize arrays for time-varying dynamics
-IA <- initialize_arrays(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, 
-                        rho_R, fleets, alpha, beta, start, F_fin, L_50_up, 
-                        L50_down, cf, switch, full, age, n, A, time, E, x, sp, 
-                        initial)
+IA <- initialize_arrays(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb,
+                        L50, sigma_R, rho_R, fleets, alpha, beta, start, 
+                        F_fin, L_50_up, L50_down, cf, switch, full, age, 
+                        n, A, time, time2, E, x, sp, initial)
 
 L                <- IA[[1]]       # Length at age, dim = 1*age
 W                <- IA[[2]]       # Weight at age, dim = 1*age
@@ -99,10 +104,10 @@ count_sp         <- IA[[14]]      # Species count when sampling, dim = area*time
 nu               <- IA[[15]]      # Sampling normal variable, dim = area*time
 
 ##### Population Dynamics - Time Varying #######################################
-
-for (a in 1:A) {
+ 
+for (t in 3:time) {
   
-  for (t in 3:time) {
+  for (a in 1:A) {
     
     PD <- pop_dynamics(a, t, rec_age, max_age, n, SSB, N, W, Mat, A, R0, h, 
                        B0, e, sigma_R, Fb, E, S, M)
@@ -115,9 +120,9 @@ for (a in 1:A) {
     abundance_mature[a, t] <- sum(N[m:(max_age-1), a, t])
     biomass[a, t] <- sum(N[, a, t] * W)
     
-    if (t > time - 3) {
-      count_sp[a, t, , ] <- sampling(a, t, r, D, abundance_all, abundance_mature, 
-                                 transects, x, count_sp, nu)
+    if (t > (time - 3)) {
+      count_sp <- sampling(a, t, r, D, abundance_all, abundance_mature, 
+                           transects, x, count_sp, nu)
     }
     
   }
@@ -126,15 +131,30 @@ for (a in 1:A) {
 
 ##### Implement Reserve, and apply control rules ###############################
 
-
-for (a in 1:A) {
+for (x in 1:CR) {
   
-  for (t in 1:time2) {
+  for (a in 1:A) {
     
-    ### CR 1
-    DR1 <- density_ratio(a, t, count_sp, years_sampled, fished_areas_sampled, 
-                         fish_sampled)
+    for (t in 1:time2) {
       
+      PD <- pop_dynamics(a, t, rec_age, max_age, n, SSB, N, W, Mat, A, R0, h, 
+                         B0, e, sigma_R, Fb, E, S, M)
+      SSB <- PD[[1]]
+      R   <- PD[[2]]
+      FM  <- PD[[3]]
+      N   <- PD[[4]]
+      
+      abundance_all[a, t] <- sum(N[, a, t])
+      abundance_mature[a, t] <- sum(N[m:(max_age-1), a, t])
+      
+      biomass[a, t] <- sum(N[, a, t] * W)
+      
+      count_sp[a, t, , ] <- sampling(a, t, r, D, abundance_all, abundance_mature, 
+                                       transects, x, count_sp, nu)
+      
+      E <- control_rule(a, t, E, count_sp, x)
+    }
+    
   }
   
 }

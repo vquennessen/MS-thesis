@@ -1,13 +1,7 @@
 density_ratio <- function (a, t, count_sp, years_sampled, fished_areas_sampled, 
                         fish_sampled) {
   
-  
-  # error handling
-  if (fish_sampled =! "all" | "mature") {
-    stop("CR_type must be 'effort' or 'DR'")
-  }
-  
-  
+  # sample all fish or just mature fish
   if (fish_sampled == "all") {
     fish <- 1
   } else {
