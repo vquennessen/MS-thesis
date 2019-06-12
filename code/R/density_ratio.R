@@ -9,7 +9,9 @@ density_ratio <- function (a, t, count_sp, years_sampled, fished_areas_sampled,
   }
   
   # set marine reserve area as middle area
+  areas <- 1:A
   inside <- median(1:A)
+  y <- areas[-inside]
   
   # calculate count inside marine reserve
   count_in <- count_sp[inside, t, , fish]
@@ -18,14 +20,15 @@ density_ratio <- function (a, t, count_sp, years_sampled, fished_areas_sampled,
   if (years_sampled == 1) {
     years <- t
   } else {
-    years <- (t - years_sampled):t
+    years <- (t - years_sampled + 1):t
   }
   
   # calculate counts outside marine reserve
   if (fished_areas_sampled == "far") {
     count_out <- count_sp[c(1, A), years, , fish]
   } else {
-    count_out <- count_sp[-inside, years, , fish]}
+    count_out <- count_sp[y, years, , fish]
+  }
  
   # calculate density ratio 
   DR <- (sum(count_out)/(transects*nrow(count_out)))/(sum(count_in)/transects)

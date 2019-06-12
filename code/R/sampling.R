@@ -19,13 +19,12 @@ sampling <- function(a, t, r, D, abundance_all, abundance_mature, transects,
   presence_all <- rbinom(transects, 1, p_all)
   presence_mature <- rbinom(transects, 1, p_mature)
   
-  
   # Based on Babcock & MacCall (2011): Eq. (16)
   gamma_sp <- x / D
   
   # Calculate species count given transects with positive visuals
-  count_sp[a, t + 3 - time, , 1] <- presence_all*(gamma_sp*abundance_all[a, t]*exp(nu[a, t]))
-  count_sp[a, t + 3 - time, , 2] <- presence_mature*(gamma_sp*abundance_mature[a, t]*exp(nu[a, t]))
+  count_sp[a, t, , 1] <- presence_all*(gamma_sp*abundance_all[a, t]*exp(nu[a, t]))
+  count_sp[a, t, , 2] <- presence_mature*(gamma_sp*abundance_mature[a, t]*exp(nu[a, t]))
   
   return(count_sp)
 }

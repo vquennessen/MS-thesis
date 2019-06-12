@@ -1,5 +1,7 @@
 #' Runs age-structured population dynamics biological sub-model. 
 
+rm(list = ls())
+
 ##### Source functions #########################################################
 
 source("./code/R/parameters.R")
@@ -121,8 +123,8 @@ for (t in 3:time) {
     biomass[a, t] <- sum(N[, a, t] * W)
     
     if (t > (time - 3)) {
-      count_sp <- sampling(a, t, r, D, abundance_all, abundance_mature, 
-                           transects, x, count_sp, nu)
+      count_sp <- sampling(a, t + 3 - time, r, D, abundance_all, 
+                           abundance_mature, transects, x, count_sp, nu)
     }
     
   }
@@ -133,12 +135,12 @@ for (t in 3:time) {
 
 for (x in 1:CR) {
   
-  for (a in 1:A) {
+  for (t in 1:time2) {
     
-    for (t in 1:time2) {
+    for (a in 1:A) {
       
-      PD <- pop_dynamics(a, t, rec_age, max_age, n, SSB, N, W, Mat, A, R0, h, 
-                         B0, e, sigma_R, Fb, E, S, M)
+      PD <- pop_dynamics(a, t + time, rec_age, max_age, n, SSB, N, W, Mat, A, 
+                         R0, h, B0, e, sigma_R, Fb, E, S, M)
       SSB <- PD[[1]]
       R   <- PD[[2]]
       FM  <- PD[[3]]
@@ -149,10 +151,10 @@ for (x in 1:CR) {
       
       biomass[a, t] <- sum(N[, a, t] * W)
       
-      count_sp[a, t, , ] <- sampling(a, t, r, D, abundance_all, abundance_mature, 
-                                       transects, x, count_sp, nu)
+      count_sp <- sampling(a, t + 3, r, D, abundance_all, 
+                           abundance_mature, transects, x, count_sp, nu)
       
-      E <- control_rule(a, t, E, count_sp, x)
+      E <- control_rule(a, t + 3, E, count_sp, x)
     }
     
   }
