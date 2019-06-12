@@ -15,18 +15,17 @@ Leslie = function(max_age, a_mat, t_c, L_inf, k, t0, a2, b2, a, M, f) {
   # Define egg production
   egg_a = a*size_a*(m_at_age >= a_mat)
   
-  
   # Define leslie matrix
   A = rep(1, length(m_at_age) - 1)
   B = exp(-1*(M + f*(m_at_age[1:length(m_at_age) - 1] >= t_c)))
   L1 = diag(A*B, length(A))
   L2 = egg_a*(m_at_age >= a_mat)
   
-  F = T = matrix(rep(0, length(m_at_age)^2), nrow = length(m_at_age))
-  T[2:nrow(T), 1:(ncol(T) - 1)] = L1
-  F[1,] = L2
+  f = t = matrix(rep(0, length(m_at_age)^2), nrow = length(m_at_age))
+  t[2:nrow(t), 1:(ncol(t) - 1)] = L1
+  f[1,] = L2
   
-  L = T + F
+  L = t + f
   
   # SD of spawning age distribution
   x = l_a*egg_a*(m_at_age >= a_mat)
