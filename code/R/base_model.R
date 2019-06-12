@@ -19,6 +19,7 @@ source("./code/R/sampling.R")
 source("./code/R/density_ratio.R")
 source("./code/R/management.R")
 source("./code/R/control_rule.R")
+source("./code/R/stable_age_distribution.R")
 
 ##### Load life history characteristics for species ############################
 
@@ -104,6 +105,8 @@ abundance_mature <- IA[[12]]      # Abundance, dim = area*time
 biomass          <- IA[[13]]      # Biomass, dim = area*time
 count_sp         <- IA[[14]]      # Species count when sampling, dim = area*time
 nu               <- IA[[15]]      # Sampling normal variable, dim = area*time
+L0               <- IA[[16]]      # Length at age for stable age distribution
+W0               <- IA[[17]]      # Weight at age for stable age distribution
 
 ##### Population Dynamics - Time Varying #######################################
  
@@ -133,7 +136,7 @@ for (t in 3:time) {
 
 ##### Implement Reserve, and apply control rules ###############################
 
-for (x in 1:CR) {
+# for (x in 1:CR) {
   
   for (t in 1:time2) {
     
@@ -146,17 +149,35 @@ for (x in 1:CR) {
       FM  <- PD[[3]]
       N   <- PD[[4]]
       
-      abundance_all[a, t] <- sum(N[, a, t])
-      abundance_mature[a, t] <- sum(N[m:(max_age-1), a, t])
+      abundance_all[a, t + time] <- sum(N[, a, t + time])
+      abundance_mature[a, t + time] <- sum(N[m:(max_age-1), a, t + time])
       
-      biomass[a, t] <- sum(N[, a, t] * W)
+      biomass[a, t + time] <- sum(N[, a, t + time] * W)
       
       count_sp <- sampling(a, t + 3, r, D, abundance_all, 
                            abundance_mature, transects, x, count_sp, nu)
       
-      E <- control_rule(a, t + 3, E, count_sp, x)
+      #E <- control_rule(a, t + 3, E, count_sp, x)
     }
     
   }
   
-}
+# }
+
+par(mfrow = c(1, 2))
+
+# plot abundance over time 
+plot(1:timeT, abundance_all[1, ]/1000, pch = 16, col = "blue", 
+     xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
+     yaxt = 'n', xaxt = 'n')
+axis(1, seq(0, 100, 50))
+axis(2, seq(0, 1000, 250))
+box()
+
+# plot biomass over time for 5 areas
+plot(1:timeT, biomass[1, ]/1000, type = 'l', lwd = 2, col = "red",
+     xlab = 'Time (years)', ylab = 'Biomass (metric tons)', 
+     yaxt = 'n', ylim = c(0, 1000), xaxt = 'n')
+axis(1, seq(0, 100, 50))
+axis(2, seq(0, 1000, 250))
+box()

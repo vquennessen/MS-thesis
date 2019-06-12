@@ -84,8 +84,17 @@ initialize_arrays <- function(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb,
   # Dimensions = area * time2 + 3
   nu <- array(rnorm(A*(time2 + 3), 0, sigma_sp), c(A, time2 + 3))
   
+  #####  Extra vectors to determine stable age distribution
+  # Length at age
+  # Dimensions = 1 * age (0 to max_age)
+  L0 <- length_at_age(0:max_age, L1f, L2f, Kf, a1f, a2f)
+  
+  # Weight at age
+  # Dimensions = 1 * age
+  W0 <- weight_at_age(L0, af, bf)
+  
   output <- list(L, W, Mat, m, S, FM, e, N, SSB, R, abundance_all, 
-                 abundance_mature, biomass, count_sp, nu)
+                 abundance_mature, biomass, count_sp, nu, L0, W0)
   
   return(output)
   

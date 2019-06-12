@@ -32,17 +32,14 @@ pop_dynamics <- function(a, t, rec_age, max_age, n, SSB, N, W, Mat, A, R0, h,
   # Calculate spawning stock biomass
   SSB[a, t] <- spawning_stock_biomass(N[, a, t-rec_age], W, Mat)
   
-  # Calculate recruitment
-  R <- recruitment(SSB[a, t-1], A, R0, h, B0, e[t], sigma_R)
-  
-  # Add recruits to population
-  N[1, a, t] <- R
+  # Calculate recruitment and add recruits to population
+  N[1, a, t] <- recruitment(SSB[a, t-1], A, R0, h, B0, e[t], sigma_R)
   
   # Calculate fishing mortality
   FM[, , t] <- fishing_mortality(A, Fb, E, S)
   
   # Step population foward in time
-  for (i in 2:n) {
+  for (i in 2:(n-1)) {
     N[i, a, t] <- N[i-1, a, t-1] * exp(-1 * (FM[i-1, a, t-1] + M))
   }
   
