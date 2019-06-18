@@ -1,7 +1,20 @@
-initialize_arrays <- function(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb,
-                              L50, sigma_R, rho_R, fleets, alpha, beta, start, 
-                              F_fin, L_50_up, L50_down, cf, switch, full, age, 
-                              n, A, time, time2, E, x, sp, initial, M) {
+initialize_arrays <- function(time, time2, init_effort, rec_age, max_age, L1f, 
+                              L2f, Kf, a1f, a2f, af, bf, k_mat, Fb, L50, 
+                              sigma_R, rho_R, fleets, alpha, beta, start, F_fin, 
+                              L_50_up, L50_down, cf, switch, full, A, x, sp, 
+                              initial, M) {
+  
+  # total amount of timesteps (years
+  timeT <- time + time2            
+  
+  # nominal fishing effort in each area
+  E <- array(rep(init_effort, A), c(1, A))     
+  
+  # ages for which fish have recruited
+  age <- rec_age:max_age 
+  
+  # number of age classes
+  n <- length(age)             
   
   # Length at age
   # Dimensions = 1 * age
@@ -94,7 +107,7 @@ initialize_arrays <- function(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb,
   
   # Initial age structure
   N[, , 1] <- N[, , 2] <- initial*SAD[rec_age:max_age]
-
+  
   # Enter abundance and biomasses for time = 1, 2
   for (a in 1:A) {
     for (t in 1:2) {
@@ -105,8 +118,13 @@ initialize_arrays <- function(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb,
     
   }
   
-  output <- list(L, W, Mat, m, S, FM, e, N, SSB, R, abundance_all, 
-                 abundance_mature, biomass, count_sp, nu, L0, W0)
+  # Initialize catch-at-age matrix
+  # Dimensions = age * area * time
+  catch <- array(rep(0, n*A*timeT), c(n, A, timeT))
+  
+  output <- list(timeT, E, age, n, L, W, Mat, m, S, FM, e, N, SSB, R, 
+                 abundance_all, abundance_mature, biomass, count_sp, nu, L0, W0, 
+                 catch)
   
   return(output)
   
