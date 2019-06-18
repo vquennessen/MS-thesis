@@ -41,7 +41,9 @@ parameters = function(species) {
     sp <- 16.97                             # std of positive transects
     B0 <- 20421.82                          # unfished spawning stock biomass, 
                                             #       in metric tons
-    
+    c <- 0.2747                             # eggs produced per g, intercept
+    b <- 0.0941                             # eggs produced per g, slope
+
     ### TODO: find actual B0
                                             
                                             #### fleets: sport, hook, trawl ####
@@ -61,7 +63,7 @@ parameters = function(species) {
   
   output = list(max_age, M, rec_age, af, bf, am, bm, a1f, L1f, a2f, L2f, Kf,
                 a1m, L1m, a2m, L2m, Km, L50, k_mat, ldp, R0, h, phi, sigma_R,
-                rho_R, p, D, Fb, r, x, sp, B0, fleets, alpha, beta, start, 
+                rho_R, p, D, Fb, r, x, sp, B0, c, b, fleets, alpha, beta, start, 
                 F_fin, L50_up, L50_down, cf, switch, full)
   
   return(output)

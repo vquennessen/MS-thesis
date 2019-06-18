@@ -1,7 +1,7 @@
 initialize_arrays <- function(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb,
                               L50, sigma_R, rho_R, fleets, alpha, beta, start, 
                               F_fin, L_50_up, L50_down, cf, switch, full, age, 
-                              n, A, time, time2, E, x, sp, initial) {
+                              n, A, time, time2, E, x, sp, initial, M) {
   
   # Length at age
   # Dimensions = 1 * age
@@ -38,11 +38,6 @@ initialize_arrays <- function(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb,
   # Initialize age-structured population size matrix
   # Dimensions = age * area * time
   N <- array(rep(0, n*A*timeT), c(n, A, timeT))
-  
-  # Initial age structure
-  N[, , 1] <- array(rep(initial, n), c(1, 1, n))
-  N[, , 2] <- array(rep(initial, n), c(1, 1, n))
-  
   
   # Initialize spawning stock biomass array
   # Dimensions = area * time
@@ -90,8 +85,25 @@ initialize_arrays <- function(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb,
   L0 <- length_at_age(0:max_age, L1f, L2f, Kf, a1f, a2f)
   
   # Weight at age
-  # Dimensions = 1 * age
+  # Dimensions = 1 * age (0 to max_age)
   W0 <- weight_at_age(L0, af, bf)
+  
+  # Stable age distribution
+  # Dimensions = 1 * age (0 to max_age)
+  SAD <- stable_age_distribution(b, c, max_age, m, L0, W0, rec_age, M, Fb)
+  
+  # Initial age structure
+  N[, , 1] <- N[, , 2] <- initial*SAD[rec_age:max_age]
+
+  # Enter abundance and biomasses for time = 1, 2
+  for (a in 1:A) {
+    for (t in 1:2) {
+      abundance_all[a, t] <- sum(N[, a, t])
+      abundance_mature[a, t] <- sum(N[m:(max_age-1), a, t])
+      biomass[a, t] <- sum(N[, a, t] * W)
+    }
+    
+  }
   
   output <- list(L, W, Mat, m, S, FM, e, N, SSB, R, abundance_all, 
                  abundance_mature, biomass, count_sp, nu, L0, W0)

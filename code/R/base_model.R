@@ -53,19 +53,21 @@ x <- par[[30]]                            # mean of positive transects
 sp <- par[[31]]                           # std of positive transects
 B0 <- par[[32]]                           # unfished spawning stock biomass, in
                                           #       metric tons
+c <- par[[33]]                            # eggs produced per g, intercept
+b <- par[[34]]                            # eggs produced per g, slope
 
                                           ####### selectivity parameters #######
-fleets <- par[[33]]                       # fishery fleet names
-alpha <- par[[34]]                        # slope for upcurve
-beta <- par[[35]]                         # slope for downcurve
-start <- par[[36]]                        # length at initial vulnerability
-F_fin <- par[[37]]                        # F_fin for fishery, 0 if asymptotic
-L50_up <- par[[38]]                       # L50 for upcurve
-L50_down <- par[[39]]                     # L50 for downcurve
-cf <- par[[40]]                           # fraction of fishery caught / fleet
-switch <- par[[41]]                       # length where selectivity switches 
+fleets <- par[[35]]                       # fishery fleet names
+alpha <- par[[36]]                        # slope for upcurve
+beta <- par[[37]]                         # slope for downcurve
+start <- par[[38]]                        # length at initial vulnerability
+F_fin <- par[[39]]                        # F_fin for fishery, 0 if asymptotic
+L50_up <- par[[40]]                       # L50 for upcurve
+L50_down <- par[[41]]                     # L50 for downcurve
+cf <- par[[42]]                           # fraction of fishery caught / fleet
+switch <- par[[43]]                       # length where selectivity switches 
                                           #       from upcurve to 1
-full <- par[[42]]                         # length at which downcurve starts
+full <- par[[44]]                         # length at which downcurve starts
 
 
 ##### Population Dynamics - Non-Time Varying ###################################
@@ -81,14 +83,14 @@ E         <- rep(0.10, A)            # nominal fishing effort in each area
 age       <- rec_age:max_age         # ages for which fish have recruited
 n         <- length(age)             # number of age classes
 transects <- 24                      # number of transects per PISCO protocol
-initial   <- 1                       # number in each age class at t = 1, 2
+initial   <- 1000                    # total population size at t = 1, 2
 CR        <- 8                       # number of control rules
 
 # Initialize arrays for time-varying dynamics
 IA <- initialize_arrays(L1f, L2f, Kf, a1f, a2f, af, bf, k_mat, Fb,
                         L50, sigma_R, rho_R, fleets, alpha, beta, start, 
                         F_fin, L_50_up, L50_down, cf, switch, full, age, 
-                        n, A, time, time2, E, x, sp, initial)
+                        n, A, time, time2, E, x, sp, initial, M)
 
 L                <- IA[[1]]       # Length at age, dim = 1*age
 W                <- IA[[2]]       # Weight at age, dim = 1*age
