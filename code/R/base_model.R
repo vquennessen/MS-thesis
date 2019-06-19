@@ -50,15 +50,15 @@ p <- par[[26]]                            # adult movement proportion
 D <- par[[27]]                            # depletion
 Fb <- par[[28]]                           # fishing mortality to cause D
 r <- par[[29]]                            # proportion of positive transects 
-                                          #       in PISCO monitoring data
+#       in PISCO monitoring data
 x <- par[[30]]                            # mean of positive transects
 sp <- par[[31]]                           # std of positive transects
 B0 <- par[[32]]                           # unfished spawning stock biomass, in
-                                          #       metric tons
+#       metric tons
 c <- par[[33]]                            # eggs produced per g, intercept
 b <- par[[34]]                            # eggs produced per g, slope
 
-                                          ####### selectivity parameters #######
+####### selectivity parameters #######
 fleets <- par[[35]]                       # fishery fleet names
 alpha <- par[[36]]                        # slope for upcurve
 beta <- par[[37]]                         # slope for downcurve
@@ -68,7 +68,7 @@ L50_up <- par[[40]]                       # L50 for upcurve
 L50_down <- par[[41]]                     # L50 for downcurve
 cf <- par[[42]]                           # fraction of fishery caught / fleet
 switch <- par[[43]]                       # length where selectivity switches 
-                                          #       from upcurve to 1
+#       from upcurve to 1
 full <- par[[44]]                         # length at which downcurve starts
 
 
@@ -77,11 +77,11 @@ full <- par[[44]]                         # length at which downcurve starts
 # Set model parameters
 A             <- 5                  # number of areas
 time          <- 50                 # number of timesteps (years) before 
-                                    #     reserve implementation
+#     reserve implementation
 time2         <- 50                 # number of timesteps (years) after
 transects     <- 24                 # number of transects per PISCO protocol
-                                    #     reserve implementation
-init_effort  <- 0.1                 # nominal fishing effort in each area
+#     reserve implementation
+init_effort  <- 0.5                 # nominal fishing effort in each area
 initial    <- 1000000               # total population size at t = 1, 2
 CR         <- 8                     # number of control rules
 allocation <- 'equal'               # distribution of fishing effort
@@ -115,9 +115,10 @@ nu               <- IA[[19]]      # Sampling normal variable, dim = area*time
 L0               <- IA[[20]]      # Length at age for stable age distribution
 W0               <- IA[[21]]      # Weight at age for stable age distribution
 catch            <- IA[[22]]      # Catch at age
+yield            <- IA[[23]]      # Yield per area 
 
 ##### Population Dynamics - Time Varying #######################################
- 
+
 for (t in 3:time) {
   
   for (a in 1:A) {
@@ -146,6 +147,7 @@ for (t in 3:time) {
     # fishing
     catch[, a, t] <- catch_at_age(a, t, N, W, FM)
     N[, a, t] <- N[, a, t] - catch[, a, t]
+    yield[a, t] <- sum(catch[, a, t])
     
   }
   
@@ -155,10 +157,9 @@ for (t in 3:time) {
 
 for (x in 1:CR) {
   
-  for (t in 1:time2) {
+  for (a in 1:A) {
     
-    for (a in 1:A) {
-      
+    for (t in 1:time2) {
       # effort allocation
       E <- effort_allocation(allocation, E, biomass, a, t)
       
@@ -183,29 +184,47 @@ for (x in 1:CR) {
       E <- control_rule(a, t + 3, E, count_sp, x)
       
       # fishing
-      catch[, a, t] <- catch_at_age(a, t, N, W, FM)
-      N[, a, t] <- N[, a, t] - catch[, a, t]
+      catch[, a, t + time] <- catch_at_age(a, t + time, N, W, FM)
+      N[, a, t + time] <- N[, a, t + time] - catch[, a, t + time]
+      yield[a, t + time] <- sum(catch[, a, t + time])
       
     }
     
   }
   
+  # plot abundance, biomass, and yield over time for each area, once per CR
+  
+  for (a in 1:A) {
+    
+    par(mfrow = c(1, 3))
+    
+    # plot abundance (1000s of individuals)
+    plot(1:timeT, abundance_all[a, ]/1000, pch = 16, col = "blue", 
+         xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
+         yaxt = 'n', xaxt = 'n')
+    axis(1, seq(0, 100, 50))
+    axis(2, seq(0, 1000, 250))
+    box()
+    
+    main_title <- sprintf("Control Rule %d, Area %d", x, a)
+    
+    # plot biomass over time (metric tons)
+    plot(1:timeT, biomass[a, ]/1000, type = 'l', lwd = 2, col = "red",
+         xlab = 'Time (years)', ylab = 'Biomass (metric tons)', 
+         yaxt = 'n', ylim = c(0, 1000), xaxt = 'n', 
+         main = main_title)
+    axis(1, seq(0, 100, 50))
+    axis(2, seq(0, 1000, 250))
+    box()
+    
+    # plot yield over time (metric tons)
+    plot(1:timeT, yield[a, ]/1000, type = 'l', lwd = 2, col = "red",
+         xlab = 'Time (years)', ylab = 'Yield (metric tons)', 
+         yaxt = 'n', ylim = c(0, 20), xaxt = 'n')
+    axis(1, seq(0, 100, 50))
+    axis(2, seq(0, 20, 5))
+    box() 
+    
+  }
+  
 }
-
-par(mfrow = c(1, 2))
-
-# plot abundance over time 
-plot(1:timeT, abundance_all[1, ]/1000, pch = 16, col = "blue", 
-     xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
-     yaxt = 'n', xaxt = 'n')
-axis(1, seq(0, 100, 50))
-axis(2, seq(0, 1000, 250))
-box()
-
-# plot biomass over time for 5 areas
-plot(1:timeT, biomass[1, ]/1000, type = 'l', lwd = 2, col = "red",
-     xlab = 'Time (years)', ylab = 'Biomass (metric tons)', 
-     yaxt = 'n', ylim = c(0, 1000), xaxt = 'n')
-axis(1, seq(0, 100, 50))
-axis(2, seq(0, 1000, 250))
-box()

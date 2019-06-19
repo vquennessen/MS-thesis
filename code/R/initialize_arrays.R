@@ -122,9 +122,13 @@ initialize_arrays <- function(time, time2, init_effort, rec_age, max_age, L1f,
   # Dimensions = age * area * time
   catch <- array(rep(0, n*A*timeT), c(n, A, timeT))
   
+  # Initialize yield matrix
+  # Dimensions = area * time
+  yield <- array(rep(0, A*timeT), c(A, timeT))
+  
   output <- list(timeT, E, age, n, L, W, Mat, m, S, FM, e, N, SSB, R, 
                  abundance_all, abundance_mature, biomass, count_sp, nu, L0, W0, 
-                 catch)
+                 catch, yield)
   
   return(output)
   
