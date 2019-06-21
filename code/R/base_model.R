@@ -81,7 +81,7 @@ time          <- 50                 # number of timesteps (years) before
 time2         <- 50                 # number of timesteps (years) after
 transects     <- 24                 # number of transects per PISCO protocol
                                     #     reserve implementation
-init_effort   <- 0.5                # nominal fishing effort in each area
+init_effort   <- 1               # nominal fishing effort in each area
 initial       <- 1000000            # total population size at t = 1, 2
 CR            <- 8                  # number of control rules
 allocation    <- 'equal'            # distribution of fishing effort
@@ -194,31 +194,29 @@ for (y in 1:CR) {
   
   # plot abundance, biomass, and yield over time for each area, once per CR
   
+  # par(mfrow = c(5, 2))
+  
   for (a in 1:A) {
     
-    par(mfrow = c(1, 3))
+    #par(mfrow = c(2, 1))
     
-    # plot abundance (1000s of individuals)
-    plot(1:timeT, abundance_all[a, ]/1000, pch = 16, col = "blue", 
-         xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
-         yaxt = 'n', xaxt = 'n')
-    axis(1, seq(0, 100, 50))
-    axis(2, seq(0, 1000, 250))
-    box()
-    
+    par(mfrow = c(1, 2))
+       
     main_title <- sprintf("Control Rule %i, Area %i", y, a)
     
-    # plot biomass over time (metric tons)
-    plot(1:timeT, biomass[a, ]/1000, type = 'l', lwd = 2, col = "red",
-         xlab = 'Time (years)', ylab = 'Biomass (metric tons)', 
-         yaxt = 'n', ylim = c(0, 1000), xaxt = 'n', 
-         main = main_title)
+    # plot abundance (1000s of individuals) in blue
+    plot(1:timeT, abundance_all[a, ]/1000, pch = 16, col = "deepskyblue3", 
+         xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
+         yaxt = 'n', ylim = c(0, 1500), xaxt = 'n', main = main_title)
     axis(1, seq(0, 100, 50))
-    axis(2, seq(0, 1000, 250))
+    axis(2, seq(0, 1500, 500))
+    
+    # add red line for biomass (metric tons)
+    lines(1:timeT, biomass[a, ]/1000, type = 'l', lwd = 2, col = "firebrick3")
     box()
     
     # plot yield over time (metric tons)
-    plot(1:timeT, yield[a, ]/1000, type = 'l', lwd = 2, col = "red",
+    plot(1:timeT, yield[a, ]/1000, type = 'l', lwd = 2, col = "forestgreen",
          xlab = 'Time (years)', ylab = 'Yield (metric tons)', 
          yaxt = 'n', ylim = c(0, 20), xaxt = 'n')
     axis(1, seq(0, 100, 50))
