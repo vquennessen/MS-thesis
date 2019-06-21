@@ -81,10 +81,10 @@ time          <- 50                 # number of timesteps (years) before
 time2         <- 50                 # number of timesteps (years) after
 transects     <- 24                 # number of transects per PISCO protocol
                                     #     reserve implementation
-init_effort  <- 0.5                 # nominal fishing effort in each area
-initial    <- 1000000               # total population size at t = 1, 2
-CR         <- 8                     # number of control rules
-allocation <- 'equal'               # distribution of fishing effort
+init_effort   <- 0.5                # nominal fishing effort in each area
+initial       <- 1000000            # total population size at t = 1, 2
+CR            <- 8                  # number of control rules
+allocation    <- 'equal'            # distribution of fishing effort
 
 # Initialize arrays for time-varying dynamics
 IA <- initialize_arrays(time, time2, init_effort, rec_age, max_age, L1f, 
@@ -206,7 +206,7 @@ for (y in 1:CR) {
     axis(2, seq(0, 1000, 250))
     box()
     
-    main_title <- sprintf("Control Rule %d, Area %d", x, a)
+    main_title <- sprintf("Control Rule %i, Area %i", y, a)
     
     # plot biomass over time (metric tons)
     plot(1:timeT, biomass[a, ]/1000, type = 'l', lwd = 2, col = "red",
