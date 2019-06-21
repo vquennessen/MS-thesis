@@ -14,7 +14,7 @@ stable_age_distribution <- function(b, c, max_age, m, L0, W0, rec_age, M, Fb) {
   
   f <- t <- matrix(rep(0, length(ages)^2), nrow = length(ages))
   t[2:nrow(t), 1:(ncol(t) - 1)] <- L1
-  f[1,] <- L2
+  f[1, ] <- L2
   
   LM <- t + f
 

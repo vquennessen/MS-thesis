@@ -50,11 +50,11 @@ p <- par[[26]]                            # adult movement proportion
 D <- par[[27]]                            # depletion
 Fb <- par[[28]]                           # fishing mortality to cause D
 r <- par[[29]]                            # proportion of positive transects 
-#       in PISCO monitoring data
+                                          #       in PISCO monitoring data
 x <- par[[30]]                            # mean of positive transects
 sp <- par[[31]]                           # std of positive transects
 B0 <- par[[32]]                           # unfished spawning stock biomass, in
-#       metric tons
+                                          #       metric tons
 c <- par[[33]]                            # eggs produced per g, intercept
 b <- par[[34]]                            # eggs produced per g, slope
 
@@ -68,7 +68,7 @@ L50_up <- par[[40]]                       # L50 for upcurve
 L50_down <- par[[41]]                     # L50 for downcurve
 cf <- par[[42]]                           # fraction of fishery caught / fleet
 switch <- par[[43]]                       # length where selectivity switches 
-#       from upcurve to 1
+                                          #       from upcurve to 1
 full <- par[[44]]                         # length at which downcurve starts
 
 
@@ -77,10 +77,10 @@ full <- par[[44]]                         # length at which downcurve starts
 # Set model parameters
 A             <- 5                  # number of areas
 time          <- 50                 # number of timesteps (years) before 
-#     reserve implementation
+                                    #     reserve implementation
 time2         <- 50                 # number of timesteps (years) after
 transects     <- 24                 # number of transects per PISCO protocol
-#     reserve implementation
+                                    #     reserve implementation
 init_effort  <- 0.5                 # nominal fishing effort in each area
 initial    <- 1000000               # total population size at t = 1, 2
 CR         <- 8                     # number of control rules
@@ -91,7 +91,7 @@ IA <- initialize_arrays(time, time2, init_effort, rec_age, max_age, L1f,
                         L2f, Kf, a1f, a2f, af, bf, k_mat, Fb, L50, 
                         sigma_R, rho_R, fleets, alpha, beta, start, F_fin, 
                         L_50_up, L50_down, cf, switch, full, A, x, sp, 
-                        initial, M)
+                        initial, M, CR)
 
 timeT            <- IA[[1]]       # total amount of timesteps (years)
 E                <- IA[[2]]       # nominal fishing effort in each area 
@@ -127,8 +127,8 @@ for (t in 3:time) {
     E <- effort_allocation(allocation, E, biomass, a, t)
     
     # biology
-    PD <- pop_dynamics(a, t, rec_age, max_age, n, SSB, N, W, Mat, A, R0, h, 
-                       B0, e, sigma_R, Fb, E, S, M)
+    PD <- pop_dynamics(a, t, y = 1, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
+                       h, B0, e, sigma_R, Fb, E, S, M)
     SSB <- PD[[1]]
     R   <- PD[[2]]
     FM  <- PD[[3]]
@@ -140,7 +140,7 @@ for (t in 3:time) {
     
     # sampling
     if (t > (time - 3)) {
-      count_sp <- sampling(a, t + 3 - time, r, D, abundance_all, 
+      count_sp <- sampling(a, t + 3 - time, y = 1, r, D, abundance_all, 
                            abundance_mature, transects, x, count_sp, nu)
     }
     
@@ -155,7 +155,7 @@ for (t in 3:time) {
 
 ##### Implement Reserve, and apply control rules ###############################
 
-for (x in 1:CR) {
+for (y in 1:CR) {
   
   for (a in 1:A) {
     
@@ -164,7 +164,7 @@ for (x in 1:CR) {
       E <- effort_allocation(allocation, E, biomass, a, t)
       
       # biology
-      PD <- pop_dynamics(a, t + time, rec_age, max_age, n, SSB, N, W, Mat, A, 
+      PD <- pop_dynamics(a, t + time, y, rec_age, max_age, n, SSB, N, W, Mat, A, 
                          R0, h, B0, e, sigma_R, Fb, E, S, M)
       SSB <- PD[[1]]
       R   <- PD[[2]]
@@ -177,7 +177,7 @@ for (x in 1:CR) {
       biomass[a, t + time] <- sum(N[, a, t + time] * W)
       
       # sampling
-      count_sp <- sampling(a, t + 3, r, D, abundance_all, 
+      count_sp <- sampling(a, t + 3, y, r, D, abundance_all, 
                            abundance_mature, transects, x, count_sp, nu)
       
       # management
