@@ -1,10 +1,16 @@
-effort_allocation <- function(allocation, E, biomass, a, t) {
+effort_allocation <- function(a, t, allocation, A, E, biomass) {
+  
+  areas <- 1:A
+  reserve <- median(A)
+  outside <- areas[-reserve]
+  
+  E[reserve] <- 0
   
   if (allocation == "equal") {
-    E <- rep(sum(E)/A, A)
+    E[outside] <- rep(sum(E)/(A-1), A)
   } else {
-    prop_biomass <- biomass[a, t]/sum(biomass[a, t])
-    E <- sum(E)*prop_biomass
+    prop_biomass <- biomass[outside, t]/sum(biomass[outside, t])
+    E[outside] <- sum(E)*prop_biomass
   }
   
 }

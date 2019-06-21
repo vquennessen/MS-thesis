@@ -124,7 +124,7 @@ for (t in 3:time) {
   for (a in 1:A) {
     
     # effort allocation
-    E <- effort_allocation(allocation, E, biomass, a, t)
+    E <- effort_allocation(a, t, allocation, A, E, biomass)
     
     # biology
     PD <- pop_dynamics(a, t, y = 1, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
@@ -161,7 +161,7 @@ for (y in 1:CR) {
     
     for (t in 1:time2) {
       # effort allocation
-      E <- effort_allocation(allocation, E, biomass, a, t)
+      E <- effort_allocation(a, t, allocation, A, E, biomass)
       
       # biology
       PD <- pop_dynamics(a, t + time, y, rec_age, max_age, n, SSB, N, W, Mat, A, 
@@ -194,13 +194,9 @@ for (y in 1:CR) {
   
   # plot abundance, biomass, and yield over time for each area, once per CR
   
-  # par(mfrow = c(5, 2))
+  par(mfrow = c(1, 5))
   
   for (a in 1:A) {
-    
-    #par(mfrow = c(2, 1))
-    
-    par(mfrow = c(1, 2))
        
     main_title <- sprintf("Control Rule %i, Area %i", y, a)
     
@@ -215,10 +211,18 @@ for (y in 1:CR) {
     lines(1:timeT, biomass[a, ]/1000, type = 'l', lwd = 2, col = "firebrick3")
     box()
     
+  }
+  
+  par(mfrow = c(1, 5))  
+  
+  for (a in 1:A) {
+    
+    main_title <- sprintf("Control Rule %i, Area %i", y, a)
+  
     # plot yield over time (metric tons)
     plot(1:timeT, yield[a, ]/1000, type = 'l', lwd = 2, col = "forestgreen",
          xlab = 'Time (years)', ylab = 'Yield (metric tons)', 
-         yaxt = 'n', ylim = c(0, 20), xaxt = 'n')
+         yaxt = 'n', ylim = c(0, 20), xaxt = 'n', main = main_title)
     axis(1, seq(0, 100, 50))
     axis(2, seq(0, 20, 5))
     box() 
