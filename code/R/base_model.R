@@ -81,7 +81,7 @@ time          <- 50                 # number of timesteps (years) before
 time2         <- 50                 # number of timesteps (years) after
 transects     <- 24                 # number of transects per PISCO protocol
                                     #     reserve implementation
-init_effort   <- 1               # nominal fishing effort in each area
+init_effort   <- 0.05                # nominal fishing effort in each area
 initial       <- 1000000            # total population size at t = 1, 2
 CR            <- 8                  # number of control rules
 allocation    <- 'equal'            # distribution of fishing effort
@@ -103,15 +103,15 @@ Mat              <- IA[[7]]       # Fraction mature at age, dim = 1*age
 m                <- IA[[8]]       # Age at which fraction mature > 0.5
 S                <- IA[[9]]       # Selectivity at age
 FM               <- IA[[10]]      # Fishing mortality rate, dim = age*area*time
-e                <- IA[[11]]      # Recruitment error, dim = 1*time
-N                <- IA[[12]]      # Population size, dim = age*area*time
-SSB              <- IA[[13]]      # Spawning stock biomass, dim = area*time
-R                <- IA[[14]]      # Recruitment, dim = area*time
-abundance_all    <- IA[[15]]      # Abundance, dim = area*time
-abundance_mature <- IA[[16]]      # Abundance, dim = area*time
-biomass          <- IA[[17]]      # Biomass, dim = area*time
-count_sp         <- IA[[18]]      # Species count when sampling, dim = area*time
-nu               <- IA[[19]]      # Sampling normal variable, dim = area*time
+N                <- IA[[11]]      # Population size, dim = age*area*time
+SSB              <- IA[[12]]      # Spawning stock biomass, dim = area*time
+R                <- IA[[13]]      # Recruitment, dim = area*time
+abundance_all    <- IA[[14]]      # Abundance, dim = area*time
+abundance_mature <- IA[[15]]      # Abundance, dim = area*time
+biomass          <- IA[[16]]      # Biomass, dim = area*time
+count_sp         <- IA[[17]]      # Species count when sampling, dim = area*time
+nuS              <- IA[[18]]      # Sampling normal variable, dim = area*time*CR
+Eps              <- IA[[19]]      # Epsilon vector, dim = area*time*CR
 L0               <- IA[[20]]      # Length at age for stable age distribution
 W0               <- IA[[21]]      # Weight at age for stable age distribution
 catch            <- IA[[22]]      # Catch at age
@@ -128,7 +128,7 @@ for (t in 3:time) {
     
     # biology
     PD <- pop_dynamics(a, t, y = 1, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
-                       h, B0, e, sigma_R, Fb, E, S, M)
+                       h, B0, Eps, sigma_R, Fb, E, S, M)
     SSB <- PD[[1]]
     R   <- PD[[2]]
     FM  <- PD[[3]]
@@ -141,13 +141,13 @@ for (t in 3:time) {
     # sampling
     if (t > (time - 3)) {
       count_sp <- sampling(a, t + 3 - time, y = 1, r, D, abundance_all, 
-                           abundance_mature, transects, x, count_sp, nu)
+                           abundance_mature, transects, x, count_sp, nuS)
     }
     
     # fishing
     catch[, a, t] <- catch_at_age(a, t, N, W, FM)
     N[, a, t] <- N[, a, t] - catch[, a, t]
-    yield[a, t] <- sum(catch[, a, t])
+    yield[a, t] <- sum(catch[, a, t]*W)
     
   }
   
@@ -165,7 +165,7 @@ for (y in 1:CR) {
       
       # biology
       PD <- pop_dynamics(a, t + time, y, rec_age, max_age, n, SSB, N, W, Mat, A, 
-                         R0, h, B0, e, sigma_R, Fb, E, S, M)
+                         R0, h, B0, Eps, sigma_R, Fb, E, S, M)
       SSB <- PD[[1]]
       R   <- PD[[2]]
       FM  <- PD[[3]]
@@ -178,7 +178,7 @@ for (y in 1:CR) {
       
       # sampling
       count_sp <- sampling(a, t + 3, y, r, D, abundance_all, 
-                           abundance_mature, transects, x, count_sp, nu)
+                           abundance_mature, transects, x, count_sp, nuS)
       
       # management
       E <- control_rule(a, t + 3, E, count_sp, x)
@@ -186,7 +186,7 @@ for (y in 1:CR) {
       # fishing
       catch[, a, t + time] <- catch_at_age(a, t + time, N, W, FM)
       N[, a, t + time] <- N[, a, t + time] - catch[, a, t + time]
-      yield[a, t + time] <- sum(catch[, a, t + time])
+      yield[a, t + time] <- sum(catch[, a, t + time]*W)
       
     }
     

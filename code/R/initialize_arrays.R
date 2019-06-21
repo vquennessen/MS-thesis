@@ -44,10 +44,6 @@ initialize_arrays <- function(time, time2, init_effort, rec_age, max_age, L1f,
   # Initial fishing mortality
   FM[, , 1] <- fishing_mortality(A, Fb, E[1], S)
   
-  # Recruitment error
-  # Dimensions = 1 * time
-  e <- epsilon(A, timeT, CR, sigma_R, rho_R)
-  
   # Initialize age-structured population size matrix
   # Dimensions = age * area * time
   N <- array(rep(0, n*A*timeT), c(n, A, timeT))
@@ -89,7 +85,16 @@ initialize_arrays <- function(time, time2, init_effort, rec_age, max_age, L1f,
   
   # Sampling normal variable
   # Dimensions = area * time2 + 3 * CR
-  nu <- array(rnorm(A*(time2 + 3)*CR, 0, sigma_sp), c(A, time2 + 3, CR))
+  # nuS <- array(rnorm(A*(time2 + 3)*CR, 0, sigma_sp), c(A, time2 + 3, CR))
+  nuS <- array(rep(0.5, A*(time2 + 3)*CR), c(A, time2 + 3, CR))
+
+  # Recruitment normal variable
+  # nuR <- array(rnorm(A*timeT*CR, 0, sigma_R), c(A, timeT, CR))
+  nuR <- array(rep(0.5, A*timeT*CR), c(A, timeT, CR))
+  
+  # Recruitment error
+  # Dimensions = area * timeT * CR
+  Eps <- epsilon(A, timeT, CR, nuR, sigma_R, rho_R)
   
   #####  Extra vectors to determine stable age distribution
   # Length at age
@@ -125,9 +130,9 @@ initialize_arrays <- function(time, time2, init_effort, rec_age, max_age, L1f,
   # Dimensions = area * time
   yield <- array(rep(0, A*timeT), c(A, timeT))
   
-  output <- list(timeT, E, age, n, L, W, Mat, m, S, FM, e, N, SSB, R, 
-                 abundance_all, abundance_mature, biomass, count_sp, nu, L0, W0, 
-                 catch, yield)
+  output <- list(timeT, E, age, n, L, W, Mat, m, S, FM, N, SSB, R, 
+                 abundance_all, abundance_mature, biomass, count_sp, nuS, 
+                 Eps, L0, W0, catch, yield)
   
   return(output)
   

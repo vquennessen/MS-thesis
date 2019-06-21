@@ -27,13 +27,13 @@
 #' @examples
 
 pop_dynamics <- function(a, t, y, rec_age, max_age, n, SSB, N, W, Mat, A, R0, h, 
-                         B0, e, sigma_R, Fb, E, S, M) {
+                         B0, Eps, sigma_R, Fb, E, S, M) {
   
   # Calculate spawning stock biomass
   SSB[a, t] <- spawning_stock_biomass(N[, a, t-rec_age], W, Mat)
   
   # Calculate recruitment and add recruits to population
-  N[1, a, t] <- recruitment(SSB[a, t-1], A, R0, h, B0, e[a, t, y], sigma_R)
+  N[1, a, t] <- recruitment(SSB[a, t-1], A, R0, h, B0, Eps[a, t, y], sigma_R)
   
   # Calculate fishing mortality
   FM[, , t] <- fishing_mortality(A, Fb, E, S)
