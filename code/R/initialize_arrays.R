@@ -2,7 +2,7 @@ initialize_arrays <- function(time, time2, init_effort, rec_age, max_age, L1f,
                               L2f, Kf, a1f, a2f, af, bf, k_mat, Fb, L50, 
                               sigma_R, rho_R, fleets, alpha, beta, start, F_fin, 
                               L_50_up, L50_down, cf, switch, full, A, x, sp, 
-                              initial, M, CR) {
+                              initial, M, CR, R0, phi) {
   
   # total amount of timesteps (years)
   timeT <- time + time2            
@@ -130,9 +130,12 @@ initialize_arrays <- function(time, time2, init_effort, rec_age, max_age, L1f,
   # Dimensions = area * time
   yield <- array(rep(0, A*timeT), c(A, timeT))
   
+  # Unfished spawning stock biomass
+  B0 <- phi*R0
+  
   output <- list(timeT, E, age, n, L, W, Mat, m, S, FM, N, SSB, R, 
                  abundance_all, abundance_mature, biomass, count_sp, nuS, 
-                 Eps, L0, W0, catch, yield)
+                 Eps, L0, W0, catch, yield, B0)
   
   return(output)
   

@@ -27,49 +27,47 @@ source("./code/R/effort_allocation.R")
 
 par <- parameters("black rockfish")
 
-max_age <- par[[1]]                       # maximum age
-M <- par[[2]]                             # natural mortality
-rec_age <- par[[3]]                       # age at recruitment
-af <- par[[4]]; bf <- par[[5]]            # weight at length parameters (f)
-am <- par[[6]]; bm <- par[[7]]            # weight at length parameters (m)
-a1f <- par[[8]]; L1f <- par[[9]];         # growth parameters (f)
+max_age  <- par[[1]]                      # maximum age
+M        <- par[[2]]                      # natural mortality
+rec_age  <- par[[3]]                      # age at recruitment
+af <- par[[4]];   bf  <- par[[5]]         # weight at length parameters (f)
+am <- par[[6]];   bm  <- par[[7]]         # weight at length parameters (m)
+a1f <- par[[8]];  L1f <- par[[9]];        # growth parameters (f)
 a2f <- par[[10]]; L2f <- par[[11]]; 
 Kf <- par[[12]]  
 a1m <- par[[13]]; L1m <- par[[14]];       # growth parameters (m)
 a2m <- par[[15]]; L2m <- par[[16]]; 
-Km <- par[[17]]  
-L50 <- par[[18]]                          # length at 50% maturity
-k_mat <- par[[19]]                        # slope of maturity curve
-ldp <- par[[20]]                          # larval drift proportion
-R0 <- par[[21]]                           # unfished recruitment
-h <- par[[22]]                            # steepness
-phi <- par[[23]]                          # unfished recruits per spawner
-sigma_R <- par[[24]]                      # recruitment standard deviation
-rho_R <- par[[25]]                        # recruitment autocorrelation
-p <- par[[26]]                            # adult movement proportion
-D <- par[[27]]                            # depletion
-Fb <- par[[28]]                           # fishing mortality to cause D
-r <- par[[29]]                            # proportion of positive transects 
+Km       <- par[[17]]  
+L50      <- par[[18]]                     # length at 50% maturity
+k_mat    <- par[[19]]                     # slope of maturity curve
+ldp      <- par[[20]]                     # larval drift proportion
+R0       <- par[[21]]                     # unfished recruitment
+h        <- par[[22]]                     # steepness
+phi      <- par[[23]]                     # unfished recruits per spawner
+sigma_R  <- par[[24]]                     # recruitment standard deviation
+rho_R    <- par[[25]]                     # recruitment autocorrelation
+p        <- par[[26]]                     # adult movement proportion
+D        <- par[[27]]                     # depletion
+Fb       <- par[[28]]                     # fishing mortality to cause D
+r        <- par[[29]]                     # proportion of positive transects 
                                           #       in PISCO monitoring data
-x <- par[[30]]                            # mean of positive transects
-sp <- par[[31]]                           # std of positive transects
-B0 <- par[[32]]                           # unfished spawning stock biomass, in
-                                          #       metric tons
-c <- par[[33]]                            # eggs produced per g, intercept
-b <- par[[34]]                            # eggs produced per g, slope
+x        <- par[[30]]                     # mean of positive transects
+sp       <- par[[31]]                     # std of positive transects
+c        <- par[[32]]                     # eggs produced per g, intercept
+b        <- par[[33]]                     # eggs produced per g, slope
 
 ####### selectivity parameters #######
-fleets <- par[[35]]                       # fishery fleet names
-alpha <- par[[36]]                        # slope for upcurve
-beta <- par[[37]]                         # slope for downcurve
-start <- par[[38]]                        # length at initial vulnerability
-F_fin <- par[[39]]                        # F_fin for fishery, 0 if asymptotic
-L50_up <- par[[40]]                       # L50 for upcurve
-L50_down <- par[[41]]                     # L50 for downcurve
-cf <- par[[42]]                           # fraction of fishery caught / fleet
-switch <- par[[43]]                       # length where selectivity switches 
+fleets   <- par[[34]]                     # fishery fleet names
+alpha    <- par[[35]]                     # slope for upcurve
+beta     <- par[[36]]                     # slope for downcurve
+start    <- par[[37]]                     # length at initial vulnerability
+F_fin    <- par[[38]]                     # F_fin for fishery, 0 if asymptotic
+L50_up   <- par[[39]]                     # L50 for upcurve
+L50_down <- par[[40]]                     # L50 for downcurve
+cf       <- par[[41]]                     # fraction of fishery caught / fleet
+switch   <- par[[42]]                     # length where selectivity switches 
                                           #       from upcurve to 1
-full <- par[[44]]                         # length at which downcurve starts
+full <- par[[43]]                         # length at which downcurve starts
 
 
 ##### Population Dynamics - Non-Time Varying ###################################
@@ -81,7 +79,7 @@ time          <- 50                 # number of timesteps (years) before
 time2         <- 50                 # number of timesteps (years) after
 transects     <- 24                 # number of transects per PISCO protocol
                                     #     reserve implementation
-init_effort   <- 0.05                # nominal fishing effort in each area
+init_effort   <- 0.05               # nominal fishing effort in each area
 initial       <- 1000000            # total population size at t = 1, 2
 CR            <- 8                  # number of control rules
 allocation    <- 'equal'            # distribution of fishing effort
@@ -91,7 +89,7 @@ IA <- initialize_arrays(time, time2, init_effort, rec_age, max_age, L1f,
                         L2f, Kf, a1f, a2f, af, bf, k_mat, Fb, L50, 
                         sigma_R, rho_R, fleets, alpha, beta, start, F_fin, 
                         L_50_up, L50_down, cf, switch, full, A, x, sp, 
-                        initial, M, CR)
+                        initial, M, CR, R0, phi)
 
 timeT            <- IA[[1]]       # total amount of timesteps (years)
 E                <- IA[[2]]       # nominal fishing effort in each area 
@@ -116,6 +114,7 @@ L0               <- IA[[20]]      # Length at age for stable age distribution
 W0               <- IA[[21]]      # Weight at age for stable age distribution
 catch            <- IA[[22]]      # Catch at age
 yield            <- IA[[23]]      # Yield per area 
+B0               <- IA[[24]]      # Unfished spawning stock biomass
 
 ##### Population Dynamics - Time Varying #######################################
 
