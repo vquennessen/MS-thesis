@@ -131,7 +131,7 @@ initialize_arrays <- function(time, time2, init_effort, rec_age, max_age, L1f,
   yield <- array(rep(0, A*timeT), c(A, timeT))
   
   # Unfished spawning stock biomass
-  B0 <- phi*R0
+  B0 <- R0/phi
   
   output <- list(timeT, E, age, n, L, W, Mat, m, S, FM, N, SSB, R, 
                  abundance_all, abundance_mature, biomass, count_sp, nuS, 
