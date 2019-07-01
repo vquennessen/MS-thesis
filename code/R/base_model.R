@@ -144,7 +144,7 @@ for (t in 3:time) {
     }
     
     # fishing
-    catch[, a, t] <- catch_at_age(a, t, N, W, FM)
+    catch[, a, t] <- catch_at_age(a, t, N, FM)
     N[, a, t] <- N[, a, t] - catch[, a, t]
     yield[a, t] <- sum(catch[, a, t]*W)
     
@@ -183,7 +183,7 @@ for (y in 1:CR) {
       E <- control_rule(a, t + 3, E, count_sp, x)
       
       # fishing
-      catch[, a, t + time] <- catch_at_age(a, t + time, N, W, FM)
+      catch[, a, t + time] <- catch_at_age(a, t + time, N, FM)
       N[, a, t + time] <- N[, a, t + time] - catch[, a, t + time]
       yield[a, t + time] <- sum(catch[, a, t + time]*W)
       
