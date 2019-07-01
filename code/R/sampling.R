@@ -7,11 +7,9 @@ sampling <- function(a, t, y, r, D, abundance_all, abundance_mature, transects,
   
   # Calculate probability of seeing a fish
   # Based on Babcock & MacCall (2011): Eq. (12)
-  
-  #p_all <-  delta * abundance_all[a, t]
-  #p_mature <-  delta * abundance_mature[a, t]
-  p_all <- p_mature <- 0.45
-  
+  p_all <-  delta * abundance_all[a, t] * A / R0
+  p_mature <-  delta * abundance_mature[a, t] * A / R0
+
   # TODO: figure out how to properly calculate probability
   
   # Determine if species is seen at least once

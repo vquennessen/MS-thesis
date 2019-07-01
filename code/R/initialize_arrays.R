@@ -4,6 +4,9 @@ initialize_arrays <- function(time, time2, init_effort, rec_age, max_age, L1f,
                               L_50_up, L50_down, cf, switch, full, A, x, sp, 
                               initial, M, CR, R0, phi) {
   
+  # total population size at t = 1, 2
+  Init_size <- R0 / 10
+  
   # total amount of timesteps (years)
   timeT <- time + time2            
   
@@ -133,7 +136,7 @@ initialize_arrays <- function(time, time2, init_effort, rec_age, max_age, L1f,
   # Unfished spawning stock biomass
   B0 <- R0/phi
   
-  output <- list(timeT, E, age, n, L, W, Mat, m, S, FM, N, SSB, R, 
+  output <- list(Init_size, timeT, E, age, n, L, W, Mat, m, S, FM, N, SSB, R, 
                  abundance_all, abundance_mature, biomass, count_sp, nuS, 
                  Eps, L0, W0, catch, yield, B0)
   
