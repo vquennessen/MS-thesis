@@ -1,0 +1,1612 @@
+Attribute VB_Name = "MAIN3"
+        
+     Global Const pi = 3.141592654
+     Global runname$, numareas, firstyear, fishyear, lastyear, maxage(), MM(), genders() As Integer, seasons As Integer, fullFbefore()
+     Global recage(), wta(), wtb(), t1(), L1(), t2(), L2(), KK(), Linf(), maxtime As Integer, Rvector()
+     Global L50mat(), kmat(), sexchange() As Integer, L50sex(), ksex(), eggswt(), larvdrift(), Rototal(), Ro(), inithh(), hh() As Double
+     Global phi(), Rmodel() As Integer, migprob(), numfishery() As Integer, length1(), weight1(), matF1(), initRsd(), Rsd(), Rauto()
+     Global finit(), fslope(), finfl(), fswitch(), fful(), finfldown(), fslopedown(), ffinal(), ffrac(), driftmat(), migprobmat(), NN(), FF(), NNtotal(), yieldsum(), SSBsim()
+     Global MPAvector(), MPAyear, useDR, fishedareas, season(), years(), temp(), wtdecage(), SSBtotal(), matFdecage(), seldecage()
+     Global NNarea(), yieldarea(), SSBarea(), malesarea(), malestotal(), matMdecage(), DR(), initnumsamples(), numsamples(), Rsummary(), Rsumtotal()
+     Global cathist, portvector(), numspecies, catch1(), catchfile$, selagefleet(), catage1(), catyear, numsims, Roenv()
+     Global fishsp$(), allmaxage, qq(), initqq(), effort(), spval(), multisp, effortvector(), effortsum, selsum(), samplsd()
+     Global samplesd(), Rerror(), DRdist(), qp(), ql(), NNo(), DRmethod, Fhist(), Fage(), Fsumsp(), Fsum, samplesize, effortcreep, illegalfish
+     Global catdata(), countzeros(), eggswta(), eggswtb(), Fsummary(), inside, outside, summarystat(), Fvalue()
+     Global Brefpt(), Frefpt(), yieldrefpt(), depletion(), ftype(), Fdepletion(), SSBo(), totalNNo(), BBo(), DRtime, DRreset, DRtarget, DRlimit
+     Global propos(), posmean(), possd(), batchrun, numruns, Finc, idealfree, expDR(), nearMPA(), DRsimval(), expDRsimval()
+     
+
+Sub genran()
+Dim crnd As Double
+Open App.Path & "\data\sam210.dat" For Binary As #1
+startpos& = 1
+Put #1, , startpos&
+xrnd = Rnd(-32891)
+For a& = 1 To 2000000
+    crnd = 2000000 * Rnd
+    Put #1, , crnd
+Next a&
+Close #1
+Fletch.Parameters.text = "Random number file generated"
+End Sub
+
+
+Sub simulations2()
+
+ReDim NN(maxtime * seasons, allmaxage, numareas, numspecies), FF(maxtime * seasons, allmaxage, numareas, numspecies), yieldsum(maxtime, numsims, numspecies), NNtotal(maxtime, numsims, numspecies), malestotal(maxtime, numsims, numspecies)
+ReDim temp(numareas), Rvector(numareas), SSBtotal(maxtime, numsims, numspecies), NNarea(maxtime, numareas, numsims, numspecies), yieldarea(maxtime, numareas, numsims, numspecies), SSBarea(maxtime, numareas, numsims, numspecies), malesarea(maxtime, numareas, numsims, numspecies)
+ReDim DR(maxtime, numspecies + 4), expDR(maxtime, numspecies + 4), Rsummary(maxtime, numareas, numsims, numspecies), Rsumtotal(maxtime, numsims, numspecies)
+ReDim yieldsum1(maxtime, numspecies) As Double, NNtotal1(maxtime, numspecies) As Double, SSBtotal1(maxtime, numspecies) As Double, malestotal1(maxtime, numspecies) As Double, yieldarea1(maxtime, numareas, numspecies) As Double, NNarea1(maxtime, numareas, numspecies) As Double, SSBarea1(maxtime, numareas, numspecies) As Double, malesarea1(maxtime, numareas, numspecies) As Double, Rsummary1(maxtime, numareas, numspecies) As Double, Rsumtotal1(maxtime, numspecies) As Double
+ReDim yieldsum2(maxtime, numspecies) As Double, NNtotal2(maxtime, numspecies) As Double, SSBtotal2(maxtime, numspecies) As Double, malestotal2(maxtime, numspecies) As Double, yieldarea2(maxtime, numareas, numspecies) As Double, NNarea2(maxtime, numareas, numspecies) As Double, SSBarea2(maxtime, numareas, numspecies) As Double, malesarea2(maxtime, numareas, numspecies) As Double, Rsummary2(maxtime, numareas, numspecies) As Double, Rsumtotal2(maxtime, numspecies) As Double
+ReDim DR1(maxtime, numspecies + 4) As Double, DR2(maxtime, numspecies + 4) As Double, agesumF(numspecies), agesumN(numspecies), effort(maxtime, numareas), Rerror(numspecies)
+ReDim Fsumsp(numspecies), allspvalarea(maxtime * seasons, numareas, numsims), allspval(maxtime * seasons, numsims), BBarea(maxtime, numareas, numsims, numspecies), BBtotal(maxtime, numsims, numspecies)
+ReDim countzeros(maxtime, numspecies), Fsummary(allmaxage, 2, 2), neweffortvector(numareas), DRsimval(maxtime, numsims, numspecies + 4), expDRsimval(maxtime, numsims, numspecies + 4)
+ReDim Brefpt(numsims, numspecies * 5), Frefpt(numsims, numsp * 4), yieldrefpt(numsims, maxtime, numspecies)
+ReDim effortsum(maxtime, numareas, numsims), effortsum1(maxtime, numareas) As Double, effortsum2(maxtime, numareas) As Double, expDR1(maxtime, numspecies + 4) As Double, expDR2(maxtime, numspecies + 4) As Double
+
+For yy = 1 To maxtime
+  For sp# = 1 To numspecies + 4
+   DR1(yy, sp#) = 0
+   DR2(yy, sp#) = 0
+   expDR1(yy, sp#) = 0
+   expDR2(yy, sp#) = 0
+  Next sp#
+  For sim# = 1 To numsims
+   allspval(yy, sim#) = 0
+   For ss = 1 To numareas
+    allspvalarea(yy, ss, sim#) = 0
+   Next ss
+   For sp# = 1 To numspecies
+    yieldsum(yy, sim#, sp#) = 0
+    NNtotal(yy, sim#, sp#) = 0
+    BBtotal(yy, sim#, sp#) = 0
+    SSBtotal(yy, sim#, sp#) = 0
+    malestotal(yy, sim#, sp#) = 0
+    Rsumtotal(yy, sim#, sp#) = 0
+    For ss = 1 To numareas
+     yieldarea(yy, ss, sim#, sp#) = 0
+     NNarea(yy, ss, sim#, sp#) = 0
+     BBarea(yy, ss, sim#, sp#) = 0
+     SSBarea(yy, ss, sim#, sp#) = 0
+     malesarea(yy, ss, sim#, sp#) = 0
+     Rsummary(yy, ss, sim#, sp#) = 0
+    Next ss
+   Next sp#
+  Next sim#
+Next yy
+
+For sim# = 1 To numsims
+ Debug.Print runname$ & " " & sim#
+ For ss = 1 To numareas
+  neweffortvector(ss) = effortvector(ss)
+ Next ss
+ For sspp = 1 To numspecies
+   qq(sspp) = initqq(sspp)
+ Next sspp
+ For tt = 1 To maxtime * seasons
+  For sp# = 1 To numspecies
+   Fsumsp(sp#) = 0
+   Rerror(sp#) = 0
+   If season(tt) = 1 Then
+    Call Recruitment2(Rmodel(sp#), tt, Rvector(), sp#)
+    For ss = 1 To numareas
+     Rsummary(years(tt), ss, sim#, sp#) = Rvector(ss)
+     Rsumtotal(years(tt), sim#, sp#) = Rsumtotal(years(tt), sim#, sp#) + Rvector(ss)
+    Next ss
+   End If
+   For aa = 1 To maxage(sp#)
+    longage = (aa - 1) * seasons + season(tt)
+    For ss = 1 To numareas
+       If aa < recage(sp#) * seasons Then NN(tt, aa, ss, sp#) = 0
+       If tt <= recage(sp#) * seasons Then
+        NN(tt, aa, ss, sp#) = Ro(ss, sp#) * Exp(-MM(sp#) * (aa - recage(sp#)))
+       ElseIf tt > recage(sp#) * seasons And season(tt) = 1 And aa = recage(sp#) Then
+        NN(tt, aa, ss, sp#) = Rvector(ss)
+       ElseIf tt > recage(sp#) * seasons And aa > recage(sp#) And aa < maxage(sp#) And season(tt) > 1 Then
+        NN(tt, aa, ss, sp#) = NN(tt - 1, aa, ss, sp#) * Exp(-(FF(tt - 1, aa, ss, sp#) + MM(sp#)) / seasons)
+       ElseIf tt > recage(sp#) * seasons And aa > recage(sp#) And aa < maxage(sp#) And season(tt) = 1 Then
+        NN(tt, aa, ss, sp#) = NN(tt - 1, aa - 1, ss, sp#) * Exp(-(FF(tt - 1, aa - 1, ss, sp#) + MM(sp#)) / seasons)
+       ElseIf tt > recage(sp#) * seasons And aa = maxage(sp#) And season(tt) = seasons Then
+        NN(tt, aa, ss, sp#) = NN(tt - 1, aa, ss, sp#) * Exp(-(FF(tt - 1, aa, ss, sp#) + MM(sp#)) / seasons) + NN(tt - 1, aa - 1, ss, sp#) * Exp(-(FF(tt - 1, aa - 1, ss, sp#) + MM(sp#)) / seasons)
+       End If
+       If NN(tt, aa, ss, sp#) < 0 Then
+        NN(tt, aa, ss, sp#) = 0
+       End If
+     Next ss
+     If migprob(sp#) > 0 And season(tt) = seasons Then
+        For ii = 1 To numareas
+         temp(ii) = 0
+        Next ii
+        For ii = 1 To numareas
+          For jj = 1 To numareas
+           temp(ii) = temp(ii) + NN(tt, aa, jj, sp#) * migprobmat(ii, jj, sp#)
+        Next jj
+       Next ii
+       For ii = 1 To numareas
+         NN(tt, aa, ii, sp#) = temp(ii)
+       Next ii
+     End If
+'     If tt = MPAyear * seasons + 2 Then Stop
+    If tt < fishyear * seasons Then
+       For ss = 1 To numareas
+        If season(tt) = 1 And sp# = 1 And aa = 1 Then
+         effort(years(tt), ss) = 0
+        End If
+        FF(tt, aa, ss, sp#) = 0
+       Next ss
+    ElseIf tt < MPAyear * seasons Then
+       For ss = 1 To numareas
+        If season(tt) = 1 And sp# = 1 And aa = 1 Then
+         effort(years(tt), ss) = neweffortvector(ss)
+        End If
+        FF(tt, aa, ss, sp#) = seldecage(longage, sp#) * effort(years(tt), ss) * qq(sp#)
+       Next ss
+    ElseIf tt >= MPAyear * seasons Then
+      If DRmethod = 10 And aa = 1 Then qq(sp#) = initqq(sp#) * Fvalue(sp#) / fullFbefore(sp#)
+      If season(tt) = 1 And sp# = 1 And aa = 1 Then
+       If useDR = 0 And (multisp = 0 Or sp# = 1) Then
+        For ss = 1 To numareas
+         If season(tt) = 1 And tt = MPAyear * seasons Then
+           effort(years(tt), ss) = neweffortvector(ss) * numareas / fishedareas * MPAvector(ss)
+           neweffortvector(ss) = effort(years(tt), ss)
+         Else
+           effort(years(tt), ss) = neweffortvector(ss) * Finc
+           neweffortvector(ss) = effort(years(tt), ss)  'check eab
+         End If
+        Next ss
+       ElseIf useDR = 1 Or useDR = 2 Or useDR = 3 Then
+        If multisp = 1 Then
+          tempDR = DR(years(tt) - 1, numspecies + DRmethod)
+        Else
+          tempDR = DR(years(tt) - 1, sp#)
+        End If
+        If (tempDR > DRtarget) Or tt = MPAyear * seasons Then
+         For ss = 1 To numareas
+          If tt = MPAyear * seasons Then
+           effort(years(tt), ss) = effortvector(ss) * numareas / fishedareas * MPAvector(ss)
+          ElseIf tt > MPAyear * seasons Then
+           effort(years(tt), ss) = neweffortvector(ss) * Finc
+          End If
+          neweffortvector(ss) = effort(years(tt), ss)
+         Next ss
+        ElseIf tempDR < DRlimit Then
+         For ss = 1 To numareas
+          effort(years(tt), ss) = 0
+ '         neweffortvector(ss) = effortvector(ss) * numareas / fishedareas * MPAvector(ss)
+         neweffortvector(ss) = effortvector(ss) * numareas / fishedareas * MPAvector(ss) * DRreset
+         Next ss
+        Else   'if 0.2<DR<0.6
+         For ss = 1 To numareas
+          If tt = MPAyear * seasons Then
+           effort(years(tt), ss) = effortvector(ss) * numareas / fishedareas * MPAvector(ss) * (tempDR - DRlimit) / (DRtarget - DRlimit)
+          Else
+           effort(years(tt), ss) = neweffortvector(ss) * (tempDR - DRlimit) / (DRtarget - DRlimit)
+          End If
+'          neweffortvector(ss) = effortvector(ss) * numareas / fishedareas * MPAvector(ss)
+          neweffortvector(ss) = effort(years(tt), ss)
+         Next ss
+        End If
+       End If
+      If idealfree = 1 Or illegalfish > 0 Then
+        tempeffortsum = 0
+        tempBsum = 0
+        tempvalsum = 0
+        For ss = 1 To numareas
+         tempeffortsum = tempeffortsum + effort(years(tt), ss)
+         tempBsum = tempBsum + BBarea(years(tt) - 1, ss, sim#, sp#) * MPAvector(ss)
+         tempvalsum = tempvalsum + allspvalarea(years(tt) - 1, ss, sim#) * MPAvector(ss)
+        Next ss
+        If idealfree = 1 Then
+         For ss = 1 To numareas
+          If multisp = 0 Then
+           If tempBsum > 0 Then
+            effort(years(tt), ss) = tempeffortsum * BBarea(years(tt) - 1, ss, sim#, sp#) * MPAvector(ss) / tempBsum
+           Else
+            effort(years(tt), ss) = 0
+           End If
+          Else
+           If tempBsum > 0 Then
+            effort(years(tt), ss) = tempeffortsum * allspvalarea(years(tt) - 1, ss, sim#) * MPAvector(ss) / tempvalsum
+           Else
+            effort(years(tt), ss) = 0
+           End If
+          End If
+         Next ss
+        End If
+       End If
+      End If
+      If effortcreep > 1 And season(tt) = 1 And years(tt) > MPAyear And sp# = 1 And aa = 1 Then
+        For ss = 1 To numareas
+           effort(years(tt), ss) = effort(years(tt), ss) * effortcreep
+         '  neweffortvector(ss) = effort(years(tt), ss)  'neweffort vector is based on what we expected effort to be
+        Next ss
+      End If
+      If illegalfish > 0 And season(tt) = 1 And years(tt) > MPAyear And sp# = 1 And aa = 1 Then
+        For ss = 1 To numareas
+          If (MPAvector(ss)) = 0 Then 'check value of MPA vector
+           If tempDR < 1 Then
+            effort(years(tt), ss) = illegalfish * (1 - tempDR) * tempeffortsum
+'           neweffortvector(ss) = effort(years(tt), ss)
+           Else
+            effort(years(tt), ss) = 0
+           End If
+          Else
+          If (MPAvector(ss)) = 0 Then 'check value of MPA vector
+            effort(years(tt), ss) = effort(years(tt), ss) - (illegalfish * (1 - tempDR) * tempeffortsum) / fishedareas
+          End If
+          If effort(years(tt), ss) < 0 Then Stop
+'           neweffortvector(ss) = effort(years(tt), ss)
+          End If
+        Next ss
+      End If
+      For ss = 1 To numareas
+        FF(tt, aa, ss, sp#) = seldecage(longage, sp#) * effort(years(tt), ss) * qq(sp#)
+      Next ss
+    End If
+    If tt = MPAyear * seasons - 1 Then
+      Fsummary(aa, 1, 1) = FF(tt, aa, inside, sp#)
+      Fsummary(aa, 1, 2) = FF(tt, aa, outside, sp#)
+    ElseIf tt = MPAyear * seasons Then
+      Fsummary(aa, 2, 1) = FF(tt, aa, inside, sp#)
+      Fsummary(aa, 2, 2) = FF(tt, aa, outside, sp#)
+    End If
+    For ss = 1 To numareas
+     '  If tt = MPAyear * seasons + 1 Then Stop
+       yieldsum(years(tt), sim#, sp#) = yieldsum(years(tt), sim#, sp#) + (FF(tt, aa, ss, sp#) / (FF(tt, aa, ss, sp#) + MM(sp#) / seasons) * NN(tt, aa, ss, sp#) * (1 - Exp(-(FF(tt, aa, ss, sp#) + MM(sp#) / seasons))) * wtdecage(longage, sp#))
+       yieldarea(years(tt), ss, sim#, sp#) = yieldarea(years(tt), ss, sim#, sp#) + (FF(tt, aa, ss, sp#) / (FF(tt, aa, ss, sp#) + MM(sp#) / seasons) * NN(tt, aa, ss, sp#) * (1 - Exp(-(FF(tt, aa, ss, sp#) + MM(sp#) / seasons))) * wtdecage(longage, sp#))
+       yieldrefpt(sim#, years(tt), sp#) = yieldrefpt(sim#, years(tt), sp#) + (FF(tt, aa, ss, sp#) / (FF(tt, aa, ss, sp#) + MM(sp#) / seasons) * NN(tt, aa, ss, sp#) * (1 - Exp(-(FF(tt, aa, ss, sp#) + MM(sp#) / seasons))) * wtdecage(longage, sp#))
+       If season(tt) = 1 Then
+        NNtotal(years(tt), sim#, sp#) = NNtotal(years(tt), sim#, sp#) + NN(tt, aa, ss, sp#)
+            BBtotal(years(tt), sim#, sp#) = BBtotal(years(tt), sim#, sp#) + NN(tt, aa, ss, sp#) * wtdecage(longage, sp#)
+        allspval(years(tt), sim#) = allspval(years(tt), sim#) + NN(tt, aa, ss, sp#) * spval(sp#) * wtdecage(longage, sp#)
+        SSBtotal(years(tt), sim#, sp#) = SSBtotal(years(tt), sim#, sp#) + NN(tt, aa, ss, sp#) * matFdecage(longage, sp#) * wtdecage(longage, sp#)
+        malestotal(years(tt), sim#, sp#) = malestotal(years(tt), sim#, sp#) + NN(tt, aa, ss, sp#) * matMdecage(longage, sp#) * wtdecage(longage, sp#)
+        NNarea(years(tt), ss, sim#, sp#) = NNarea(years(tt), ss, sim#, sp#) + NN(tt, aa, ss, sp#)
+        BBarea(years(tt), ss, sim#, sp#) = BBarea(years(tt), ss, sim#, sp#) + NN(tt, aa, ss, sp#) * wtdecage(longage, sp#)
+        allspvalarea(years(tt), ss, sim#) = allspvalarea(years(tt), ss, sim#) + NN(tt, aa, ss, sp#) * spval(sp#) * wtdecage(longage, sp#)
+        SSBarea(years(tt), ss, sim#, sp#) = SSBarea(years(tt), ss, sim#, sp#) + NN(tt, aa, ss, sp#) * matFdecage(longage, sp#) * wtdecage(longage, sp#)
+        malesarea(years(tt), ss, sim#, sp#) = malesarea(years(tt), ss, sim#, sp#) + NN(tt, aa, ss, sp#) * matMdecage(longage, sp#) * wtdecage(longage, sp#)
+        If years(tt) = fishyear - 1 Then
+          Brefpt(sim#, 5 * (sp# - 1) + 1) = Brefpt(sim#, 5 * (sp# - 1) + 1) + NN(tt, aa, ss, sp#) * matFdecage(longage, sp#) * wtdecage(longage, sp#)
+        ElseIf years(tt) = MPAyear - 1 Then
+          Brefpt(sim#, 5 * (sp# - 1) + 2) = Brefpt(sim#, 5 * (sp# - 1) + 2) + NN(tt, aa, ss, sp#) * matFdecage(longage, sp#) * wtdecage(longage, sp#)
+        ElseIf years(tt) = MPAyear + 1 Then
+          Brefpt(sim#, 5 * (sp# - 1) + 3) = Brefpt(sim#, 5 * (sp# - 1) + 3) + NN(tt, aa, ss, sp#) * matFdecage(longage, sp#) * wtdecage(longage, sp#)
+        ElseIf years(tt) = MPAyear + 10 Then
+          Brefpt(sim#, 5 * (sp# - 1) + 4) = Brefpt(sim#, 5 * (sp# - 1) + 4) + NN(tt, aa, ss, sp#) * matFdecage(longage, sp#) * wtdecage(longage, sp#)
+        ElseIf years(tt) = maxtime Then
+          Brefpt(sim#, 5 * (sp# - 1) + 5) = Brefpt(sim#, 5 * (sp# - 1) + 5) + NN(tt, aa, ss, sp#) * matFdecage(longage, sp#) * wtdecage(longage, sp#)
+        End If
+      End If
+    Next ss
+   Next aa
+  Next sp#
+  If season(tt) = seasons Then
+    Call calcDR(DR(), expDR(), tt, sim#)
+    For sp# = 1 To numspecies + 4
+     temp11 = DR1(years(tt), sp#)
+     If sim# = 1 Then
+      DR1(years(tt), sp#) = DR(years(tt), sp#)
+      DR2(years(tt), sp#) = 0
+      expDR1(years(tt), sp#) = expDR(years(tt), sp#)
+      expDR2(years(tt), sp#) = 0
+     Else
+      DR1(years(tt), sp#) = DR1(years(tt), sp#) + (DR(years(tt), sp#) - DR1(years(tt), sp#)) / sim#
+      DR2(years(tt), sp#) = DR2(years(tt), sp#) + (DR(years(tt), sp#) - temp11) * (DR(years(tt), sp#) - DR1(years(tt), sp#))
+      temp11 = expDR1(years(tt), sp#)
+      expDR1(years(tt), sp#) = expDR1(years(tt), sp#) + (expDR(years(tt), sp#) - expDR1(years(tt), sp#)) / sim#
+      expDR2(years(tt), sp#) = expDR2(years(tt), sp#) + (expDR(years(tt), sp#) - temp11) * (expDR(years(tt), sp#) - expDR1(years(tt), sp#))
+     End If
+     DRsimval(years(tt), sim#, sp#) = DR(years(tt), sp#)
+     expDRsimval(years(tt), sim#, sp#) = expDR(years(tt), sp#)
+    Next sp#
+  End If
+'  If idealfree = 1 And season(tt) = 1 Then
+'    agesumF = 0
+'    agesumN = 0
+'    For ii = 1 To maxage
+'      For jj = 1 To numareas
+'        agesumF = agesumF + FF(tt - 1, ii, jj)
+'        agesumN = agesumN + NN(tt - 1, ii, jj)
+'      Next jj
+'     Next ii
+'  End If
+  If season(tt) = 1 Then
+   For ss = 1 To numareas
+    effortsum(tt, ss, sim#) = effortsum(tt, ss, sim#) + effort(years(tt), ss)
+   Next ss
+  End If
+ Next tt
+ 
+ If sim# = 1 Then
+  For yy = 1 To maxtime
+   For ss = 1 To numareas
+    effortsum1(yy, ss) = effortsum(yy, ss, sim#)
+    effortsum2(yy, ss) = 0
+   Next ss
+   For sp# = 1 To numspecies
+    yieldsum1(yy, sp#) = yieldsum(yy, sim#, sp#)
+    yieldsum2(yy, sp#) = 0
+    Rsumtotal1(yy, sp#) = Rsumtotal(yy, sim#, sp#)
+    Rsumtotal2(yy, sp#) = 0
+    NNtotal1(yy, sp#) = NNtotal(yy, sim#, sp#)
+    NNtotal2(yy, sp#) = 0
+    SSBtotal1(yy, sp#) = SSBtotal(yy, sim#, sp#)
+    SSBtotal2(yy, sp#) = 0
+    malestotal1(yy, sp#) = malestotal(yy, sim#, sp#)
+    malestotal2(yy, sp#) = 0
+    For ss = 1 To numareas
+        yieldarea1(yy, ss, sp#) = yieldarea(yy, ss, sim#, sp#)
+        Rsummary1(yy, ss, sp#) = Rsummary(yy, ss, sim#, sp#)
+        NNarea1(yy, ss, sp#) = NNarea(yy, ss, sim#, sp#)
+        SSBarea1(yy, ss, sp#) = SSBarea(yy, ss, sim#, sp#)
+        malesarea1(yy, ss, sp#) = malesarea(yy, ss, sim#, sp#)
+        yieldarea2(yy, ss, sp#) = 0
+        Rsummary2(yy, ss, sp#) = 0
+        NNarea2(yy, ss, sp#) = 0
+        SSBarea2(yy, ss, sp#) = 0
+        malesarea2(yy, ss, sp#) = 0
+    Next ss
+   Next sp#
+  Next yy
+ Else
+  For yy = 1 To maxtime
+   For ss = 1 To numareas
+    tempnum = effortsum(yy, ss, sim#)
+    effortsum1(yy, ss) = effortsum1(yy, ss) + effortsum(yy, ss, sim#) / sim#
+    effortsum2(yy, ss) = effortsum2(yy, ss) + (effortsum(yy, ss, sim#) - tempnum) * (effortsum(yy, ss, sim#) - effortsum1(yy, ss))
+   Next ss
+   For sp# = 1 To numspecies
+    tempnum = yieldsum1(yy, sp#)
+    yieldsum1(yy, sp#) = yieldsum1(yy, sp#) + (yieldsum(yy, sim#, sp#) - yieldsum1(yy, sp#)) / sim#
+    yieldsum2(yy, sp#) = yieldsum2(yy, sp#) + (yieldsum(yy, sim#, sp#) - tempnum) * (yieldsum(yy, sim#, sp#) - yieldsum1(yy, sp#))
+    tempnum = NNtotal1(yy, sp#)
+    NNtotal1(yy, sp#) = NNtotal1(yy, sp#) + (NNtotal(yy, sim#, sp#) - NNtotal1(yy, sp#)) / sim#
+    NNtotal2(yy, sp#) = NNtotal2(yy, sp#) + (NNtotal(yy, sim#, sp#) - tempnum) * (NNtotal(yy, sim#, sp#) - NNtotal1(yy, sp#))
+    tempnum = SSBtotal1(yy, sp#)
+    SSBtotal1(yy, sp#) = SSBtotal1(yy, sp#) + (SSBtotal(yy, sim#, sp#) - SSBtotal1(yy, sp#)) / sim#
+    SSBtotal2(yy, sp#) = SSBtotal2(yy, sp#) + (SSBtotal(yy, sim#, sp#) - tempnum) * (SSBtotal(yy, sim#, sp#) - SSBtotal1(yy, sp#))
+    tempnum = malestotal1(yy, sp#)
+    malestotal1(yy, sp#) = malestotal1(yy, sp#) + (malestotal(yy, sim#, sp#) - malestotal1(yy, sp#)) / sim#
+    malestotal2(yy, sp#) = malestotal2(yy, sp#) + (malestotal(yy, sim#, sp#) - tempnum) * (malestotal(yy, sim#, sp#) - malestotal1(yy, sp#))
+    For ss = 1 To numareas
+        tempnum = yieldarea1(yy, ss, sp#)
+        yieldarea1(yy, ss, sp#) = yieldarea1(yy, ss, sp#) + yieldarea(yy, ss, sim#, sp#) / (sim# - 1)
+        yieldarea2(yy, ss, sp#) = yieldarea2(yy, ss, sp#) + (yieldarea(yy, ss, sim#, sp#) - tempnum) * (yieldarea(yy, ss, sim#, sp#) - yieldarea1(yy, ss, sp#))
+        tempnum = NNarea1(yy, ss, sp#)
+        NNarea1(yy, ss, sp#) = NNarea1(yy, ss, sp#) + NNarea(yy, ss, sim#, sp#) / (sim# - 1)
+        If NNarea2(yy, ss, sp#) < 100000000000000# And NNarea2(yy, ss, sp#) > 0 Then
+          NNarea2(yy, ss, sp#) = NNarea2(yy, ss, sp#) + (NNarea(yy, ss, sim#, sp#) - tempnum) * (NNarea(yy, ss, sim#, sp#) - NNarea1(yy, ss, sp#))
+        Else
+          NNarea2(yy, ss, sp#) = -1
+        End If
+        tempnum = SSBarea1(yy, ss, sp#)
+        SSBarea1(yy, ss, sp#) = SSBarea1(yy, ss, sp#) + SSBarea(yy, ss, sim#, sp#) / (sim# - 1)
+        SSBarea2(yy, ss, sp#) = SSBarea2(yy, ss, sp#) + (SSBarea(yy, ss, sim#, sp#) - tempnum) * (SSBarea(yy, ss, sim#, sp#) - SSBarea1(yy, ss, sp#))
+        tempnum = malesarea1(yy, ss, sp#)
+        malesarea1(yy, ss, sp#) = malesarea1(yy, ss, sp#) + malesarea(yy, ss, sim#, sp#) / (sim# - 1)
+        malesarea2(yy, ss, sp#) = malesarea2(yy, ss, sp#) + (malesarea(yy, ss, sim#, sp#) - tempnum) * (malesarea(yy, ss, sim#, sp#) - malesarea1(yy, ss, sp#))
+    Next ss
+   Next sp#
+  Next yy
+ End If
+Next sim#
+If multisp = 1 Then
+  folder$ = "all\"
+Else
+  folder$ = fishsp$(1) & "\"
+End If
+ Open App.Path & "\output\" & folder$ & runname$ & "DR.csv" For Output As #512
+ For sp# = 1 To numspecies
+  Print #512, fishsp$(sp#) & ".mean," & fishsp$(sp#) & ".sd,";
+ Next sp#
+ Print #512, "arith.mean, arith.sd, geo.mean, geo.sd, harm.mean, harm.sd, weak.sp.mean, weak.sp.sd,";
+ For sp# = 1 To numspecies
+   Print #512, fishsp$(sp#) & ".mean.r," & fishsp$(sp#) & ".sd.r,";
+ Next sp#
+Print #512, "arith.mean.r, arith.sd.r, geo.mean.r, geo.sd.r, harm.mean.r, harm.sd.r, weak.sp.mean.r, weak.sp.sd.r, year"
+
+Open App.Path & "\output\" & folder$ & runname$ & "inputcheck.csv" For Output As #411
+Print #411, "SSBo, Ro, phi, totalN0,Bo"
+
+Open App.Path & "\output\" & folder$ & runname$ & "effort.csv" For Output As #412
+Open App.Path & "\output\" & folder$ & runname$ & "Brefpt.csv" For Output As #401
+Print #401, "sp1Bo, sp1BpreMPA, sp1MPA1, sp1MPA10, sp1MPAfin,sp2Bo, sp2BpreMPA, sp2MPA1, sp2MPA10, sp2MPAfin,sp3Bo, sp3BpreMPA, sp3MPA1, sp3MPA10, sp3MPAfin,sp4Bo, sp4BpreMPA, sp4MPA1, sp4MPA10, sp4MPAfin,sp5Bo, sp5BpreMPA, sp5MPA1, sp5MPA10, sp5MPAfin, sim"
+
+For sp# = 1 To numspecies
+  Open App.Path & "\output\" & folder$ & runname$ & "NNtotalsim" & fishsp$(sp#) & ".csv" For Output As #501
+  Open App.Path & "\output\" & folder$ & runname$ & fishsp$(sp#) & "NNtotal.csv" For Output As #502
+  Open App.Path & "\output\" & folder$ & runname$ & fishsp$(sp#) & "SSBtotal.csv" For Output As #503
+  Open App.Path & "\output\" & folder$ & runname$ & fishsp$(sp#) & "SSBtotsim.csv" For Output As #213
+  Open App.Path & "\output\" & folder$ & runname$ & fishsp$(sp#) & "malestotal.csv" For Output As #504
+  Open App.Path & "\output\" & folder$ & runname$ & fishsp$(sp#) & "yieldtotal.csv" For Output As #505
+  Open App.Path & "\output\" & folder$ & runname$ & fishsp$(sp#) & "Rsumtotal.csv" For Output As #506
+  Open App.Path & "\output\" & folder$ & runname$ & fishsp$(sp#) & "NNarea.csv" For Output As #507
+  Open App.Path & "\output\" & folder$ & runname$ & fishsp$(sp#) & "SSBarea.csv" For Output As #508
+  Open App.Path & "\output\" & folder$ & runname$ & fishsp$(sp#) & "malesarea.csv" For Output As #509
+  Open App.Path & "\output\" & folder$ & runname$ & fishsp$(sp#) & "yieldarea.csv" For Output As #510
+  Open App.Path & "\output\" & folder$ & runname$ & fishsp$(sp#) & "Rsummary.csv" For Output As #511
+  Open App.Path & "\output\" & folder$ & runname$ & fishsp$(sp#) & "Fsummary.csv" For Output As #400
+  Open App.Path & "\output\" & folder$ & runname$ & fishsp$(sp#) & "yieldrefpt.csv" For Output As #402
+  Open App.Path & "\output\" & folder$ & runname$ & fishsp$(sp#) & "DRsim.csv" For Output As #112
+  Open App.Path & "\output\" & folder$ & runname$ & fishsp$(sp#) & "expDRsim.csv" For Output As #113
+  
+  Print #411, SSBo(sp#); ","; Rototal(sp#); ","; phi(sp#); ","; totalNNo(sp#); ","; BBo(sp#)
+  Print #400, "age, before.in, before.out, after.in, after.out"
+  For aa = 1 To maxage(sp#)
+   Print #400, aa; ", "; Fsummary(aa, 1, 1); ", "; Fsummary(aa, 1, 2); ", "; Fsummary(aa, 2, 1); ", "; Fsummary(aa, 2, 2)
+  Next aa
+  For yy = 1 To maxtime
+   For sim# = 1 To numsims
+       Print #501, NNtotal(yy, sim#, sp#); ",";
+       Print #402, yieldrefpt(sim#, yy, sp#); ",";
+       Print #213, SSBtotal(yy, sim#, sp#); ",";
+       Print #112, DRsimval(yy, sim#, sp#); ",";
+       Print #113, expDRsimval(yy, sim#, sp#); ",";
+   Next sim#
+   Print #213, yy
+   Print #402, yy
+   Print #501, yy
+   Print #112, yy
+   Print #113, yy
+  Next yy
+  Close #501
+  Close #112
+  Close #113
+  Print #502, fishsp$(sp#) & ".mean," & fishsp$(sp#) & ".sd,";
+  Print #503, fishsp$(sp#) & ".mean," & fishsp$(sp#) & ".sd,";
+  Print #504, fishsp$(sp#) & ".mean," & fishsp$(sp#) & ".sd,";
+  Print #505, fishsp$(sp#) & ".mean," & fishsp$(sp#) & ".sd,";
+  Print #506, fishsp$(sp#) & ".mean," & fishsp$(sp#) & ".sd,";
+  For ss = 1 To numareas
+   Print #507, "a" & ss & fishsp$(sp#) & ".mean," & fishsp$(sp#) & ".sd,";
+   Print #508, "a" & ss & fishsp$(sp#) & ".mean," & fishsp$(sp#) & ".sd,";
+   Print #509, "a" & ss & fishsp$(sp#) & ".mean," & fishsp$(sp#) & ".sd,";
+   Print #510, "a" & ss & fishsp$(sp#) & ".mean," & fishsp$(sp#) & ".sd,";
+   Print #511, "a" & ss & fishsp$(sp#) & ".mean," & fishsp$(sp#) & ".sd,";
+  Next ss
+Print #502, "year"
+Print #503, "year"
+Print #504, "year"
+Print #505, "year"
+Print #506, "year"
+Print #507, "year"
+Print #508, "year"
+Print #509, "year"
+Print #510, "year"
+Print #511, "year"
+For yy = 1 To maxtime
+   Print #502, NNtotal1(yy, sp#); ",";
+   If numsims > 1 Then
+    Print #502, (NNtotal2(yy, sp#) / (numsims - 1)) ^ 0.5; ",";
+   Else
+     Print #502, "0,";
+   End If
+   Print #503, SSBtotal1(yy, sp#) / numsims; ",";
+   If numsims > 1 Then
+    Print #503, (SSBtotal2(yy, sp#) / (numsims - 1)) ^ 0.5; ",";
+   Else
+    Print #503, "0,";
+   End If
+   Print #504, malestotal1(yy, sp#); ",";
+   If numsims > 1 Then
+     Print #504, (malestotal2(yy, sp#) / (numsims - 1)) ^ 0.5; ",";
+   Else
+     Print #504, "0,";
+   End If
+   Print #505, yieldsum1(yy, sp#); ",";
+   If numsims > 1 Then
+     Print #505, (yieldsum2(yy, sp#) / (numsims - 1)) ^ 0.5; ",";
+   Else
+     Print #505, "0,";
+   End If
+   Print #506, Rsumtotal1(yy, sp#); ",";
+   If numsims > 1 Then
+     Print #506, (Rsumtotal2(yy, sp#) / (numsims - 1)) ^ 0.5; ",";
+   Else
+     Print #506, "0,";
+   End If
+   For ss = 1 To numareas
+    Print #507, NNarea1(yy, ss, sp#); ",";
+    If numsims > 1 And NNarea2(yy, ss, sp#) > 0 Then
+      Print #507, (NNarea2(yy, ss, sp#) / (numsims - 1)) ^ 0.5; ",";
+    Else
+      Print #507, "0,";
+    End If
+    Print #508, SSBarea1(yy, ss, sp#); ",";
+    If numsims > 1 Then
+      Print #508, (SSBarea2(yy, ss, sp#) / (numsims - 1)) ^ 0.5; ",";
+    Else
+      Print #508, "0,";
+    End If
+    Print #509, malesarea1(yy, ss, sp#); ",";
+    If numsims > 1 Then
+      Print #509, (malesarea2(yy, ss, sp#) / (numsims - 1)) ^ 0.5; ",";
+    Else
+      Print #509, "0,";
+    End If
+    Print #510, yieldarea1(yy, ss, sp#); ",";
+    If numsims > 1 Then
+      Print #510, (yieldarea2(yy, ss, sp#) / (numsims - 1)) ^ 0.5; ",";
+    Else
+      Print #510, "0,";
+    End If
+    Print #511, Rsummary1(yy, ss, sp#); ",";
+    If numsims > 1 Then
+      Print #511, (Rsummary2(yy, ss, sp#) / (numsims - 1)) ^ 0.5; ",";
+    Else
+      Print #511, "0,";
+    End If
+   Next ss
+  Print #502, firstyear + yy - 1
+  Print #503, firstyear + yy - 1
+  Print #504, firstyear + yy - 1
+  Print #505, firstyear + yy - 1
+  Print #506, firstyear + yy - 1
+  Print #507, firstyear + yy - 1
+  Print #508, firstyear + yy - 1
+  Print #509, firstyear + yy - 1
+  Print #510, firstyear + yy - 1
+  Print #511, firstyear + yy - 1
+ Next yy
+ Close #502
+ Close #503
+ Close #504
+ Close #505
+ Close #506
+ Close #507
+ Close #508
+ Close #509
+ Close #510
+ Close #511
+ Close #400
+ Close #402
+ Close #213
+
+Next sp#
+
+For yy = 1 To maxtime
+ For sp# = 1 To numspecies + 4
+   Print #512, DR1(yy, sp#); ",";
+   If numsims > 1 Then
+     Print #512, (DR2(yy, sp#) / (numsims - 1)) ^ 0.5; ",";
+   Else
+     Print #512, "1,";
+   End If
+ Next sp#
+ For sp# = 1 To numspecies + 4
+   Print #512, expDR1(yy, sp#); ",";
+   If numsims > 1 And expDR2(yy, sp#) > 0 Then
+     Print #512, (expDR2(yy, sp#) / (numsims - 1)) ^ 0.5; ",";
+   Else
+     Print #512, "1,";
+   End If
+ Next sp#
+  Print #512, firstyear + yy - 1
+ For ss = 1 To numareas
+  Print #412, effortsum1(yy, ss); ",";
+ Next ss
+ Print #412, yy
+Next yy
+Close #512
+For sim# = 1 To numsims
+ For sp# = 1 To numspecies
+  Print #401, Brefpt(sim#, 5 * (sp# - 1) + 1); ","; Brefpt(sim#, 5 * (sp# - 1) + 2); ","; Brefpt(sim#, 5 * (sp# - 1) + 3); ","; Brefpt(sim#, 5 * (sp# - 1) + 4); ","; Brefpt(sim#, 5 * (sp# - 1) + 5); ",";
+ Next sp#
+ Print #401, sim#
+Next sim#
+Close #401
+Close #411
+Close #412
+'Print #103, "year, NN, yield, FSSB, MSSB, DR"
+'Print #104, "year"; ",";
+'For ss = 1 To numareas
+' Print #104, "N"; ss; ", Y"; ss; ", BF"; ss; ", BM"; ss; ",";
+'Next ss
+'Print #104, ""
+'For tt = 1 To maxtime * seasons
+' If season(tt) = 1 Then
+ '  For aa = 1 To maxage
+ '   For ss = 1 To numareas
+ '     Print #101, NN(tt,aa,ss); ",";
+ '     Print #102, FF(tt,aa,ss); ",";
+ '   Next ss
+ '   Print #101, ""
+ '   Print #102, ""
+ '  Next aa
+ '  Print #103, years(tt) + firstyear - 1; ","; NNtotal1(years(tt)) / numsims; ","; yieldsum1(years(tt)) / numsims; ","; SSBtotal1(years(tt)) / numsims; ","; malestotal1(years(tt)) / numsims; ","; DR1(years(tt)) / numsims
+ '  Print #104, years(tt) + firstyear - 1; ",";
+ '  For ss = 1 To numareas
+ '   Print #104, NNarea1(years(tt), ss) / numsims; ","; yieldarea1(years(tt), ss) / numsims; ","; SSBarea1(years(tt), ss) / numsims; ","; malesarea1(years(tt), ss) / numsims; ",";
+ '  Next ss
+ '  Print #104, ""
+ ' End If
+ 'Next tt
+' Close #101
+' Close #102
+' Close #103
+' Close #104
+End Sub
+
+
+
+
+
+Sub iniMaxWtPlot(maxn)
+    Call zgraphinit(Fletch.Picture1, 0, 0, maxn, 1, "Simulation (x1000)", "tWxaM", 0.2, 0.1, 6, 4)
+End Sub
+
+Sub initbiomplot()
+    Call zgraphinit(Fletch.Picture1, ifyr, 0, iendyrdata% + 1, 15, "Year", "EUPC", 0.2, 0.1, 6, 3)
+End Sub
+
+
+Sub main2()
+
+'---Initialize the model -----------------------------------------
+startoverpoint:
+    startover = False
+    
+    If (Fletch.mnu_pick(3).Checked Or Fletch.mnu_pick(4).Checked) Then
+    
+    End If
+    '------------------------------------------------------------------
+    If Fletch.mnu_pick(0).Checked Then
+         Call genran
+    End If
+    If Fletch.mnu_pick(2).Checked Then
+        Stop
+             
+    End If
+    
+    If Fletch.mnu_pick(3).Checked Then
+        Call aopenfiles2
+    
+    End If
+    
+    If Fletch.mnu_pick(4).Checked Then
+ '
+    End If
+    '----- make histograms
+    If Fletch.mnu_pick(5).Checked Then
+'
+    End If
+    
+    '------ subsample
+    If Fletch.mnu_pick(6).Checked Then
+    
+
+    End If
+    '------  Do projections
+    If Fletch.mnu_pick(7).Checked Then
+  '
+    End If
+       '------  Grid search
+    If Fletch.mnu_pick(12).Checked Then
+ '
+    End If
+    '-------------- MCMC
+    If Fletch.mnu_pick(13).Checked Then
+ '
+    End If
+     '-------------- Find initial values
+    If Fletch.mnu_pick(14).Checked Then
+   '
+    End If
+     
+    
+
+End Sub
+
+Function max(x1, y1)
+If x1 > y1 Then max = x1 Else max = y1
+End Function
+
+Sub aopenfiles2()
+
+'** Opens input and output files, reads in the file inputs.txt, checks presence of files and directories, and reads techinputs.txt
+Open App.Path & "\spinputs2effort.txt " For Input As #20
+
+Input #20, batchrun
+Input #20, runname$
+Input #20, temp1$, numruns
+Input #20, temp1$, numspecies
+ReDim fishsp$(numspecies), spval(numspecies)
+Input #20, temp1$, numsims
+Input #20, temp1$, numareas
+Input #20, temp1$, firstyear
+Input #20, temp1$, fishyear
+Input #20, temp1$, lastyear
+maxtime = lastyear - firstyear + 1
+Input #20, temp1$, seasons
+Input #20, temp1$, allmaxage
+Input #20, temp1$
+ReDim MPAvector(numareas), portvector(numareas), effortvector(numareas), initnumsamples(numareas), numsamples(numareas), nearMPA(numareas)
+For ii = 1 To numareas
+ Input #20, MPAvector(ii), portvector(ii), effortvector(ii), numsamples(ii), nearMPA(ii)
+ initnumsamples(ii) = numsamples(ii)
+ If MPAvector(ii) = 0 Then
+  inside = ii
+ ElseIf MPAvector(ii) = 1 Then
+  outside = ii
+ End If
+Next ii
+Input #20, temp1$, MPAyear
+MPAyear = MPAyear - firstyear + 1
+Input #20, temp1$, useDR
+Input #20, temp1$, DRmethod
+Input #20, temp1$, multisp
+Input #20, temp1$, idealfree
+Input #20, temp1$, Finc
+Input #20, temp1$, cathist
+Input #20, temp1$, catyear
+catyear = catyear - firstyear + 1
+fishyear = fishyear - firstyear + 1
+For ii = 1 To numspecies
+ Input #20, fishsp$(ii), spval(ii)
+Next ii
+Close #20
+
+tempseason = 1
+tempyear = 1
+ReDim season(maxtime * seasons), years(maxtime * seasons)
+For ii = 1 To maxtime * seasons
+ season(ii) = tempseason
+ years(ii) = tempyear
+ If tempseason = seasons Then
+   tempseason = 1
+   tempyear = tempyear + 1
+ Else
+   tempseason = tempseason + 1
+ End If
+Next ii
+
+ReDim driftmat(numareas, numareas, numspecies), Ro(numareas, numspecies), migprobmat(numareas, numareas, numspecies)
+ReDim length1(allmaxage, numspecies), weight1(allmaxage, numspecies), matF1(allmaxage, numspecies), NNo(numspecies)
+ReDim wtdecage(seasons * allmaxage, numspecies), seldecage(seasons * allmaxage, numspecies), matFdecage(seasons * allmaxage, numspecies), matMdecage(seasons * allmaxage, numspecies)
+ReDim selagefleet(seasons * allmaxage, 10, numspecies), catage1(maxtime * seasons, allmaxage, numspecies)
+ReDim catch1(maxtime, 10, numspecies), Fhist(maxtime, 10, numspecies), wtb(2, numspecies), samplesd(numspecies), qp(numspecies), ql(numspecies), DRdist(numspecies), Fage(maxtime * seasons, allmaxage, numspecies)
+ReDim maxage(numspecies), MM(numspecies), genders(numspecies), recage(numspecies), wta(2, numspecies), sexchange(numspecies)
+ReDim t1(2, numspecies), L1(2, numspecies), t2(2, numspecies), L2(2, numspecies), KK(2, numspecies), Linf(2, numspecies), L50mat(2, numspecies), kmat(2, numspecies)
+ReDim sexchange(numspecies), L50sex(numspecies), ksex(numspecies), eggswt(allmaxage, numspecies), larvdrift(numspecies), Rototal(numspecies)
+ReDim inithh(numspecies), hh(numspecies), phi(numspecies), Rmodel(numspecies), initRsd(numspecies), Rsd(numspecies), Rauto(numspecies), migprob(numspecies)
+ReDim numfishery(numspecies), finit(10, numspecies), fslope(10, numspecies), finfl(10, numspecies), ffrac(10, numspecies)
+ReDim fswitch(10, numspecies), fful(10, numspecies), finfldown(10, numspecies), fslopedown(10, numspecies), ffinal(10, numspecies)
+ReDim fullFbefore(numspecies), initqq(numspecies), qq(numspecies), selsum(numspecies), catdata(numspecies, 2), SSBo(numspecies), totalNNo(numspecies), BBo(numspecies)
+ReDim eggswta(numspecies), eggswtb(numspecies), depletion(numspecies), Fdepletion(numspecies), ftype(10, numspecies)
+ReDim propos(numspecies), posmean(numspecies), possd(numspecies), Fvalue(numspecies)
+
+fishedareas = 0
+For ii = 1 To numareas
+ fishedareas = fishedareas + MPAvector(ii)
+Next ii
+
+sumports = 0
+For ii = 1 To numareas
+ sumports = sumports + portvector(ii)
+Next ii
+For ii = 1 To numareas
+ portvector(ii) = portvector(ii) / sumports
+Next ii
+
+For sp# = 1 To numspecies
+ Open App.Path & "\" & fishsp$(sp#) & ".csv" For Input As #10
+ Input #10, temp1$, temp3$
+ Input #10, temp1$, maxage(sp#)
+ Input #10, temp1$, MM(sp#)
+ Input #10, temp1$, genders(sp#)
+ Input #10, temp1$, recage(sp#)
+' Input #10, temp1$
+ If genders(sp#) = 1 Then
+  Input #10, temp1$, wta(1, sp#)
+  Input #10, temp1$, wtb(1, sp#)
+  Input #10, temp1$
+  Input #10, temp1$, t1(1, sp#)
+  Input #10, temp1$, L1(1, sp#)
+  Input #10, temp1$, t2(1, sp#)
+  Input #10, temp1$, L2(1, sp#)
+  Input #10, temp1$, KK(1, sp#)
+ Else
+  For gen = 1 To 2
+   Input #10, temp1$, wta(gen, sp#)
+   Input #10, temp1$, wtb(gen, sp#)
+  Next gen
+ ' Input #10, temp1$
+  For gen = 1 To 2
+   Input #10, temp1$, t1(gen, sp#)
+   Input #10, temp1$, L1(gen, sp#)
+   Input #10, temp1$, t2(gen, sp#)
+   Input #10, temp1$, L2(gen, sp#)
+   Input #10, temp1$, KK(gen, sp#)
+  Next gen
+ End If
+'Input #10, temp1$
+Input #10, temp1$, L50mat(1, sp#)
+Input #10, temp1$, kmat(1, sp#)
+Input #10, temp1$, sexchange(sp#)
+'If sexchange(sp#) = 1 Then
+ Input #10, temp1$, L50sex(sp#)
+ Input #10, temp1$, ksex(sp#)
+'End If
+'Input #10, temp1$
+Input #10, temp1$, eggswta(sp#)
+Input #10, temp1$, eggswtb(sp#)
+'Input #10, temp1$
+Input #10, temp1$, larvdrift(sp#)
+'Input #10, temp1$
+Input #10, temp1$, Rototal(sp#)
+Input #10, temp1$, inithh(sp#)
+hh(sp#) = inithh(sp#)
+Input #10, temp1$, phi(sp#)
+Input #10, temp1$, Rmodel(sp#)
+Input #10, temp1$, initRsd(sp#)
+If Rmodel(sp#) = 1 Then
+ Rsd(sp#) = initRsd(sp#) * Log(Rototal(sp#))
+Else
+ Rsd(sp#) = initRsd(sp#) * Log(Rototal(sp#)) / numareas
+End If
+Input #10, temp1$, Rauto(sp#)
+If numsims = 1 Then
+ Rsd(sp#) = 0
+ Rauto(sp#) = 0
+End If
+'Input #10, temp1$
+Input #10, temp1$, migprob(sp#)
+'Input #10, temp1$
+Input #10, temp1$, depletion(sp#)
+Input #10, temp1$, fullFbefore(sp#)
+Input #10, temp1$, numfishery(sp#)
+For fleet = 1 To 6   ' Max number of fisheries is 6
+ Input #10, temp1$, finit(fleet, sp#)
+ Input #10, temp1$, fslope(fleet, sp#)
+ Input #10, temp1$, finfl(fleet, sp#)
+ Input #10, temp1$, fswitch(fleet, sp#)
+ Input #10, temp1$, fful(fleet, sp#)
+ Input #10, temp1$, fslopedown(fleet, sp#)
+ Input #10, temp1$, finfldown(fleet, sp#)
+ Input #10, temp1$, ffinal(fleet, sp#)
+ Input #10, temp1$, ffrac(fleet, sp#)
+ Input #10, temp1$, ftype(fleet, sp#)
+Next fleet
+'Input #10, temp1$, catchfile$
+'Input #10, catdata(sp#, 1), catdata(sp#, 2)
+'Input #10, temp1$
+Input #10, temp1$, DRdist(sp#)
+'Input #10, temp1$, samplesd(sp#)
+Input #10, temp1$, propos(sp#)
+Input #10, temp1$, posmean(sp#)
+Input #10, temp1$, possd(sp#)
+'Input #10, temp1$, qq(sp#) 'qq =  relative catch rate of species in all fisheries.
+
+Close #10
+
+catdata(sp#, 2) = catdata(sp#, 2) - firstyear + 1
+catdata(sp#, 1) = catdata(sp#, 2) - firstyear + 1
+If cathist = 1 Or cathist = 2 Then
+ Open App.Path & "\output\" & catchfile$ For Input As #31
+ Input #31, temp1$
+ For ii = 1 To numfishery(sp#)
+  Input #31, temp1$
+ Next ii
+ For ii = 1 To (catdata(sp#, 2) - catdata(sp#, 1) + 1)
+ Input #31, temp2#
+ If cathist = 1 Then
+  For jj = 1 To numfishery(sp#)
+   Input #31, catch1(ii, jj, sp#)
+  Next jj
+ ElseIf cathist = 2 Then
+  For jj = 1 To numfishery(sp#)
+   Input #31, Fhist(ii, jj, sp#)
+  Next jj
+ End If
+ Next ii
+End If
+Close #31
+
+For ii = 1 To genders(sp#)
+ Linf(ii, sp#) = L1(ii, sp#) + (L2(ii, sp#) - L1(ii, sp#)) / (1 - Exp(-(KK(ii, sp#) * (t2(ii, sp#) - t1(ii, sp#)))))
+Next ii
+For ii = 1 To numareas
+ Ro(ii, sp#) = Rototal(sp#) / numareas
+Next ii
+
+Call setupmatrices(sp#, larvdrift(sp#), migprob(sp#))
+ 
+ For ii = 1 To numareas
+   Ro(ii, sp#) = Rototal(sp#) / numareas
+ Next ii
+
+NNo(sp#) = Rototal(sp#)
+For ii = 2 To maxage(sp#) + 100
+ NNo(sp#) = NNo(sp#) + NNo(sp#) * Exp(-MM(sp#) * ii)
+Next ii
+
+For ii = 1 To maxage(sp#)
+ length1(ii, sp#) = Lengthage(ii, 1, sp#)
+ weight1(ii, sp#) = Weightlength(ii, 1, sp#)
+ matF1(ii, sp#) = maturelength(length1(ii, sp#), 1, sp#)
+ If eggswta(sp#) = 0 Then
+   eggswt(ii, sp#) = 1
+ Else
+  eggswt(ii, sp) = eggswta(sp#) + eggswtb(sp#) * weight1(ii, sp#)
+ End If
+Next ii
+selsum(sp#) = 0
+For aa = 1 To maxage(sp#) * seasons
+ seldecage(aa, sp#) = 0
+  For ii = 1 To numfishery(sp#)
+   seldecage(aa, sp#) = seldecage(aa, sp#) + ffrac(ii, sp#) * selectivity(Lengthage(1 + (aa - 1) / seasons, 1, sp#), finit(ii, sp#), fslope(ii, sp#), finfl(ii, sp#), fswitch(ii, sp#), fswitch(ii, sp#) + fful(ii, sp#), finfldown(ii, sp#), fslopedown(ii, sp#), ffinal(ii, sp#))
+   selsum(sp#) = selsum(sp#) + seldecage(ii, sp#)
+   selagefleet(aa, ii, sp#) = selectivity(Lengthage(1 + (aa - 1) / seasons, 1, sp#), finit(ii, sp#), fslope(ii, sp#), finfl(ii, sp#), fswitch(ii, sp#), fswitch(ii, sp#) + fful(ii, sp#), finfldown(ii, sp#), fslopedown(ii, sp#), ffinal(ii, sp#))
+  Next ii
+  If sexchange(sp#) = 0 Then
+   matFdecage(aa, sp#) = maturelength(Lengthage(1 + (aa - 1) / seasons, 1, sp#), 1, sp#) / 2
+   matMdecage(aa, sp#) = maturelength(Lengthage(1 + (aa - 1) / seasons, 1, sp#), 1, sp#) / 2
+   For sex = 1 To 2
+    wtdecage(aa, sp#) = Weightlength(Lengthage(1 + (aa - 1) / seasons, sex, sp#), sex, sp#) / 2
+   Next sex
+  ElseIf sexchange(sp#) = 1 Then
+   matFdecage(aa, sp#) = maturelength(Lengthage(1 + (aa - 1) / seasons, 1, sp#), 1, sp#) * (1 - sexchangelength(Lengthage(1 + (aa - 1) / seasons, 1, sp#), sp#))
+   matMdecage(aa, sp#) = maturelength(Lengthage(1 + (aa - 1) / seasons, 1, sp#), 1, sp#) * (sexchangelength(Lengthage(1 + (aa - 1) / seasons, 1, sp#), sp#))
+   wtdecage(aa, sp#) = Weightlength(Lengthage(1 + (aa - 1) / seasons, 1, sp#), 1, sp#) * (1 - matMdecage(aa, sp#)) + Weightlength(Lengthage(1 + (aa - 1) / seasons, 1, sp#), 2, sp#) * (matMdecage(aa, sp#))
+  End If
+Next aa
+For ii = 1 To maxtime * seasons
+ For jj = 1 To maxage(sp#)
+  catage1(ii, jj, sp#) = 0
+  Fage(ii, jj, sp#) = 0
+  longage = (jj - 1) * seasons + season(ii)
+  If cathist = 1 Then
+   For ll = 1 To numfishery(sp#)
+    catage1(ii, jj, sp#) = catage1(ii, jj, sp#) + seldecage(longage, sp#) * catch1(years(ii), ll, sp#) / seasons / numareas
+   Next ll
+  ElseIf cathist = 2 Then
+   For ll = 1 To numfishery(sp#)
+    Fage(ii, jj, sp#) = Fage(ii, jj, sp#)
+   Next ll
+  End If
+ Next jj
+Next ii
+Call unfishedSSB(sp#)
+
+qp(sp#) = propos(sp#) / depletion(sp#) 'qp = constant of proportionality for positive sets in DR survey
+ql(sp#) = posmean(sp#) / depletion(sp#) 'ql = constant of proportionality for lognormal sets in DR survey
+samplesd(sp#) = (Log(1 + (possd(sp#) / posmean(sp#)) ^ 2)) ^ 0.5
+
+Next sp#
+
+'Fsum = 0
+ tempeffortsum = 0
+ For ss = 1 To numareas
+  tempeffortsum = tempeffortsum + effortvector(ss)
+ Next ss
+'For ss = 1 To numareas
+'  effortvector(ss) = effortvector(ss) / tempeffortsum
+'Next ss
+
+For sp# = 1 To numspecies
+' Fsum = Fsum + fullFbefore(sp#)
+qq(sp#) = fullFbefore(sp#) / tempeffortsum * numareas
+initqq(sp#) = qq(sp#)
+
+Next sp#
+
+' ######
+If batchrun > 0 Then
+ Open App.Path & "\batchinputeffort.csv" For Input As #333
+readin1:
+ If Not EOF(333) Then
+  Input #333, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp9, temp10, temp11, temp12, temp13, temp14, temp15, temp16
+  If Not temp1 = batchrun - 1 Then GoTo readin1
+ Else
+  Stop
+ End If
+ For runnum = batchrun To numruns + batchrun - 1
+   Input #333, temprun, idealfree, tempmigprob, templarvdrift, DRmethod, tempRmodel, Finc, numspecies, tempspname, tempRauto, samplesize, tempsteepness, tempRsd, effortcreep, illegalfish, Fbefore
+   runname$ = "run" & temprun
+   DRtime = 1
+   DRreset = 0.1
+   DRtarget = 0.6
+   DRlimit = 0.2
+   If DRmethod = 0 Or DRmethod = 10 Then
+    useDR = 0
+   ElseIf DRmethod > 0 And DRmethod < 10 Then
+     useDR = 1
+   ElseIf DRmethod < 0 And DRmethod > -100 Then
+     useDR = 2
+     DRmethod = -DRmethod
+   ElseIf DRmethod < -100 Then
+     useDR = 3
+     DRmethod = DRmethod + 100
+   ElseIf DRmethod > 100 And DRmethod < 200 Then
+     useDR = 1
+     DRtime = 3
+     DRmethod = DRmethod - 100
+   ElseIf DRmethod > 200 And DRmethod < 300 Then
+     useDR = 1
+     DRmethod = DRmethod - 200
+     DRreset = 0.5
+   ElseIf DRmethod > 300 Then
+     useDR = 1
+     DRtarget = 0.8
+     DRmethod = DRmethod - 300
+   End If
+   If numspecies > 1 Then
+    multisp = 1
+   Else
+    multisp = 0
+   End If
+   If Not temprun = runnum Then Stop
+   For sspp = 1 To numspecies
+    Rauto(sspp) = tempRauto
+    migprob(sspp) = tempmigprob
+    larvdrift(sspp) = templarvdrift
+    Rmodel(sspp) = tempRmodel
+    If DRmethod = 10 Then
+      Fvalue(sspp) = MM(sspp)
+    End If
+    If tempsteepness > 0 Then
+     hh(sspp) = tempsteepness
+    Else
+     hh(sspp) = inithh(sspp)
+    End If
+    If tempRsd > -1 Then
+     Rsd(sspp) = tempRsd * Log(Rototal(sspp))
+    Else
+     Rsd(sspp) = initRsd(sspp) * Log(Rototal(sspp))
+    End If
+    If Not Rmodel(sspp) = 1 Then Rsd(sspp) = Rsd(sspp) / numareas
+    Call setupmatrices(sspp, templarvdrift, tempmigprob)
+   Next sspp
+   If numspecies = 1 Then
+    fishsp$(1) = tempspname
+   End If
+   For sss = 1 To numareas
+    numsamples(sss) = initnumsamples(sss) * samplesize
+   Next sss
+   'For backfilling, remember to remove
+   'If (useDR = 1 Or useDR = 2) Then
+   If Fbefore > 0 Then
+     fullFbefore(1) = Fbefore
+     qq(1) = fullFbefore(1) / tempeffortsum * numareas
+     initqq(1) = qq(1)
+   End If
+    Call simulations2
+   'End If
+ Next runnum
+Else
+ Call simulations2
+End If
+Debug.Print ("done")
+End
+
+End Sub
+
+Sub binit(nbin(), ibin, lowb0, isimb, b0, db0)
+'b0 = 0.001
+j = Int((b0 - lowb0) / db0) + 1
+If j <= 0 Then j = 0
+If j > ibin Then j = ibin
+isimb = j
+nbin(j) = nbin(j) + 1
+
+End Sub
+Sub plotfit()
+If Fletch.mnu_pick(6).Checked Then    '6=decision analysis
+        Fletch.Picture1.PSet (ifyrdata%, cpue(1, ifyrdata%)) '
+        For iyr = ifyrdata To iendyrdata
+            Fletch.Picture1.Line -(iyr, cpue(1, iyr)), QBColor(2 + 5) / 10#
+        Next
+        For iyr = ifyrdata To iendyrdata
+                Fletch.Picture1.Circle (iyr, cpue(1, iyr)), 0.1, QBColor(2 + 10) / 10
+        Next
+Else
+If akv > 0 Then
+ afact = akv / 10 '1500 '15000  'eab
+Else
+ afact = 1500
+End If
+        Fletch.Picture1.PSet (ifyr, predce(1, ifyr) / amleq(1) / afact)
+     ''   Fletch.Picture1.PSet (ifyrdata, cpue(1, ifyrdata) / 100) '
+        I = 1
+        For iyr = ifyr To iendyrdata   'plot observed values as points and rescale values to fit on graph
+     ''           Fletch.Picture1.Circle (iyr, predce(i, iyr) / 10), 0.1, QBColor(1 + i + ia ^ 2)
+           If predce(I, iyr) > 0 Then Fletch.Picture1.Line -(iyr, predce(I, iyr) / amleq(I) / afact), QBColor(1)
+        Next iyr
+        For I = 1 To nind
+        For iyr = ifyrdata To iendyrdata 'loop over years - plot predicted values as lines and rescale values to fit on graph
+         ''   Fletch.Picture1.Line -(iyr, cpue(i, iyr) / 10 ^ i), QBColor(1)
+            If cpue(I, iyr) > 0 Then
+              If I < 15 Then
+                Fletch.Picture1.Circle (iyr, cpue(I, iyr) / amleq(I) / afact ^ (1)), 0.2, QBColor(1 + I)
+              Else
+                 Fletch.Picture1.Circle (iyr, cpue(I, iyr) / amleq(I) / afact ^ (1)), 0.2, QBColor(I - 14)
+              End If
+            End If
+        Next iyr
+        Next I
+        
+       
+End If
+End Sub
+
+
+Public Sub simpriors(x())
+' EAB 5/30/02 Draws from the prior distributions for importance sampling.
+ Dim xnew(2), ch(4), xsim(2)
+ If estk = 1 Then
+  If logKprior = 0 Then
+   x(paramk) = amink + Rnd * (amaxk - amink)
+  ElseIf logKprior = 1 Then
+   x(paramk) = Exp(Log(amink) + Rnd * (Log(amaxk) - Log(amink)))
+  End If
+  If ltransk = 1 Then
+   x(paramk) = Log(x(paramk))
+  End If
+ End If
+ If estr = 1 Then
+  If rprior = 0 Then
+      x(paramk) = aminr + Rnd * (amaxr - aminr)
+  ElseIf rprior = 1 Then 'lognormal
+'   varlog = (Log(1 + aRsd ^ 2 / armed ^ 2))
+'   x(paramr) = Exp(rannorm * varlog ^ 0.5 + Log(armed - 0.5 * varlog)) 'check this
+   x(paramr) = Exp(rannorm * aRsd + Log(armed)) 'check this
+  ElseIf rprior = 2 Then  'mvt
+    If fletcher = 1 Then
+      Call getc(nparamx, acov(), ch())
+      Call simMVT(tdegf, nparamx, ch(), paramu(), xsim())
+      x(paramr) = xsim(1)
+      x(paramn) = xsim(2)
+      If ltransn = 0 Then x(paramn) = Exp(x(paramn))
+    Else
+      x(paramr) = tdensity(tdegf, armean, Sqr(avarr), rv)
+    End If
+  End If
+  If ltransr = 1 Then
+   x(paramr) = Log(x(paramr))
+  End If
+ End If
+ If estcat0 = 1 Then
+  x(paramcat0) = Exp(rannorm * catsd + Log(catmed))
+  If ltranscat0 = 1 Then
+   x(paramcat0) = Log(x(paramcat0))
+  End If
+ End If
+ If estab0 = 1 Then
+  x(paramab0) = Exp(rannorm * alphasd + Log(alphamed))
+  If ltransab0 = 1 Then
+   x(paramab0) = Log(x(paramab0))
+  End If
+ End If
+ If iwted = 4 Or iwted = 5 Or iwted = 7 Or iwted = 9 Or iwted = 10 Then
+  If sigmaprior = 0 Then
+   For I = param1cv To paramfincv
+     x(I) = aminsig + Rnd * (amaxsig - aminsig)  'eab2007
+   Next I
+  ElseIf sigmaprior = 1 Then
+   For I = param1cv To paramfincv
+     x(I) = Exp(rannorm * sigmasd + Log(sigmamed))
+   Next I
+   End If
+  If ltransig = 1 Then
+   For I = param1cv To paramfincv
+     x(I) = Log(x(I))
+   Next I
+  End If
+ End If
+ If estq = 1 Then
+ For ii = 1 To nind
+  If logtrans(param1q + ii - 1) = 1 Then
+    x(param1q + ii - 1) = Log(aminq) + Rnd * Log(amaxq) - Log(aminq)
+   Else
+     qval(ii) = aminq + Rnd * (amaxq - aminq)
+   End If
+ Next ii
+End If
+
+ 
+End Sub
+
+Public Function Weightlength(length, sex, sp#)
+Weightlength = wta(1, sp#) * length ^ wtb(1, sp#)
+
+End Function
+
+Public Function Lengthage(age, sex, sp#)
+Lengthage = Linf(sex, sp#) + (L1(sex, sp#) - Linf(sex, sp#)) * (Exp(-KK(sex, sp#) * (age - t1(sex, sp#))))
+
+End Function
+Public Function maturelength(length, sex, sp#)
+ maturelength = 1 / (1 + Exp(-kmat(sex, sp#) * (length - L50mat(sex, sp#))))
+
+End Function
+
+Public Function sexchangelength(length, sp#)
+ sexchangelength = 1 / (1 + Exp(-ksex(sp#) * (length - L50sex(sp#))))
+
+End Function
+
+Public Function SSBfunc(tt, ss, sp#)
+'  only correct if tt is in spawning season.
+ SSBfunc = 0
+ For aa = recage(sp#) To maxage(sp#)
+  longage = (aa - 1) * seasons + season(tt)
+  SSBfunc = SSBfunc + NN(tt - recage(sp#) * seasons, aa, ss, sp#) * matFdecage(longage, sp#) * eggswt(aa, sp#)
+ Next aa
+End Function
+
+Public Function SRR1(SSB, temp1Ro, sp#)
+ Rerror(sp#) = Rerror(sp#) * Rauto(sp#) + (1 + Rauto(sp#) ^ 2) ^ 0.5 * rannorm() * Rsd(sp#)  'From Punt et al. manuscript
+ SRR1 = 0.8 * temp1Ro * hh(sp#) * SSB / (0.2 * phi(sp#) * temp1Ro * (1 - hh(sp#)) + (hh(sp#) - 0.2) * SSB) * Exp(Rerror(sp#) - Rsd(sp#) ^ 2 / 2)
+ If SRR1 < 0 Then Stop
+End Function
+
+Public Function SRR3(SSB, temp1Ro, tt, ss, sp#)
+  Rerror(sp#) = Rerror(sp#) * Rauto(sp#) + (1 + Rauto(sp#) ^ 2) ^ 0.5 * rannorm() * Rsd(sp#)  'From Punt et al. manuscript
+  tempSSB = SSBfunc(tt, ss, sp#)
+  temp1 = 0.8 * temp1Ro * hh(sp#) * tempSSB / (0.2 * phi(sp#) * temp1Ro * (1 - hh(sp#)) + (hh(sp#) - 0.2) * tempSSB) * Exp(Rerror(sp#) - Rsd(sp#) ^ 2 / 2)
+  SRR3 = SSB / tempSSB * temp1
+  If SRR3 < 0 Then Stop
+  '    Rvector(ii) = SRR3(sumSSB / numareas, Ro(ii, sp#), tt, ii, sp#)
+End Function
+Public Sub Recruitment2(Rmodel1, tt, Rvector(), sp#)
+ ReDim tempSSB(numareas), tempR(numareas)
+ If tt > recage(sp#) * seasons Then
+  sumSSB = 0
+  sumR = 0
+  For ii = 1 To numareas
+   tempSSB(ii) = SSBfunc(tt, ii, sp#)
+   sumSSB = sumSSB + tempSSB(ii)
+  Next ii
+  If Rmodel1 = 0 Then
+   For ii = 1 To numareas
+    Rvector(ii) = SRR1(tempSSB(ii), Ro(ii, sp#), sp#)
+   Next ii
+  ElseIf Rmodel1 = 1 Then
+   tempSRR = SRR1(sumSSB, Rototal(sp#), sp#)
+   For ii = 1 To numareas
+    Rvector(ii) = tempSRR / numareas
+   Next ii
+  ElseIf Rmodel1 = 2 Then
+   tempSRR = SRR1(sumSSB, Rototal(sp#), sp#)
+   For ii = 1 To numareas
+    tempR(ii) = SRR1(tempSSB(ii), Ro(ii, sp#), sp#)
+    sumR = sumR + tempR(ii)
+   Next ii
+   For ii = 1 To numareas
+    Rvector(ii) = sumR / numareas
+   Next ii
+  ElseIf Rmodel1 = 3 Then
+   For ii = 1 To numareas
+    Rvector(ii) = SRR3(sumSSB / numareas, Ro(ii, sp#), tt, ii, sp#)
+   Next ii
+  ElseIf Rmodel1 = 4 Then
+   For ii = 1 To numareas
+     For jj = 1 To numareas
+       temp(ii) = temp(ii) + tempSSB(jj) * driftmat(ii, jj, sp#)
+     Next jj
+   Next ii
+   For ii = 1 To numareas
+     Rvector(ii) = SRR1(temp(ii), Ro(ii, sp#), sp#)
+   Next ii
+  ElseIf Rmodel1 = 5 Then
+   For ii = 1 To numareas
+    If tt <= MPAyear * seasons + 20 * seasons Or tt >= MPAyear * seasons + 40 * seasons Then
+     Rvector(ii) = SRR1(tempSSB(ii), Ro(ii, sp#), sp#)
+    Else
+     Rvector(ii) = SRR1(tempSSB(ii), Ro(ii, sp#), sp#) / 10
+    End If
+   Next ii
+  ElseIf Rmodel1 = 6 Then
+   For ii = 1 To numareas
+    Rvector(ii) = SRR1(sumSSB / numareas, Ro(ii, sp#), sp#)
+   Next ii
+  End If
+ Else
+  For ii = 1 To numareas
+   Rvector(ii) = Rototal(sp#) / numareas
+  Next ii
+ End If
+End Sub
+
+Public Sub Recruitment(Rmodel, tt, Rvector())
+ sumSSB = 0
+ sumR = 0
+ReDim tempSSB(numareas), tempR(numareas)
+ For ii = 1 To numareas
+  tempSSB(ii) = SSBfunc(tt, ii)
+  sumSSB = sumSSB + tempSSB(ii)
+ Next ii
+ If Rmodel = 0 Then
+  For ii = 1 To numareas
+   Rvector(ii) = SRR1(tempSSB(ii), Ro(ii))
+  Next ii
+ ElseIf Rmodel = 1 Then
+  tempSRR = SRR1(sumSSB, Rototal)
+  For ii = 1 To numareas
+   Rvector(ii) = tempSSR / numareas
+  Next ii
+ ElseIf Rmodel = 2 Then
+  tempSRR = SRR1(sumSSB, Rototal)
+  For ii = 1 To numareas
+   tempR(ii) = SRR1(tempSSB(ii), Ro(ii))
+   sumR = sumR + tempR(ii)
+  Next ii
+  For ii = 1 To numareas
+   Rvector(ii) = sumR / numareas
+  Next ii
+ ElseIf Rmodel = 3 Then
+  For ii = 1 To numareas
+   Rvector(ii) = SRR3(sumSSB / numareas, Ro(ii), tt, ii)
+  Next ii
+ ElseIf Rmodel = 4 Then
+  For ii = 1 To numareas
+    For jj = 1 To numareas
+      temp(ii) = temp(ii) + tempSSB(jj) * driftmat(ii, jj)
+    Next jj
+  Next ii
+  For ii = 1 To numareas
+    Rvector(ii) = SRR1(temp(ii), Ro(ii))
+  Next ii
+ End If
+End Sub
+
+Public Function selectivity(length, init, slope, infl, switch, ful, infldown, slopedown, final)
+ upcurve = 1 / (1 + Exp(-slope * (length - infl)))
+ If switch > 0.0001 Then
+  downcurve = 1 - (1 - final) / (1 + Exp(-slopedown * (length - infldown)))
+ Else
+  downcurve = 1
+ End If
+ If length <= init Then
+  selectivity = 0
+ ElseIf switch = 0 Or length <= switch Then
+  selectivity = upcurve
+ ElseIf length > switch And length <= ful And switch > 0 Then
+  selectivity = 1
+ ElseIf length >= full And switch > 0 Then
+  selectivity = downcurve
+ End If
+End Function
+
+Public Sub calcDR(DR(), expDR(), tt, sim#)
+
+'Called in the last season of the year, and calculates DR for that year
+ If DRtime = 1 Then
+   starttime = tt
+   endtime = tt
+ ElseIf DRtime = 3 And years(tt) <= 3 Then
+   starttime = 1
+   endtime = tt
+ ElseIf DRtime = 3 And years(tt) > 3 Then
+   starttime = tt - seasons * 3 + 1
+   endtime = tt
+ End If
+ ReDim DRsum(numspecies), tempNN(numareas, starttime To endtime, numspecies)
+ ReDim tempin1(numspecies), tempin2(numspecies), countin(numspecies), tempout1(numspecies), tempout2(numspecies), countout(numspecies)
+ ReDim temprealin(numspecies), temprealout(numspecies)
+ For tempsp = 1 To numspecies
+  tempin1(tempsp) = 0
+  tempin2(tempsp) = 0
+  countin(tempsp) = 0
+  tempout1(tempsp) = 0
+  tempout2(tempsp) = 0
+  countout(tempsp) = 0
+  temprealin(tempsp) = 0
+  temprealout(tempsp) = 0
+ Next tempsp
+ For I = starttime To endtime
+  For tempsp = 1 To numspecies
+    For s = 1 To numareas
+      tempNN(s, I, tempsp) = 0
+      For a = recage(tempsp) To maxage(tempsp)
+       If useDR = 0 Or useDR = 1 Or useDR = 2 Then
+        tempNN(s, I, tempsp) = tempNN(s, I, tempsp) + NN(I, a, s, tempsp)
+       ElseIf useDR = 3 Then
+        tempNN(s, I, tempsp) = tempNN(s, I, tempsp) + NN(I, a, s, tempsp) * matFdecage(a, tempsp)
+       End If
+      Next a
+     If tempNN(s, I, tempsp) < 0.000000001 Then
+     'Stop
+     End If
+    Next s
+  Next tempsp
+ Next I
+ For I = starttime To endtime
+  For tempsp = 1 To numspecies
+   For s = 1 To numareas
+    If samplesize > 0 Then
+     For j = 1 To numsamples(s)
+  '   If Rnd() < Exp(qp(tempsp) * tempNN(s, i, tempsp) * numareas / NNo(tempsp)) / (1 + Exp(qp(tempsp) * tempNN(s, i, tempsp) * numareas / NNo(tempsp))) Then
+     If Rnd() > qp(tempsp) * tempNN(s, I, tempsp) / (totalNNo(tempsp) / numareas) Then
+       DRsim = 0
+     Else
+  '     DRsim = ql(tempsp) * tempNN(s, i, tempsp) / NNo(tempsp) * Exp(rannorm() * samplesd(tempsp))
+       DRsim = Int(ql(tempsp) * tempNN(s, I, tempsp) / totalNNo(tempsp) * numareas * Exp(rannorm() * samplesd(tempsp)))
+     End If
+     If MPAvector(s) = 0 Then
+      tempin1(tempsp) = tempin1(tempsp) + DRsim
+      tempin2(tempsp) = tempin2(tempsp) + DRsim ^ 2
+      countin(tempsp) = countin(tempsp) + 1
+     ElseIf MPAvector(s) = 1 And (useDR = 1 Or useDR = 3 Or (useDR = 2 And nearMPA(s) > 1)) Then
+      tempout1(tempsp) = tempout1(tempsp) + DRsim
+      tempout2(tempsp) = tempout2(tempsp) + DRsim ^ 2
+      countout(tempsp) = countout(tempsp) + 1
+     End If
+    Next j
+   End If
+    If MPAvector(s) = 0 Then
+     temprealin(tempsp) = temprealin(tempsp) + tempNN(s, I, tempsp)
+    Else
+     temprealout(tempsp) = temprealout(tempsp) + tempNN(s, I, tempsp)
+    End If
+   Next s
+  Next tempsp
+ Next I
+ arithsum = 0
+ geosum = 1
+ harmsum = 0
+ minDR = 10000
+ For tempsp = 1 To numspecies
+  If tempin1(tempsp) > 0 And tempout1(tempsp) > 0 Then
+   DR(years(tt), tempsp) = (tempout1(tempsp) / countout(tempsp)) * (countin(tempsp) / tempin1(tempsp))
+  Else
+   countzeros(years(tt), tempsp) = countzeros(years(tt), tempsp) + 1
+   DR(years(tt), tempsp) = 1
+ '  Stop
+  End If
+  arithsum = arithsum + DR(years(tt), tempsp)
+  geosum = geosum * DR(years(tt), tempsp)
+  If DR(years(tt), tempsp) > 0 Then
+   harmsum = harmsum + 1 / DR(years(tt), tempsp)
+  Else
+   harmsum = -1
+  End If
+  If DR(years(tt), tempsp) < minDR Then
+   minDR = DR(years(tt), tempsp)
+  End If
+ Next tempsp
+ DR(years(tt), numspecies + 1) = arithsum / numspecies
+ DR(years(tt), numspecies + 2) = geosum ^ (1 / numspecies)
+ DR(years(tt), numspecies + 3) = numspecies / harmsum
+ DR(years(tt), numspecies + 4) = minDR
+
+ realarithsum = 0
+ realgeosum = 1
+ realharmsum = 0
+ realminDR = 10000
+ For tempsp = 1 To numspecies
+  If temprealin(tempsp) > 0 And temprealout(tempsp) > 0 Then
+   expDR(years(tt), tempsp) = (temprealout(tempsp) / fishedareas) * (numareas - fishedareas) / temprealin(tempsp)
+  Else
+  ' Stop
+  End If
+  realarithsum = realarithsum + expDR(years(tt), tempsp)
+  realgeosum = realgeosum * expDR(years(tt), tempsp)
+  If expDR(years(tt), tempsp) > 0 Then
+   realharmsum = realharmsum + 1 / expDR(years(tt), tempsp)
+  Else
+   realharmsum = -1
+  End If
+  If expDR(years(tt), tempsp) < realminDR Then
+   realminDR = expDR(years(tt), tempsp)
+  End If
+ Next tempsp
+ expDR(years(tt), numspecies + 1) = realarithsum / numspecies
+ expDR(years(tt), numspecies + 2) = realgeosum ^ (1 / numspecies)
+ expDR(years(tt), numspecies + 3) = numspecies / realharmsum
+ expDR(years(tt), numspecies + 4) = realminDR
+'Debug.Print expDR(years(tt), 1), DR(years(tt), 1), (DR(years(tt), 1) - expDR(years(tt), 1)) / expDR(years(tt), 1)
+ If samplesize = 0 Then
+  For sss = 1 To numspecies + 4
+    DR(years(tt), sss) = expDR(years(tt), sss)
+  Next sss
+ End If
+
+
+End Sub
+
+
+Public Sub printNF(t, tempsp)
+
+Open App.Path & "\output\" & runname$ & "NN.csv" For Output As #12
+For a = 1 To maxage(tempsp)
+ For s = 1 To numareas
+  Print #12, NN(t, a, s, tempsp); , ", ";
+ Next s
+ Print #12, a
+Next a
+Close #12
+Open App.Path & "\output\" & folder$ & runname$ & "FF.csv" For Output As #12
+For a = 1 To maxage(tempsp)
+ For s = 1 To numareas
+  Print #12, FF(t, a, s, tempsp); , ", ";
+ Next s
+ Print #12, a
+Next a
+Close #12
+
+End Sub
+
+
+Public Sub unfishedSSB(sp#)
+
+tempN = Rototal(sp#)
+tempSSB = 0
+tempB = 0
+temptotalN = 0
+For aa = recage(sp#) To maxage(sp#)
+ For ss = 1 To seasons
+  decage = (aa - 1) * seasons + ss
+  If ss = 1 Then
+    tempSSB = tempSSB + wtdecage(decage, sp#) * tempN * matFdecage(decage, sp#) * eggswt(aa, sp#)
+    tempB = tempB + wtdecage(decage, sp#) * tempN * matFdecage(decage, sp#)
+    temptotalN = temptotalN + tempN
+  End If
+  tempN = tempN * Exp(-MM(sp#))
+ Next ss
+Next aa
+SSBo(sp#) = tempSSB
+BBo(sp#) = tempB
+totalNNo(sp#) = temptotalN
+
+End Sub
+
+Public Sub setupmatrices(sspp, larvdrift1, migprob1)
+
+ For ii = 1 To numareas
+  For jj = 1 To numareas
+   driftmat(ii, jj, sspp) = 0
+  Next jj
+  If ii = 1 Or ii = numareas Then
+   driftmat(ii, ii, sspp) = 1 - larvdrift1
+  Else
+   driftmat(ii, ii, sspp) = 1 - 2 * larvdrift1
+  End If
+  If ii < numareas Then
+   driftmat(ii, ii + 1, sspp) = larvdrift1
+   driftmat(ii + 1, ii, sspp) = larvdrift1
+  End If
+  If ii > 1 Then
+   driftmat(ii, ii - 1, sspp) = larvdrift1
+   driftmat(ii - 1, ii, sspp) = larvdrift1
+  End If
+ Next ii
+
+ For ii = 1 To numareas
+  For jj = 1 To numareas
+   migprobmat(ii, jj, sspp) = 0
+  Next jj
+ If ii = 1 Or ii = numareas Then
+   migprobmat(ii, ii, sspp) = 1 - migprob1
+ Else
+   migprobmat(ii, ii, sspp) = 1 - 2 * migprob1
+ End If
+ If ii < numareas Then
+   migprobmat(ii, ii + 1, sspp) = migprob1
+   migprobmat(ii + 1, ii, sspp) = migprob1
+ End If
+ If ii > 1 Then
+   migprobmat(ii, ii - 1, sspp) = migprob1
+   migprobmat(ii - 1, ii, sspp) = migprob1
+ End If
+Next ii
+
+
+End Sub
+
+
+Public Sub calcBoRo(sspp)
+
+Dim tempmatrix(1000)
+tempmatrix(recage(sspp)) = 1000
+For aa = recage(sspp) To 1000
+  tempmatrix(aa) = tempmatrix(aa - 1) * Exp(-MM(sspp))
+Next aa
+tempsum = 0
+For aa = recage(sspp) To 1000
+  tempsum = tempsum + tempmatrix(aa) * matFdecage(aa, sspp) * eggswt(aa, sspp)
+Next aa
+calcBoRo = tempsum / 1000
+
+End Sub
