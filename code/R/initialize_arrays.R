@@ -42,7 +42,7 @@ initialize_arrays <- function(time, time2, init_effort, rec_age, max_age, L1f,
   FM <- array(rep(0, n*A*timeT), c(n, A, time + time2))
   
   # Initial fishing mortality
-  FM[, , 1] <- fishing_mortality(A, Fb, E[1], S)
+  FM[, , 1] <- fishing_mortality(1, FM, A, Fb, E[1], S)
   
   # Initialize age-structured population size matrix
   # Dimensions = age * area * time

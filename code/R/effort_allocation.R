@@ -7,7 +7,7 @@ effort_allocation <- function(a, t, allocation, A, E, biomass) {
   E[reserve] <- 0
   
   if (allocation == "equal") {
-    E[outside] <- rep(sum(E)/(A-1), A)
+    E[outside] <- rep(sum(E)/(A-1), A - 1)
   } else {
     prop_biomass <- biomass[outside, t]/sum(biomass[outside, t])
     E[outside] <- sum(E)*prop_biomass
