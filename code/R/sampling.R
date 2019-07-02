@@ -15,8 +15,8 @@ sampling <- function(a, t, y, r, D, abundance_all, abundance_mature, transects,
   odds_mature <-  (delta * abundance_mature[a, t]) * (total_mature / A)
   
   # Calculate probability based on odds ratio
-  p_all <- 1 / (1 + e^odds_all)
-  p_mature <- 1 / (1 + e^odds_mature)
+  p_all <- 1 / (1 + exp(odds_all))
+  p_mature <- 1 / (1 + exp(odds_mature))
 
   # TODO: figure out how to properly calculate probability
   

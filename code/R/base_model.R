@@ -78,17 +78,15 @@ time          <- 50                 # number of timesteps (years) before
 time2         <- 50                 # number of timesteps (years) after
 transects     <- 24                 # number of transects per PISCO protocol
                                     #     reserve implementation
-init_effort   <- 0.05               # nominal fishing effort in each area
 CR            <- 8                  # number of control rules
-allocation    <- 'equal'            # distribution of fishing effort
-R0            <- 10000              # unfished recruitment 
+allocation    <- 'equal'            # distribution of fishing effort (or 'IFD')
+R0            <- 100000             # unfished recruitment 
 
 # Initialize arrays for time-varying dynamics
-IA <- initialize_arrays(time, time2, init_effort, rec_age, max_age, L1f, 
-                        L2f, Kf, a1f, a2f, af, bf, k_mat, Fb, L50, 
-                        sigma_R, rho_R, fleets, alpha, beta, start, F_fin, 
-                        L_50_up, L50_down, cf, switch, full, A, x, sp, 
-                        initial, M, CR, R0, phi)
+IA <- initialize_arrays(A, time, time2, R0, rec_age, max_age, L1f, L2f, Kf, a1f, 
+                        a2f, af, bf, k_mat, Fb, L50, sigma_R, rho_R, fleets, 
+                        alpha, beta, start, F_fin, L_50_up, L50_down, cf, 
+                        switch, full, x, sp, M, CR, phi)
 
 Init_size        <- IA[[1]]       # total population size at t = 1, 2
 timeT            <- IA[[2]]       # total amount of timesteps (years)
@@ -191,41 +189,30 @@ for (y in 1:CR) {
     
   }
   
-  # plot abundance, biomass, and yield over time for each area, once per CR
+#### plot abundance, biomass, and yield over time for each area, once per CR ###
   
-  par(mfrow = c(1, 5))
+  a <- 1
+  par(mfrow = c(1, 2))
   
-  for (a in 1:A) {
-       
-    main_title <- sprintf("Control Rule %i, Area %i", y, a)
-    
-    # plot abundance (1000s of individuals) in blue
-    plot(1:timeT, abundance_all[a, ]/1000, pch = 16, col = "deepskyblue3", 
-         xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
-         yaxt = 'n', ylim = c(0, 1500), xaxt = 'n', main = main_title)
-    axis(1, seq(0, 100, 50))
-    axis(2, seq(0, 1500, 500))
-    
-    # add red line for biomass (metric tons)
-    lines(1:timeT, biomass[a, ]/1000, type = 'l', lwd = 2, col = "firebrick3")
-    box()
-    
-  }
+  main_title <- sprintf("Control Rule %i", y)
   
-  par(mfrow = c(1, 5))  
+  # plot abundance (1000s of individuals) in blue
+  plot(1:timeT, abundance_all[a, ]/1000, pch = 16, col = "deepskyblue3", 
+       xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
+       yaxt = 'n', ylim = c(0, 1500), xaxt = 'n', main = main_title)
+  axis(1, seq(0, 100, 50))
+  axis(2, seq(0, 1500, 500))
   
-  for (a in 1:A) {
-    
-    main_title <- sprintf("Control Rule %i, Area %i", y, a)
+  # add red line for biomass (metric tons)
+  lines(1:timeT, biomass[a, ]/1000, type = 'l', lwd = 2, col = "firebrick3")
+  box()
   
-    # plot yield over time (metric tons)
-    plot(1:timeT, yield[a, ]/1000, type = 'l', lwd = 2, col = "forestgreen",
-         xlab = 'Time (years)', ylab = 'Yield (metric tons)', 
-         yaxt = 'n', ylim = c(0, 20), xaxt = 'n', main = main_title)
-    axis(1, seq(0, 100, 50))
-    axis(2, seq(0, 20, 5))
-    box() 
-    
-  }
+  # plot yield over time (metric tons)
+  plot(1:timeT, yield[a, ]/1000, type = 'l', lwd = 2, col = "forestgreen",
+       xlab = 'Time (years)', ylab = 'Yield (metric tons)', 
+       yaxt = 'n', ylim = c(0, 20), xaxt = 'n', main = main_title)
+  axis(1, seq(0, 100, 50))
+  axis(2, seq(0, 20, 5))
+  box() 
   
 }

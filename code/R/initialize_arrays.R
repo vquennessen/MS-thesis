@@ -1,8 +1,8 @@
-initialize_arrays <- function(time, time2, init_effort, rec_age, max_age, L1f, 
-                              L2f, Kf, a1f, a2f, af, bf, k_mat, Fb, L50, 
-                              sigma_R, rho_R, fleets, alpha, beta, start, F_fin, 
-                              L_50_up, L50_down, cf, switch, full, A, x, sp, 
-                              initial, M, CR, R0, phi) {
+initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f, 
+                              Kf, a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, 
+                              rho_R, fleets, alpha, beta, start, F_fin, 
+                              L_50_up, L50_down, cf, switch, full, x, sp, M, CR, 
+                              phi) {
   
   # total population size at t = 1, 2
   Init_size <- R0 / 10
@@ -11,7 +11,7 @@ initialize_arrays <- function(time, time2, init_effort, rec_age, max_age, L1f,
   timeT <- time + time2            
   
   # nominal fishing effort in each area
-  E <- array(rep(init_effort, A), c(1, A))     
+  E <- rep(1/A, A)     
   
   # ages for which fish have recruited
   age <- rec_age:max_age 
@@ -36,8 +36,8 @@ initialize_arrays <- function(time, time2, init_effort, rec_age, max_age, L1f,
   
   # Selectivity at age
   # Dimensions = 1 * age
-  S <- selectivity_at_age(L, fleets, alpha, beta, start, F_fin, L50_up, L50_down, 
-                          cf, switch, full)
+  S <- selectivity_at_age(L, fleets, alpha, beta, start, F_fin, L50_up, 
+                          L50_down, cf, switch, full)
   
   # Fishing mortality
   # Initialize array
@@ -113,7 +113,7 @@ initialize_arrays <- function(time, time2, init_effort, rec_age, max_age, L1f,
   SAD <- stable_age_distribution(b, c, max_age, m, L0, W0, rec_age, M, Fb)
   
   # Initial age structure
-  N[, , 1] <- N[, , 2] <- initial*SAD[rec_age:max_age]
+  N[, , 1] <- N[, , 2] <- Init_size*SAD[rec_age:max_age]
   
   # Enter abundance and biomasses for time = 1, 2
   for (a in 1:A) {
