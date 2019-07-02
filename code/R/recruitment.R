@@ -34,7 +34,10 @@ recruitment = function(SSB, A, R0, h, B0, Eps, sigma_R) {
   # Recruitment
   # Based on Babcock & MacCall (2011): Eq. (3)
   # Dimensions = 1 * 1
-  R1 <- (0.8 * R0 * h * SSB) / (0.2 * B0 * (1 - h) + (h - 0.2) * SSB) 
+  
+  adjR0 <- R0 / A
+  
+  R1 <- (0.8 * adjR0 * h * SSB) / (0.2 * B0 * (1 - h) + (h - 0.2) * SSB) 
   R <- R1 * (exp(Eps - sigma_R^2 / 2))
 
   return(R)
