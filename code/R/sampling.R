@@ -1,14 +1,22 @@
 sampling <- function(a, t, y, r, D, abundance_all, abundance_mature, transects, 
                      x, count_sp, nuS) {
   
-  # Calculate delta
+  # Calculate delta - constant of proportionality
   # Based on Babcock & MacCall (2011): Eq. (13)
   delta <- r / D
   
-  # Calculate probability of seeing a fish
+  # Total population size across all areas
+  total_all <- sum(abundance_all[, t])
+  total_mature <- sum(abundance_mature[, t])
+  
+  # Calculate odds ratio of seeing a fish
   # Based on Babcock & MacCall (2011): Eq. (12)
-  p_all <-  delta * abundance_all[a, t] * A / R0
-  p_mature <-  delta * abundance_mature[a, t] * A / R0
+  odds_all <-  (delta * abundance_all[a, t]) / (total_all / A)
+  odds_mature <-  (delta * abundance_mature[a, t]) * (total_mature / A)
+  
+  # Calculate probability based on odds ratio
+  p_all <- 1 / (1 + e^odds_all)
+  p_mature <- 1 / (1 + e^odds_mature)
 
   # TODO: figure out how to properly calculate probability
   
