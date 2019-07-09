@@ -13,7 +13,7 @@ parameters = function(species) {
     stop("Study species must be a character string.")
   }
   
-  if (species == "black rockfish") {
+  if (species == "black rockfish 2003") {
     # source: Babcock & MacCall 2011
     max_age <- 35                           # maximum age
     M <- 0.14                               # natural mortality

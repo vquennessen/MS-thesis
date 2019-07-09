@@ -39,19 +39,20 @@ pop_dynamics <- function(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0,
   FM[, , t] <- fishing_mortality(t, FM, A, Fb, E, S)
   
   # Step population foward in time
-  for (i in 2:(n - 1)) {
-    N[i, a, t, cr] <- N[i - 1, a, t - 1, cr] * exp(-1 * (FM[i - 1, a, t - 1] + M))
+  # Ages rec_age to max_age - 1
+  for (age in 2:(n - 1)) {
+    N[age, a, t, cr] <- N[age - 1, a, t - 1, cr] * exp(-1 * (FM[age - 1, a, t - 1] + M))
   }
   
-  N[max_age - 1, a, t, cr] <- N[(max_age - 2), a, t - 1, cr] * 
-    exp(-1 * (FM[(max_age - 2), a, t - 1] + M)) + 
-    N[max_age - 1, a, t - 1, cr] * exp(-1 * (FM[max_age - 1, a, t - 1] + M)) 
+  # Final age bin
+  N[n, a, t, cr] <- N[n - 1, a, t - 1, cr] * exp(-1 * (FM[n - 1, a, t - 1] + M)) + 
+    N[n, a, t - 1, cr] * exp(-1 * (FM[n, a, t - 1] + M)) 
   
-  abundance_all[a, t, 1] <- sum(N[, a, t, 1])
+  abundance_all[a, t, cr] <- sum(N[, a, t, cr])
   
-  abundance_mature[a, t, 1] <- sum(N[m:(max_age-1), a, t, 1])
+  abundance_mature[a, t, cr] <- sum(N[m:(max_age-1), a, t, cr])
   
-  biomass[a, t, 1] <- sum(N[, a, t, 1] * W)
+  biomass[a, t, cr] <- sum(N[, a, t, cr] * W)
   
   output <- list(SSB, FM, N, abundance_all, abundance_mature, biomass)
   

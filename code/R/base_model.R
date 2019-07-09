@@ -23,9 +23,24 @@ source("./code/R/stable_age_distribution.R")
 source("./code/R/catch_at_age.R")
 source("./code/R/effort_allocation.R")
 
+# Set model parameters (fixed)
+CR            <- 8                   # number of control rules
+transects     <- 24                  # number of transects per PISCO protocol
+                                     #     reserve implementation
+
+# Set model parameters (flexible)
+A             <- 5                   # number of areas, should be odd
+time          <- 50                  # number of timesteps (years) before 
+                                     #     reserve implementation
+time2         <- 50                  # number of timesteps (years) after
+allocation    <- 'equal'             # distribution of fishing effort (or 'IFD')
+R0            <- 100000              # unfished recruitment, arbitrary value   
+Init_size     <- 100000              # total population size at t = 1, 2
+species       <- 'black rockfish 2003'
+
 ##### Load life history characteristics for species ############################
 
-par <- parameters("black rockfish")
+par <- parameters(species)
 
 max_age  <- par[[1]]                      # maximum age
 M        <- par[[2]]                      # natural mortality
@@ -71,20 +86,6 @@ full     <- par[[42]]                     # length at which downcurve starts
 
 ##### Population Dynamics - Non-Time Varying ###################################
 
-# Set model parameters (fixed)
-CR            <- 8                  # number of control rules
-transects     <- 24                 # number of transects per PISCO protocol
-                                    #     reserve implementation
-
-# Set model parameters (flexible)
-A             <- 5                  # number of areas, should be odd
-time          <- 50                 # number of timesteps (years) before 
-                                    #     reserve implementation
-time2         <- 50                 # number of timesteps (years) after
-allocation    <- 'equal'            # distribution of fishing effort (or 'IFD')
-R0            <- 100000             # unfished recruitment, arbitrary value   
-Init_size     <- 100000             # total population size at t = 1, 2
-
 # Initialize arrays for time-varying dynamics
 IA <- initialize_arrays(A, time, time2, R0, rec_age, max_age, L1f, L2f, Kf, a1f, 
                         a2f, af, bf, k_mat, Fb, L50, sigma_R, rho_R, fleets, 
@@ -117,34 +118,38 @@ B0               <- IA[[23]]      # Unfished spawning stock biomass
 
 ##### Population Dynamics - Time Varying #######################################
 
-for (t in 3:time) {
+for (cr in 1:CR) {
   
   for (a in 1:A) {
     
-    # effort allocation
-    E <- effort_allocation(a, t, allocation, A, E, biomass)
-    
-    # biology
-    PD <- pop_dynamics(a, t, cr = 1, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
-                       h, B0, Eps, sigma_R, Fb, E, S, M)
-    SSB <- PD[[1]]
-    FM  <- PD[[2]]
-    N   <- PD[[3]]
-    
-    abundance_all[a, t, 1] <- sum(N[, a, t, 1])
-    abundance_mature[a, t, 1] <- sum(N[m:(max_age-1), a, t, 1])
-    biomass[a, t, 1] <- sum(N[, a, t, 1] * W)
-    
-    # sampling
-    if (t > (time - 3)) {
-      count_sp <- sampling(a, t + 3 - time, cr = 1, r, D, abundance_all, 
-                           abundance_mature, transects, x, count_sp, nuS)
+    for (t in 3:time) {
+      
+      # effort allocation
+      E <- effort_allocation(a, t, allocation, A, E, biomass)
+      
+      # biology
+      PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
+                         h, B0, Eps, sigma_R, Fb, E, S, M)
+      
+      SSB                <- PD[[1]]
+      FM                 <- PD[[2]]
+      N                  <- PD[[3]]
+      abundance_all      <- PD[[4]]
+      abundance_mature   <- PD[[5]]
+      biomass            <- PD[[6]]
+      
+      # sampling
+      if (t > (time - 3)) {
+        count_sp <- sampling(a, t + 3 - time, cr, r, D, abundance_all, 
+                             abundance_mature, transects, x, count_sp, nuS)
+      }
+      
+      # fishing
+      catch[, a, t, cr] <- catch_at_age(a, t, cr, N, FM)
+      N[, a, t, cr] <- N[, a, t, cr] - catch[, a, t, cr]
+      yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
+      
     }
-    
-    # fishing
-    catch[, a, t, 1] <- catch_at_age(a, t, cr = 1, N, FM)
-    N[, a, t, 1] <- N[, a, t, 1] - catch[, a, t, 1]
-    yield[a, t, 1] <- sum(catch[, a, t, 1]*W)
     
   }
   
@@ -163,14 +168,13 @@ for (cr in 1:CR) {
       # biology
       PD <- pop_dynamics(a, t + time, cr, rec_age, max_age, n, SSB, N, W, Mat, A, 
                          R0, h, B0, Eps, sigma_R, Fb, E, S, M)
-      SSB <- PD[[1]]
-      FM  <- PD[[2]]
-      N   <- PD[[3]]
       
-      abundance_all[a, t + time, cr] <- sum(N[, a, t + time, cr])
-      abundance_mature[a, t + time, cr] <- sum(N[m:(max_age-1), a, t + time, cr])
-      
-      biomass[a, t + time, cr] <- sum(N[, a, t + time, cr] * W)
+      SSB                <- PD[[1]]
+      FM                 <- PD[[2]]
+      N                  <- PD[[3]]
+      abundance_all      <- PD[[4]]
+      abundance_mature   <- PD[[5]]
+      biomass            <- PD[[6]]
       
       # sampling
       count_sp <- sampling(a, t + 3, cr, r, D, abundance_all, 
@@ -190,17 +194,18 @@ for (cr in 1:CR) {
   
 #### plot abundance, biomass, and yield over time for each area, once per CR ###
   
-  a <- 1
+  for (a in 1:A) {
+    
   par(mfrow = c(1, 2))
   
-  main_title <- sprintf("Control Rule %i", cr)
+  main_title <- sprintf("CR %i, Area %i", cr, a)
   
   # plot abundance (1000s of individuals) in blue
   plot(1:timeT, abundance_all[a, , cr]/1000, pch = 16, col = "deepskyblue3", 
        xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
        yaxt = 'n', ylim = c(0, 1500), xaxt = 'n', main = main_title)
   axis(1, seq(0, 100, 50))
-  axis(2, seq(0, 1500, 500))
+  axis(2, seq(0, 500, 250))
   
   # add red line for biomass (metric tons)
   lines(1:timeT, biomass[a, , cr]/1000, type = 'l', lwd = 2, col = "firebrick3")
@@ -211,7 +216,9 @@ for (cr in 1:CR) {
        xlab = 'Time (years)', ylab = 'Yield (metric tons)', 
        yaxt = 'n', ylim = c(0, 20), xaxt = 'n', main = main_title)
   axis(1, seq(0, 100, 50))
-  axis(2, seq(0, 20, 5))
+  axis(2, seq(0, 10, 5))
   box() 
+  
+  }
   
 }
