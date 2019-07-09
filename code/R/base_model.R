@@ -71,16 +71,19 @@ full     <- par[[42]]                     # length at which downcurve starts
 
 ##### Population Dynamics - Non-Time Varying ###################################
 
-# Set model parameters
-A             <- 5                  # number of areas
+# Set model parameters (fixed)
+CR            <- 8                  # number of control rules
+transects     <- 24                 # number of transects per PISCO protocol
+                                    #     reserve implementation
+
+# Set model parameters (flexible)
+A             <- 5                  # number of areas, should be odd
 time          <- 50                 # number of timesteps (years) before 
                                     #     reserve implementation
 time2         <- 50                 # number of timesteps (years) after
-transects     <- 24                 # number of transects per PISCO protocol
-                                    #     reserve implementation
-CR            <- 8                  # number of control rules
 allocation    <- 'equal'            # distribution of fishing effort (or 'IFD')
-R0            <- 100000             # unfished recruitment 
+R0            <- 100000             # unfished recruitment, arbitrary value   
+Init_size     <- 100000             # total population size at t = 1, 2
 
 # Initialize arrays for time-varying dynamics
 IA <- initialize_arrays(A, time, time2, R0, rec_age, max_age, L1f, L2f, Kf, a1f, 
@@ -88,31 +91,29 @@ IA <- initialize_arrays(A, time, time2, R0, rec_age, max_age, L1f, L2f, Kf, a1f,
                         alpha, beta, start, F_fin, L_50_up, L50_down, cf, 
                         switch, full, x, sp, M, CR, phi)
 
-Init_size        <- IA[[1]]       # total population size at t = 1, 2
-timeT            <- IA[[2]]       # total amount of timesteps (years)
-E                <- IA[[3]]       # nominal fishing effort in each area 
-age              <- IA[[4]]       # ages for which fish have recruited
-n                <- IA[[5]]       # number of age classes
-L                <- IA[[6]]       # Length at age, dim = 1*age
-W                <- IA[[7]]       # Weight at age, dim = 1*age
-Mat              <- IA[[8]]       # Fraction mature at age, dim = 1*age
-m                <- IA[[9]]       # Age at which fraction mature > 0.5
-S                <- IA[[10]]       # Selectivity at age
-FM               <- IA[[11]]      # Fishing mortality rate, dim = age*area*time
-N                <- IA[[12]]      # Population size, dim = age*area*time
-SSB              <- IA[[13]]      # Spawning stock biomass, dim = area*time
-R                <- IA[[14]]      # Recruitment, dim = area*time
-abundance_all    <- IA[[15]]      # Abundance, dim = area*time
-abundance_mature <- IA[[16]]      # Abundance, dim = area*time
-biomass          <- IA[[17]]      # Biomass, dim = area*time
-count_sp         <- IA[[18]]      # Species count when sampling, dim = area*time
-nuS              <- IA[[19]]      # Sampling normal variable, dim = area*time*CR
-Eps              <- IA[[20]]      # Epsilon vector, dim = area*time*CR
-L0               <- IA[[21]]      # Length at age for stable age distribution
-W0               <- IA[[22]]      # Weight at age for stable age distribution
-catch            <- IA[[23]]      # Catch at age
-yield            <- IA[[24]]      # Yield per area 
-B0               <- IA[[25]]      # Unfished spawning stock biomass
+timeT            <- IA[[1]]       # total amount of timesteps (years)
+E                <- IA[[2]]       # nominal fishing effort in each area 
+age              <- IA[[3]]       # ages for which fish have recruited
+n                <- IA[[4]]       # number of age classes
+L                <- IA[[5]]       # Length at age, dim = 1*age
+W                <- IA[[6]]       # Weight at age, dim = 1*age
+Mat              <- IA[[7]]       # Fraction mature at age, dim = 1*age
+m                <- IA[[8]]       # Age at which fraction mature > 0.5
+S                <- IA[[9]]       # Selectivity at age
+FM               <- IA[[10]]      # Fishing mortality rate, dim = age*area*time
+N                <- IA[[11]]      # Population size, dim = age*area*time
+SSB              <- IA[[12]]      # Spawning stock biomass, dim = area*time
+abundance_all    <- IA[[13]]      # Abundance, dim = area*time
+abundance_mature <- IA[[14]]      # Abundance, dim = area*time
+biomass          <- IA[[15]]      # Biomass, dim = area*time
+count_sp         <- IA[[16]]      # Species count when sampling, dim = area*time
+nuS              <- IA[[17]]      # Sampling normal variable, dim = area*time*CR
+Eps              <- IA[[18]]      # Epsilon vector, dim = area*time*CR
+L0               <- IA[[19]]      # Length at age for stable age distribution
+W0               <- IA[[20]]      # Weight at age for stable age distribution
+catch            <- IA[[21]]      # Catch at age
+yield            <- IA[[22]]      # Yield per area 
+B0               <- IA[[23]]      # Unfished spawning stock biomass
 
 ##### Population Dynamics - Time Varying #######################################
 
@@ -124,27 +125,26 @@ for (t in 3:time) {
     E <- effort_allocation(a, t, allocation, A, E, biomass)
     
     # biology
-    PD <- pop_dynamics(a, t, y = 1, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
+    PD <- pop_dynamics(a, t, cr = 1, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
                        h, B0, Eps, sigma_R, Fb, E, S, M)
     SSB <- PD[[1]]
-    R   <- PD[[2]]
-    FM  <- PD[[3]]
-    N   <- PD[[4]]
+    FM  <- PD[[2]]
+    N   <- PD[[3]]
     
-    abundance_all[a, t] <- sum(N[, a, t])
-    abundance_mature[a, t] <- sum(N[m:(max_age-1), a, t])
-    biomass[a, t] <- sum(N[, a, t] * W)
+    abundance_all[a, t, 1] <- sum(N[, a, t, 1])
+    abundance_mature[a, t, 1] <- sum(N[m:(max_age-1), a, t, 1])
+    biomass[a, t, 1] <- sum(N[, a, t, 1] * W)
     
     # sampling
     if (t > (time - 3)) {
-      count_sp <- sampling(a, t + 3 - time, y = 1, r, D, abundance_all, 
+      count_sp <- sampling(a, t + 3 - time, cr = 1, r, D, abundance_all, 
                            abundance_mature, transects, x, count_sp, nuS)
     }
     
     # fishing
-    catch[, a, t, y = 1] <- catch_at_age(a, t, y = 1, N, FM)
-    N[, a, t, y = 1] <- N[, a, t, y = 1] - catch[, a, t, y = 1]
-    yield[a, t, y = 1] <- sum(catch[, a, t, y = 1]*W)
+    catch[, a, t, 1] <- catch_at_age(a, t, cr = 1, N, FM)
+    N[, a, t, 1] <- N[, a, t, 1] - catch[, a, t, 1]
+    yield[a, t, 1] <- sum(catch[, a, t, 1]*W)
     
   }
   
@@ -152,7 +152,7 @@ for (t in 3:time) {
 
 ##### Implement Reserve, and apply control rules ###############################
 
-for (y in 1:CR) {
+for (cr in 1:CR) {
   
   for (a in 1:A) {
     
@@ -161,29 +161,28 @@ for (y in 1:CR) {
       E <- effort_allocation(a, t, allocation, A, E, biomass)
       
       # biology
-      PD <- pop_dynamics(a, t + time, y, rec_age, max_age, n, SSB, N, W, Mat, A, 
+      PD <- pop_dynamics(a, t + time, cr, rec_age, max_age, n, SSB, N, W, Mat, A, 
                          R0, h, B0, Eps, sigma_R, Fb, E, S, M)
       SSB <- PD[[1]]
-      R   <- PD[[2]]
-      FM  <- PD[[3]]
-      N   <- PD[[4]]
+      FM  <- PD[[2]]
+      N   <- PD[[3]]
       
-      abundance_all[a, t + time] <- sum(N[, a, t + time])
-      abundance_mature[a, t + time] <- sum(N[m:(max_age-1), a, t + time])
+      abundance_all[a, t + time, cr] <- sum(N[, a, t + time, cr])
+      abundance_mature[a, t + time, cr] <- sum(N[m:(max_age-1), a, t + time, cr])
       
-      biomass[a, t + time] <- sum(N[, a, t + time] * W)
+      biomass[a, t + time, cr] <- sum(N[, a, t + time, cr] * W)
       
       # sampling
-      count_sp <- sampling(a, t + 3, y, r, D, abundance_all, 
+      count_sp <- sampling(a, t + 3, cr, r, D, abundance_all, 
                            abundance_mature, transects, x, count_sp, nuS)
       
       # management
       E <- control_rule(a, t + 3, E, count_sp, x)
       
       # fishing
-      catch[, a, t + time, y] <- catch_at_age(a, t + time, y, N, FM)
-      N[, a, t + time, y] <- N[, a, t + time, y] - catch[, a, t + time, y]
-      yield[a, t + time, y] <- sum(catch[, a, t + time, y]*W)
+      catch[, a, t + time, r] <- catch_at_age(a, t + time, cr, N, FM)
+      N[, a, t + time, cr] <- N[, a, t + time, cr] - catch[, a, t + time, cr]
+      yield[a, t + time, cr] <- sum(catch[, a, t + time, cr]*W)
       
     }
     
@@ -194,21 +193,21 @@ for (y in 1:CR) {
   a <- 1
   par(mfrow = c(1, 2))
   
-  main_title <- sprintf("Control Rule %i", y)
+  main_title <- sprintf("Control Rule %i", cr)
   
   # plot abundance (1000s of individuals) in blue
-  plot(1:timeT, abundance_all[a, ]/1000, pch = 16, col = "deepskyblue3", 
+  plot(1:timeT, abundance_all[a, , cr]/1000, pch = 16, col = "deepskyblue3", 
        xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
        yaxt = 'n', ylim = c(0, 1500), xaxt = 'n', main = main_title)
   axis(1, seq(0, 100, 50))
   axis(2, seq(0, 1500, 500))
   
   # add red line for biomass (metric tons)
-  lines(1:timeT, biomass[a, ]/1000, type = 'l', lwd = 2, col = "firebrick3")
+  lines(1:timeT, biomass[a, , cr]/1000, type = 'l', lwd = 2, col = "firebrick3")
   box()
   
   # plot yield over time (metric tons)
-  plot(1:timeT, yield[a, ]/1000, type = 'l', lwd = 2, col = "forestgreen",
+  plot(1:timeT, yield[a, , cr]/1000, type = 'l', lwd = 2, col = "forestgreen",
        xlab = 'Time (years)', ylab = 'Yield (metric tons)', 
        yaxt = 'n', ylim = c(0, 20), xaxt = 'n', main = main_title)
   axis(1, seq(0, 100, 50))

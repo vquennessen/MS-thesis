@@ -26,28 +26,34 @@
 #'
 #' @examples
 
-pop_dynamics <- function(a, t, y, rec_age, max_age, n, SSB, N, W, Mat, A, R0, h, 
-                         B0, Eps, sigma_R, Fb, E, S, M) {
+pop_dynamics <- function(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
+                         h, B0, Eps, sigma_R, Fb, E, S, M) {
   
   # Calculate spawning stock biomass
-  SSB[a, t] <- spawning_stock_biomass(N[, a, t-rec_age], W, Mat)
+  SSB[a, t, cr] <- spawning_stock_biomass(N[, a, t-rec_age, cr], W, Mat)
   
   # Calculate recruitment and add recruits to population
-  N[1, a, t] <- recruitment(SSB[a, t-1], A, R0, h, B0, Eps[a, t, y], sigma_R)
+  N[1, a, t, cr] <- recruitment(SSB[a, t-1, cr], A, R0, h, B0, Eps[a, t, cr], sigma_R)
   
   # Calculate fishing mortality
   FM[, , t] <- fishing_mortality(t, FM, A, Fb, E, S)
   
   # Step population foward in time
   for (i in 2:(n - 1)) {
-    N[i, a, t] <- N[i - 1, a, t - 1] * exp(-1 * (FM[i - 1, a, t - 1] + M))
+    N[i, a, t, cr] <- N[i - 1, a, t - 1, cr] * exp(-1 * (FM[i - 1, a, t - 1] + M))
   }
   
-  N[max_age - 1, a, t] <- N[(max_age - 2), a, t - 1] * 
+  N[max_age - 1, a, t, cr] <- N[(max_age - 2), a, t - 1, cr] * 
     exp(-1 * (FM[(max_age - 2), a, t - 1] + M)) + 
-    N[max_age - 1, a, t - 1] * exp(-1 * (FM[max_age - 1, a, t - 1] + M)) 
+    N[max_age - 1, a, t - 1, cr] * exp(-1 * (FM[max_age - 1, a, t - 1] + M)) 
   
-  output <- list(SSB, R, FM, N)
+  abundance_all[a, t, 1] <- sum(N[, a, t, 1])
+  
+  abundance_mature[a, t, 1] <- sum(N[m:(max_age-1), a, t, 1])
+  
+  biomass[a, t, 1] <- sum(N[, a, t, 1] * W)
+  
+  output <- list(SSB, FM, N, abundance_all, abundance_mature, biomass)
   
   return(output)
   

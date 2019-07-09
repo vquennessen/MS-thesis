@@ -1,5 +1,5 @@
-catch_at_age <- function(a, t, N, FM) {
+catch_at_age <- function(a, t, cr, N, FM) {
   
-  catch[ , a, t] <- N[, a, t]*FM[, a, t]
+  catch[ , a, t, cr] <- N[, a, t, cr]*FM[, a, t]
   
 }

@@ -41,7 +41,7 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
   
   # Fishing mortality
   # Initialize array
-  # Dimensions = age * area * time * CR
+  # Dimensions = age * area * time 
   FM <- array(rep(0, n*A*timeT), c(n, A, time + time2))
   
   # Initial fishing mortality
@@ -53,11 +53,7 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
   
   # Initialize spawning stock biomass array
   # Dimensions = area * time
-  SSB <- array(rep(0, A*timeT), c(A, timeT))
-  
-  # Initialize recruitment array, 
-  # Dimensions = area * time
-  R <- array(rep(0, A*timeT), c(A, timeT))
+  SSB <- array(rep(0, A*timeT*CR), c(A, timeT, CR))
   
   # Initialize abundance arrays
   # Dimensions = area * time * CR
@@ -73,15 +69,6 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
   time_cnt <- time2 + 3
   count_sp <- array(rep(0, A*time_cnt*transects*2*CR), 
                     c(A, time_cnt, transects, 2, CR))
-  
-  # Enter abundance and biomasses for time = 1, 2
-  for (a in 1:A) {
-    for (t in 1:rec_age) {
-      abundance_all[a, t] <- sum(N[, a, t])
-      abundance_mature[a, t] <- sum(N[m:(max_age-1), a, t])
-      biomass[a, t] <- sum(N[, a, t] * W)
-    }
-  }
   
   # Calculate standard deviation of normal variable
   # Based on Babcock & MacCall (2011): Eq. (15)
@@ -100,12 +87,11 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
   # Dimensions = area * timeT * CR
   Eps <- epsilon(A, timeT, CR, nuR, sigma_R, rho_R)
   
-  #####  Extra vectors to determine stable age distribution
-  # Length at age
+  # Length at age for stable age distribution
   # Dimensions = 1 * age (0 to max_age)
   L0 <- length_at_age(0:max_age, L1f, L2f, Kf, a1f, a2f)
   
-  # Weight at age
+  # Weight at age for stable age distribution
   # Dimensions = 1 * age (0 to max_age)
   W0 <- weight_at_age(L0, af, bf)
   
@@ -117,26 +103,27 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
   # Dimensions = age * area * time * CR
   for (a in 1:A) {
     for (t in 1:rec_age) {
-      N[, , t] <- Init_size*SAD[rec_age:max_age]
-      abundance_all[a, t] <- sum(N[, a, t])
-      abundance_mature[a, t] <- sum(N[m:(max_age-1), a, t])
-      biomass[a, t] <- sum(N[, a, t] * W)
+      for (cr in 1:CR) {
+        N[, a, t, cr] <- Init_size*SAD[rec_age:max_age]
+        abundance_all[a, t, cr] <- sum(N[, a, t, cr])
+        abundance_mature[a, t, cr] <- sum(N[m:(max_age-1), a, t, cr])
+        biomass[a, t, cr] <- sum(N[, a, t, cr] * W)
+      }
     }
-    
   }
   
   # Initialize catch-at-age matrix
-  # Dimensions = age * area * time
-  catch <- array(rep(0, n*A*timeT), c(n, A, timeT))
+  # Dimensions = age * area * time * CR
+  catch <- array(rep(0, n*A*timeT*CR), c(n, A, timeT, CR))
   
   # Initialize yield matrix
-  # Dimensions = area * time
-  yield <- array(rep(0, A*timeT), c(A, timeT))
+  # Dimensions = area * time * CR
+  yield <- array(rep(0, A*timeT*CR), c(A, timeT, CR))
   
   # Unfished spawning stock biomass
   B0 <- R0/phi
   
-  output <- list(Init_size, timeT, E, age, n, L, W, Mat, m, S, FM, N, SSB, R, 
+  output <- list(timeT, E, age, n, L, W, Mat, m, S, FM, N, SSB, 
                  abundance_all, abundance_mature, biomass, count_sp, nuS, 
                  Eps, L0, W0, catch, yield, B0)
   
