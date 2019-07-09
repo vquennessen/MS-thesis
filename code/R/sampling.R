@@ -29,8 +29,8 @@ sampling <- function(a, t, y, r, D, abundance_all, abundance_mature, transects,
   gamma_sp <- x / D
   
   # Calculate species count given transects with positive visuals
-  count_sp[a, t, , 1] <- presence_all*(gamma_sp*abundance_all[a, t]*exp(nuS[a, t, y]))
-  count_sp[a, t, , 2] <- presence_mature*(gamma_sp*abundance_mature[a, t]*exp(nuS[a, t, y]))
+  count_sp[a, t, , 1, y] <- presence_all*(gamma_sp*abundance_all[a, t]*exp(nuS[a, t, y]))
+  count_sp[a, t, , 2, y] <- presence_mature*(gamma_sp*abundance_mature[a, t]*exp(nuS[a, t, y]))
   
   return(count_sp)
 }

@@ -41,15 +41,15 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
   
   # Fishing mortality
   # Initialize array
-  # Dimensions = age * area * time
+  # Dimensions = age * area * time * CR
   FM <- array(rep(0, n*A*timeT), c(n, A, time + time2))
   
   # Initial fishing mortality
   FM[, , 1] <- fishing_mortality(1, FM, A, Fb, E, S)
   
   # Initialize age-structured population size matrix
-  # Dimensions = age * area * time
-  N <- array(rep(0, n*A*timeT), c(n, A, timeT))
+  # Dimensions = age * area * time * CR
+  N <- array(rep(0, n*A*timeT*CR), c(n, A, timeT, CR))
   
   # Initialize spawning stock biomass array
   # Dimensions = area * time
@@ -60,22 +60,23 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
   R <- array(rep(0, A*timeT), c(A, timeT))
   
   # Initialize abundance arrays
-  # Dimensions = area * time
-  abundance_all <- array(rep(0, A*timeT), c(A, timeT))
-  abundance_mature <- array(rep(0, A*timeT), c(A, timeT))
+  # Dimensions = area * time * CR
+  abundance_all <- array(rep(0, A*timeT*CR), c(A, timeT, CR))
+  abundance_mature <- array(rep(0, A*timeT*CR), c(A, timeT, CR))
   
   # Initialize biomass array
-  # Dimensions = area * time
-  biomass <- array(rep(0, A*timeT), c(A, timeT)) 
+  # Dimensions = area * time * CR
+  biomass <- array(rep(0, A*timeT*CR), c(A, timeT, CR)) 
   
   # Initialize count array
-  # Dimensions = area * time * transects * 2
+  # Dimensions = area * time * transects * 2 * CR
   time_cnt <- time2 + 3
-  count_sp <- array(rep(0, A*time_cnt*transects*2), c(A, time_cnt, transects, 2))
+  count_sp <- array(rep(0, A*time_cnt*transects*2*CR), 
+                    c(A, time_cnt, transects, 2, CR))
   
   # Enter abundance and biomasses for time = 1, 2
   for (a in 1:A) {
-    for (t in 1:2) {
+    for (t in 1:rec_age) {
       abundance_all[a, t] <- sum(N[, a, t])
       abundance_mature[a, t] <- sum(N[m:(max_age-1), a, t])
       biomass[a, t] <- sum(N[, a, t] * W)
@@ -112,12 +113,11 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
   # Dimensions = 1 * age (0 to max_age)
   SAD <- stable_age_distribution(b, c, max_age, m, L0, W0, rec_age, M, Fb)
   
-  # Initial age structure
-  N[, , 1] <- N[, , 2] <- Init_size*SAD[rec_age:max_age]
-  
-  # Enter abundance and biomasses for time = 1, 2
+  # Enter N, abundance, and biomasses for time = 1 to rec_age
+  # Dimensions = age * area * time * CR
   for (a in 1:A) {
-    for (t in 1:2) {
+    for (t in 1:rec_age) {
+      N[, , t] <- Init_size*SAD[rec_age:max_age]
       abundance_all[a, t] <- sum(N[, a, t])
       abundance_mature[a, t] <- sum(N[m:(max_age-1), a, t])
       biomass[a, t] <- sum(N[, a, t] * W)
