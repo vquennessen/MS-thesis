@@ -125,7 +125,7 @@ for (cr in 1:CR) {
     for (t in 3:time) {
       
       # effort allocation
-      E <- effort_allocation(a, t, allocation, A, E, biomass)
+      E <- effort_allocation(a, t, cr, allocation, A, E, biomass)
       
       # biology
       PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
@@ -163,7 +163,7 @@ for (cr in 1:CR) {
     
     for (t in 1:time2) {
       # effort allocation
-      E <- effort_allocation(a, t, allocation, A, E, biomass)
+      E <- effort_allocation(a, t, cr, allocation, A, E, biomass)
       
       # biology
       PD <- pop_dynamics(a, t + time, cr, rec_age, max_age, n, SSB, N, W, Mat, A, 
@@ -181,7 +181,7 @@ for (cr in 1:CR) {
                            abundance_mature, transects, x, count_sp, nuS)
       
       # management
-      E <- control_rule(a, t + 3, E, count_sp, x)
+      E <- control_rule(a, t + 3, cr, E, count_sp)
       
       # fishing
       catch[, a, t + time, r] <- catch_at_age(a, t + time, cr, N, FM)

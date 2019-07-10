@@ -36,17 +36,17 @@ pop_dynamics <- function(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0,
   N[1, a, t, cr] <- recruitment(SSB[a, t-1, cr], A, R0, h, B0, Eps[a, t, cr], sigma_R)
   
   # Calculate fishing mortality
-  FM[, , t] <- fishing_mortality(t, FM, A, Fb, E, S)
+  FM <- fishing_mortality(t, FM, A, Fb, E, S)
   
   # Step population foward in time
   # Ages rec_age to max_age - 1
   for (age in 2:(n - 1)) {
-    N[age, a, t, cr] <- N[age - 1, a, t - 1, cr] * exp(-1 * (FM[age - 1, a, t - 1] + M))
+    N[age, a, t, cr] <- N[age - 1, a, t - 1, cr] * exp(-1 * (FM[age - 1, a, t - 1, cr] + M))
   }
   
   # Final age bin
-  N[n, a, t, cr] <- N[n - 1, a, t - 1, cr] * exp(-1 * (FM[n - 1, a, t - 1] + M)) + 
-    N[n, a, t - 1, cr] * exp(-1 * (FM[n, a, t - 1] + M)) 
+  N[n, a, t, cr] <- N[n - 1, a, t - 1, cr] * exp(-1 * (FM[n - 1, a, t - 1, cr] + M)) + 
+    N[n, a, t - 1, cr] * exp(-1 * (FM[n, a, t - 1, cr] + M)) 
   
   abundance_all[a, t, cr] <- sum(N[, a, t, cr])
   

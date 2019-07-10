@@ -1,31 +1,21 @@
-management <- function(E, DR, CR_type, target_DR, floor_DR, effort_inc_allowed) {
+management <- function(a, t, cr, E, DR, CR_type, target_DR, floor_DR, effort_inc_allowed) {
   
-  if (CR_type == 'effort') {
+  if (sum(E[, t - 1, cr]) == 0) {
     
-    E <- E*(1 + effort_inc_allowed)
+    E[, t, cr] <- E[, time, cr]*0.10
     
-  }
-  
-  if (DR > target_DR) {
+  } else if (CR_type == 'effort' | DR > target_DR) {
     
-    E <- E*(1 + effort_inc_allowed)
+    E[a, t, cr] <- E[a, t - 1, cr]*(1 + effort_inc_allowed)
     
-  }
-  
-  if (DR < target_DR && DR > floor_DR) {
+  } else if (DR < target_DR & DR > floor_DR) {
     
-    E <- E*(1 - effort_inc_allowed)
+    E[a, t, cr] <- E[a, t - 1, cr]*(1 - effort_inc_allowed)
     
-  }
-  
-  if (DR < floor_DR) {
+  } else if (DR < floor_DR && sum(E[a, t, cr]) != 0) {
     
-    E <- E*0
+    E[a, t, cr] <- E[a, t - 1, cr]*0
     
-  }
-  
-  if (sum(E) == 0) {
-    E <- rep(0.01, A)
   }
   
   return(E)

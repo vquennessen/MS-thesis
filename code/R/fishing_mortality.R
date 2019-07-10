@@ -27,11 +27,11 @@
 #' 
 #' fishing_mortality(A, Fb, E, S)
 
-fishing_mortality <- function(t, FM, A, Fb, E, S) {
+fishing_mortality <- function(a, t, cr, FM, A, Fb, E, S) {
 
   # Catchability
   # Based on Babcock & MacCall (2011): Eq. (6)
-  catchability <- (A*Fb)/(sum(E))
+  catchability <- (A*Fb)/(sum(E[, t, cr]))
   
   # Selectivity as a matrix
   # dimensions = age * 1
@@ -39,13 +39,13 @@ fishing_mortality <- function(t, FM, A, Fb, E, S) {
   
   # Effort as a matrix
   # Dimensions = 1 * area
-  effort <- array(E, c(1, A))
-  
+  effort <- E[a, t, cr]
+
   # Fishing mortality
   # Based on Babcock & MacCall (2011): Eq. (5)
-  # Dimensions = age * area
-  FM[, , t] <- catchability * selectivity %*% effort
+  # Dimensions = age * area * time * CR
+  FM[, a, t, cr] <- catchability * selectivity * effort
   
-  return(FM[, , t])
+  return(FM)
   
 }

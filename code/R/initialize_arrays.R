@@ -10,8 +10,12 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
   # total amount of timesteps (years)
   timeT <- time + time2            
   
-  # nominal fishing effort in each area
-  E <- rep(1/A, A)     
+  # Initialize fishing effort in each area
+  # Dimensions = area * time * CR
+  E <- array(rep(0, A*timeT*CR), c(A, timeT, CR))  
+  
+  # Initial fishing effort
+  E[, 1, ] <- rep(1/A, A*CR)
   
   # ages for which fish have recruited
   age <- rec_age:max_age 
@@ -41,11 +45,8 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
   
   # Fishing mortality
   # Initialize array
-  # Dimensions = age * area * time 
-  FM <- array(rep(0, n*A*timeT), c(n, A, time + time2))
-  
-  # Initial fishing mortality
-  FM[, , 1] <- fishing_mortality(1, FM, A, Fb, E, S)
+  # Dimensions = age * area * time * CR
+  FM <- array(rep(0, n*A*timeT*CR), c(n, A, time + time2, CR))
   
   # Initialize age-structured population size matrix
   # Dimensions = age * area * time * CR
@@ -99,11 +100,12 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
   # Dimensions = 1 * age (0 to max_age)
   SAD <- stable_age_distribution(b, c, max_age, m, L0, W0, rec_age, M, Fb)
   
-  # Enter N, abundance, and biomasses for time = 1 to rec_age
+  # Enter FM, N, abundance, and biomasses for time = 1 to rec_age
   # Dimensions = age * area * time * CR
   for (a in 1:A) {
     for (t in 1:rec_age) {
       for (cr in 1:CR) {
+        FM <- fishing_mortality(a, t, cr, FM, A, Fb, E, S)
         N[, a, t, cr] <- Init_size*SAD[rec_age:max_age]
         abundance_all[a, t, cr] <- sum(N[, a, t, cr])
         abundance_mature[a, t, cr] <- sum(N[m:(max_age-1), a, t, cr])
