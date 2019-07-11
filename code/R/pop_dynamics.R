@@ -36,7 +36,7 @@ pop_dynamics <- function(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0,
   N[1, a, t, cr] <- recruitment(SSB[a, t-1, cr], A, R0, h, B0, Eps[a, t, cr], sigma_R)
   
   # Calculate fishing mortality
-  FM <- fishing_mortality(t, FM, A, Fb, E, S)
+  FM <- fishing_mortality(a, t, cr, FM, A, Fb, E, S)
   
   # Step population foward in time
   # Ages rec_age to max_age - 1

@@ -166,8 +166,8 @@ for (cr in 1:CR) {
       E <- effort_allocation(a, t, cr, allocation, A, E, biomass)
       
       # biology
-      PD <- pop_dynamics(a, t + time, cr, rec_age, max_age, n, SSB, N, W, Mat, A, 
-                         R0, h, B0, Eps, sigma_R, Fb, E, S, M)
+      PD <- pop_dynamics(a, t + time, cr, rec_age, max_age, n, SSB, N, W, Mat, 
+                         A, R0, h, B0, Eps, sigma_R, Fb, E, S, M)
       
       SSB                <- PD[[1]]
       FM                 <- PD[[2]]
@@ -184,7 +184,7 @@ for (cr in 1:CR) {
       E <- control_rule(a, t + 3, cr, E, count_sp)
       
       # fishing
-      catch[, a, t + time, r] <- catch_at_age(a, t + time, cr, N, FM)
+      catch[, a, t + time, cr] <- catch_at_age(a, t + time, cr, N, FM)
       N[, a, t + time, cr] <- N[, a, t + time, cr] - catch[, a, t + time, cr]
       yield[a, t + time, cr] <- sum(catch[, a, t + time, cr]*W)
       
