@@ -2,20 +2,17 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
                               Kf, a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, 
                               rho_R, fleets, alpha, beta, start, F_fin, 
                               L_50_up, L50_down, cf, switch, full, x, sp, M, CR, 
-                              phi) {
-  
-  # total population size at t = 1, 2
-  Init_size <- R0 / 10
+                              phi, Init_size) {
   
   # total amount of timesteps (years)
   timeT <- time + time2            
   
   # Initialize fishing effort in each area
   # Dimensions = area * time * CR
-  E <- array(rep(0, A*timeT*CR), c(A, timeT, CR))  
+  E <- array(rep(NaN, A*timeT*CR), c(A, timeT, CR))  
   
   # Initial fishing effort
-  E[, 1, ] <- rep(1/A, A*CR)
+  E[, 1:time, ] <- rep(1/A, A*CR*time)
   
   # ages for which fish have recruited
   age <- rec_age:max_age 

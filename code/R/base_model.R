@@ -34,8 +34,9 @@ time          <- 50                  # number of timesteps (years) before
                                      #     reserve implementation
 time2         <- 50                  # number of timesteps (years) after
 allocation    <- 'equal'             # distribution of fishing effort (or 'IFD')
-R0            <- 100000              # unfished recruitment, arbitrary value   
-Init_size     <- 100000              # total population size at t = 1, 2
+R0            <- 1e+5                # unfished recruitment, arbitrary value, 
+                                     #     over all areas   
+Init_size     <- 1e+5                # total population size at t = 1, 2 per area
 species       <- 'black rockfish 2003'
 
 ##### Load life history characteristics for species ############################
@@ -90,7 +91,7 @@ full     <- par[[42]]                     # length at which downcurve starts
 IA <- initialize_arrays(A, time, time2, R0, rec_age, max_age, L1f, L2f, Kf, a1f, 
                         a2f, af, bf, k_mat, Fb, L50, sigma_R, rho_R, fleets, 
                         alpha, beta, start, F_fin, L_50_up, L50_down, cf, 
-                        switch, full, x, sp, M, CR, phi)
+                        switch, full, x, sp, M, CR, phi, Init_size)
 
 timeT            <- IA[[1]]       # total amount of timesteps (years)
 E                <- IA[[2]]       # nominal fishing effort in each area 
@@ -203,7 +204,7 @@ for (cr in 1:CR) {
   # plot abundance (1000s of individuals) in blue
   plot(1:timeT, abundance_all[a, , cr]/1000, pch = 16, col = "deepskyblue3", 
        xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
-       yaxt = 'n', ylim = c(0, 1500), xaxt = 'n', main = main_title)
+       yaxt = 'n', ylim = c(0, 500), xaxt = 'n', main = main_title)
   axis(1, seq(0, 100, 50))
   axis(2, seq(0, 500, 250))
   
@@ -214,7 +215,7 @@ for (cr in 1:CR) {
   # plot yield over time (metric tons)
   plot(1:timeT, yield[a, , cr]/1000, type = 'l', lwd = 2, col = "forestgreen",
        xlab = 'Time (years)', ylab = 'Yield (metric tons)', 
-       yaxt = 'n', ylim = c(0, 20), xaxt = 'n', main = main_title)
+       yaxt = 'n', ylim = c(0, 10), xaxt = 'n', main = main_title)
   axis(1, seq(0, 100, 50))
   axis(2, seq(0, 10, 5))
   box() 
