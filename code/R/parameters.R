@@ -42,8 +42,6 @@ parameters = function(species) {
     c <- 0.2747                             # eggs produced per g, intercept
     b <- 0.0941                             # eggs produced per g, slope
 
-    ### TODO: find actual B0
-                                            
                                             #### fleets: sport, hook, trawl ####
     fleets <- c('sport', 'hook', 'trawl')   # names of fleets
     alpha <- c(0.45, 0.369, 0.426)          # slope of upcurve per fleet
@@ -56,13 +54,17 @@ parameters = function(species) {
     switch <- c(29, 29, 0)                  # length where selectivity switches 
                                             #       from upcurve to 1
     full <- c(31, 39, 0)                    # length at which downcurve starts
+    catch_form <- 'discrete'                # discrete or continuous catch
+    fishing <- 0.5                          # if catch_formulation = discrete, 
+                                            #       time at which fishing occurs
+                                            #       0 = beginning, 1 = end
                                             
   }
   
   output = list(max_age, M, rec_age, af, bf, am, bm, a1f, L1f, a2f, L2f, Kf,
                 a1m, L1m, a2m, L2m, Km, L50, k_mat, ldp, h, phi, sigma_R,
                 rho_R, p, D, Fb, r, x, sp, c, b, fleets, alpha, beta, start, 
-                F_fin, L50_up, L50_down, cf, switch, full)
+                F_fin, L50_up, L50_down, cf, switch, full, catch_form, fishing)
   
   return(output)
   
