@@ -36,7 +36,7 @@ time2         <- 50                  # number of timesteps (years) after
 allocation    <- 'equal'             # distribution of fishing effort (or 'IFD')
 R0            <- 1e+5                # unfished recruitment, arbitrary value, 
                                      #     over all areas   
-Init_size     <- 1e+5                # total population size at t = 1, 2 per area
+Init_size     <- 1e+6                # total population size at t = 1, 2 per area
 species       <- 'black rockfish 2003'
 
 ##### Load life history characteristics for species ############################
@@ -121,9 +121,9 @@ B0               <- IA[[23]]      # Unfished spawning stock biomass
 
 for (cr in 1:CR) {
   
-  for (a in 1:A) {
+  for (t in 3:time) {
     
-    for (t in 3:time) {
+    for (a in 1:A) {
       
       # effort allocation
       E <- effort_allocation(a, t, cr, allocation, A, E, biomass)
@@ -141,7 +141,7 @@ for (cr in 1:CR) {
       
       # sampling
       if (t > (time - 3)) {
-        count_sp <- sampling(a, t + 3 - time, cr, r, D, abundance_all, 
+        count_sp <- sampling(a, t, cr, r, D, abundance_all, 
                              abundance_mature, transects, x, count_sp, nuS)
       }
       
@@ -160,14 +160,12 @@ for (cr in 1:CR) {
 
 for (cr in 1:CR) {
   
-  for (a in 1:A) {
+  for (t in (time + 1):timeT) {
     
-    for (t in 1:time2) {
-      # effort allocation
-      E <- effort_allocation(a, t, cr, allocation, A, E, biomass)
+    for (a in 1:A) {
       
       # biology
-      PD <- pop_dynamics(a, t + time, cr, rec_age, max_age, n, SSB, N, W, Mat, 
+      PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, 
                          A, R0, h, B0, Eps, sigma_R, Fb, E, S, M)
       
       SSB                <- PD[[1]]
@@ -178,48 +176,51 @@ for (cr in 1:CR) {
       biomass            <- PD[[6]]
       
       # sampling
-      count_sp <- sampling(a, t + 3, cr, r, D, abundance_all, 
-                           abundance_mature, transects, x, count_sp, nuS)
+      count_sp <- sampling(a, t, cr, r, D, abundance_all, abundance_mature, 
+                           transects, x, count_sp, nuS)
       
       # management
-      E <- control_rule(a, t + 3, cr, E, count_sp)
+      E <- control_rule(a, t, cr, E, count_sp)
+      
+      # effort allocation
+      E <- effort_allocation(a, t, cr, allocation, A, E, biomass)
       
       # fishing
-      catch[, a, t + time, cr] <- catch_at_age(a, t + time, cr, N, FM)
-      N[, a, t + time, cr] <- N[, a, t + time, cr] - catch[, a, t + time, cr]
-      yield[a, t + time, cr] <- sum(catch[, a, t + time, cr]*W)
+      catch[, a, t, cr] <- catch_at_age(a, t, cr, N, FM)
+      N[, a, t, cr] <- N[, a, t, cr] - catch[, a, t, cr]
+      yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
       
     }
     
   }
   
-#### plot abundance, biomass, and yield over time for each area, once per CR ###
+  #### plot abundance, biomass, and yield over time for each area, once per CR ###
   
   for (a in 1:A) {
     
-  par(mfrow = c(1, 2))
-  
-  main_title <- sprintf("CR %i, Area %i", cr, a)
-  
-  # plot abundance (1000s of individuals) in blue
-  plot(1:timeT, abundance_all[a, , cr]/1000, pch = 16, col = "deepskyblue3", 
-       xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
-       yaxt = 'n', ylim = c(0, 500), xaxt = 'n', main = main_title)
-  axis(1, seq(0, 100, 50))
-  axis(2, seq(0, 500, 250))
-  
-  # add red line for biomass (metric tons)
-  lines(1:timeT, biomass[a, , cr]/1000, type = 'l', lwd = 2, col = "firebrick3")
-  box()
-  
-  # plot yield over time (metric tons)
-  plot(1:timeT, yield[a, , cr]/1000, type = 'l', lwd = 2, col = "forestgreen",
-       xlab = 'Time (years)', ylab = 'Yield (metric tons)', 
-       yaxt = 'n', ylim = c(0, 10), xaxt = 'n', main = main_title)
-  axis(1, seq(0, 100, 50))
-  axis(2, seq(0, 10, 5))
-  box() 
-  
+    par(mfrow = c(1, 2))
+    
+    main_title <- sprintf("CR %i, Area %i", cr, a)
+    
+    # plot abundance (1000s of individuals) in blue
+    plot(1:timeT, abundance_all[a, , cr]/1000, pch = 16, col = "deepskyblue3", 
+         xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
+         yaxt = 'n', ylim = c(0, 500), xaxt = 'n', main = main_title)
+    axis(1, seq(0, 100, 50))
+    axis(2, seq(0, 500, 250))
+    
+    # add red line for biomass (metric tons)
+    lines(1:timeT, biomass[a, , cr]/1000, type = 'l', lwd = 2, col = "firebrick3")
+    box()
+    
+    # plot yield over time (metric tons)
+    plot(1:timeT, yield[a, , cr]/1000, type = 'l', lwd = 2, col = "forestgreen",
+         xlab = 'Time (years)', ylab = 'Yield (metric tons)', 
+         yaxt = 'n', ylim = c(0, 10), xaxt = 'n', main = main_title)
+    axis(1, seq(0, 100, 50))
+    axis(2, seq(0, 10, 5))
+    box() 
+    
   }
   
 }

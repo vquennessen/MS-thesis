@@ -21,10 +21,10 @@
 #' 
 #' spawning_stock_biomass(N, W, M)at
 
-spawning_stock_biomass <- function(N, W, Mat) {
+spawning_stock_biomass <- function(a, t, cr, N, W, Mat) {
   
   # Dimensions = 1 * 1
-  SSB <- sum(N*W*Mat)
+  SSB <- sum(N[, t - rec_age, cr]*W*Mat)
   
   return(SSB)
   

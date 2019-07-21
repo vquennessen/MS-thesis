@@ -64,18 +64,16 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
   
   # Initialize count array
   # Dimensions = area * time * transects * 2 * CR
-  time_cnt <- time2 + 3
-  count_sp <- array(rep(0, A*time_cnt*transects*2*CR), 
-                    c(A, time_cnt, transects, 2, CR))
+  count_sp <- array(rep(0, A*timeT*transects*2*CR), c(A, timeT, transects, 2, CR))
   
   # Calculate standard deviation of normal variable
   # Based on Babcock & MacCall (2011): Eq. (15)
   sigma_sp <- sqrt(log(1 + (sp/x)^2))
   
   # Sampling normal variable
-  # Dimensions = area * time2 + 3 * CR
-  # nuS <- array(rnorm(A*(time2 + 3)*CR, 0, sigma_sp), c(A, time2 + 3, CR))
-  nuS <- array(rep(0.5, A*(time2 + 3)*CR), c(A, time2 + 3, CR))
+  # Dimensions = area * timeT * CR
+  # nuS <- array(rnorm(A*timeT*CR, 0, sigma_sp), c(A, timeT, CR))
+  nuS <- array(rep(0.5, A*timeT*CR), c(A, timeT, CR))
 
   # Recruitment normal variable
   # nuR <- array(rnorm(A*timeT*CR, 0, sigma_R), c(A, timeT, CR))

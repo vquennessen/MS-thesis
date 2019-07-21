@@ -1,7 +1,8 @@
 effort_allocation <- function(a, t, cr, allocation, A, E, biomass) {
   
   if (allocation == 'IFD') {
-    prop_biomass <- biomass[, t - 1]/sum(biomass[, t - 1])
+    
+    prop_biomass <- biomass[, t - 1]/sum(biomass[, t - 1, cr])
     E[a, t, cr] <- sum(E[, t - 1, cr])*prop_biomass
     
   } else if (t > time) {
