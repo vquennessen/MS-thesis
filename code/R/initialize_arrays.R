@@ -2,7 +2,7 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
                               Kf, a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, 
                               rho_R, fleets, alpha, beta, start, F_fin, 
                               L_50_up, L50_down, cf, switch, full, x, sp, M, CR, 
-                              phi, Init_size) {
+                              phi) {
   
   # total amount of timesteps (years)
   timeT <- time + time2            
@@ -43,14 +43,14 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
   # Fishing mortality
   # Initialize array
   # Dimensions = age * area * time * CR
-  FM <- array(rep(0, n*A*timeT*CR), c(n, A, time + time2, CR))
+  FM <- array(rep(0, n*A*timeT*CR), c(n, A, timeT, CR))
   
   # Initialize age-structured population size matrix
   # Dimensions = age * area * time * CR
   N <- array(rep(0, n*A*timeT*CR), c(n, A, timeT, CR))
   
   # Initialize spawning stock biomass array
-  # Dimensions = area * time
+  # Dimensions = area * time * cr
   SSB <- array(rep(0, A*timeT*CR), c(A, timeT, CR))
   
   # Initialize abundance arrays
@@ -91,17 +91,21 @@ initialize_arrays <- function(A, time, time2, R0, rec_age, max_age, L1f, L2f,
   # Dimensions = 1 * age (0 to max_age)
   W0 <- weight_at_age(L0, af, bf)
   
-  # Stable age distribution
-  # Dimensions = 1 * age (0 to max_age)
-  SAD <- stable_age_distribution(b, c, max_age, m, L0, W0, rec_age, M, Fb)
-  
+  # # Stable age distribution
+  # # Dimensions = 1 * age (0 to max_age)
+  # SAD <- stable_age_distribution(b, c, max_age, m, L0, W0, rec_age, M, Fb)
+  # 
+  # # Initial size of whole population at time = 1, 2
+  # Init_size <- initial_size(SAD)
+  # 
   # Enter FM, N, abundance, and biomasses for time = 1 to rec_age
   # Dimensions = age * area * time * CR
   for (a in 1:A) {
     for (t in 1:rec_age) {
       for (cr in 1:CR) {
-        FM <- fishing_mortality(a, t, cr, FM, A, Fb, E, S)
-        N[, a, t, cr] <- Init_size*SAD[rec_age:max_age]
+        FM[, a, t, cr] <- fishing_mortality(a, t, cr, FM, A, Fb, E, S)
+        # N[, a, t, cr] <- Init_size*SAD/A
+        N[, a, t, cr] <- rep(10000, n)
         abundance_all[a, t, cr] <- sum(N[, a, t, cr])
         abundance_mature[a, t, cr] <- sum(N[m:(max_age-1), a, t, cr])
         biomass[a, t, cr] <- sum(N[, a, t, cr] * W)
