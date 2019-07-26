@@ -32,15 +32,15 @@ transects     <- 24                  # number of transects per PISCO protocol
 # Set model parameters (flexible)
 species       <- 'black rockfish 2003'
 A             <- 5                   # number of areas, should be odd
-time          <- 150                 # number of timesteps (years) before 
+time1          <- 50                 # number of timesteps (years) before 
                                      #     reserve implementation
-time2         <- 1                   # number of timesteps (years) after
+time2         <- 50                   # number of timesteps (years) after
 allocation    <- 'equal'             # distribution of fishing effort (or 'IFD')
 R0            <- 1e+5                # unfished recruitment, arbitrary value, 
                                      #     over all areas   
 sampling <- F
 management <- F
-fishing <- F
+fishing <- T
 
 ##### Load life history characteristics for species ############################
 
@@ -87,7 +87,7 @@ switch                 <- par[[41]]       # length where selectivity switches
                                           #       from upcurve to 1
 full                   <- par[[42]]       # length at which downcurve starts
 catch_form             <- par[[43]]       # discrete or continuous catch
-fishing                <- par[[44]]       # if catch_formulation = discrete, 
+season                 <- par[[44]]       # if catch_formulation = discrete, 
                                           #       time at which fishing occurs:
                                           #       0 at start, 1 at end of year
 
@@ -95,10 +95,11 @@ fishing                <- par[[44]]       # if catch_formulation = discrete,
 ##### Population Dynamics - Non-Time Varying ###################################
 
 # Initialize arrays for time-varying dynamics
-IA <- initialize_arrays(A, time, time2, R0, rec_age, max_age, L1f, L2f, Kf, a1f, 
-                        a2f, af, bf, k_mat, Fb, L50, sigma_R, rho_R, fleets, 
-                        alpha, beta, start, F_fin, L_50_up, L50_down, cf, 
-                        switch, full, x, sp, M, CR, phi)
+IA <- initialize_arrays(A, time1, time2, R0, rec_age, max_age, L1f, L2f, Kf, 
+                        a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, rho_R, 
+                        fleets, alpha, beta, start, F_fin, L_50_up, L50_down, 
+                        cf, switch, full, x, sp, M, CR, phi, catch_form, 
+                        season)
 
 timeT            <- IA[[1]]       # total amount of timesteps (years)
 E                <- IA[[2]]       # nominal fishing effort in each area 
@@ -118,17 +119,15 @@ biomass          <- IA[[15]]      # Biomass, dim = area*time
 count_sp         <- IA[[16]]      # Species count when sampling, dim = area*time
 nuS              <- IA[[17]]      # Sampling normal variable, dim = area*time*CR
 Eps              <- IA[[18]]      # Epsilon vector, dim = area*time*CR
-L0               <- IA[[19]]      # Length at age for stable age distribution
-W0               <- IA[[20]]      # Weight at age for stable age distribution
-catch            <- IA[[21]]      # Catch at age
-yield            <- IA[[22]]      # Yield per area 
-B0               <- IA[[23]]      # Unfished spawning stock biomass
+catch            <- IA[[19]]      # Catch at age
+yield            <- IA[[20]]      # Yield per area 
+B0               <- IA[[21]]      # Unfished spawning stock biomass
 
 ##### Population Dynamics - Time Varying #######################################
 
 for (cr in 1:CR) {
   
-  for (t in 3:time) {
+  for (t in 3:time1) {
     
     for (a in 1:A) {
       
@@ -148,7 +147,7 @@ for (cr in 1:CR) {
       
       # sampling
       if (sampling == T) {
-        if (t > (time - 3)) {
+        if (t > (time1 - 3)) {
           count_sp <- sampling(a, t, cr, r, D, abundance_all,
                                abundance_mature, transects, x, count_sp, nuS)
         }
@@ -156,7 +155,8 @@ for (cr in 1:CR) {
       
       # fishing
       if (fishing == T) {
-        catch[, a, t, cr] <- catch_at_age(a, t, cr, N, FM, catch_form, fishing)
+        catch[, a, t, cr] <- catch_at_age(a, t, cr, N, FM, catch, catch_form, 
+                                          season)
         N[, a, t, cr] <- N[, a, t, cr] - catch[, a, t, cr]
         yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
       }
@@ -171,7 +171,7 @@ for (cr in 1:CR) {
 
 for (cr in 1:CR) {
   
-  for (t in (time + 1):timeT) {
+  for (t in (time1 + 1):timeT) {
     
     for (a in 1:A) {
       
@@ -202,7 +202,8 @@ for (cr in 1:CR) {
       
       # fishing
       if (fishing == T) {
-        catch[, a, t, cr] <- catch_at_age(a, t, cr, N, FM, catch_form, fishing)
+        catch[, a, t, cr] <- catch_at_age(a, t, cr, N, FM, catch, catch_form, 
+                                          fishing)
         N[, a, t, cr] <- N[, a, t, cr] - catch[, a, t, cr]
         yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
       }

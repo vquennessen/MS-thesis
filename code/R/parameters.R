@@ -54,8 +54,8 @@ parameters = function(species) {
     switch <- c(29, 29, 0)                  # length where selectivity switches 
                                             #       from upcurve to 1
     full <- c(31, 39, 0)                    # length at which downcurve starts
-    catch_form <- 'discrete'                # discrete or continuous catch
-    fishing <- 0.5                          # if catch_formulation = discrete, 
+    catch_form <- 'continuous'              # discrete or continuous catch
+    season <- 0.5                           # if catch_formulation = discrete, 
                                             #       time at which fishing occurs
                                             #       0 = beginning, 1 = end
                                             

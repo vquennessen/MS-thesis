@@ -46,6 +46,6 @@ fishing_mortality <- function(a, t, cr, FM, A, Fb, E, S) {
   # Dimensions = age * area * time * CR
   FM[, a, t, cr] <- catchability * selectivity * effort
   
-  return(FM)
+  return(FM[, a, t, cr])
   
 }
