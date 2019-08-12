@@ -91,14 +91,14 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   # Dimensions = area * time * CR
   yield <- array(rep(0, A*timeT*CR), c(A, timeT, CR))
   
-  # # Length at age for stable age distribution
-  # # Dimensions = 1 * age (0 to max_age)
-  # L0 <- length_at_age(0:max_age, L1f, L2f, Kf, a1f, a2f)
-  # 
-  # # Weight at age for stable age distribution
-  # # Dimensions = 1 * age (0 to max_age)
-  # W0 <- weight_at_age(L0, af, bf)
-  # 
+  # Length at age for stable age distribution
+  # Dimensions = 1 * age (0 to max_age)
+  L0 <- length_at_age(0:max_age, L1f, L2f, Kf, a1f, a2f)
+
+  # Weight at age for stable age distribution
+  # Dimensions = 1 * age (0 to max_age)
+  W0 <- weight_at_age(L0, af, bf)
+
   # # Stable age distribution
   # # Dimensions = 1 * age (0 to max_age)
   # SAD <- stable_age_distribution(b, c, max_age, m, L0, W0, rec_age, M, Fb)

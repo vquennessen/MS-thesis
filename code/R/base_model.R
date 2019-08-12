@@ -232,9 +232,9 @@ for (cr in 1:CR) {
   # plot yield over time (metric tons)
   plot(1:timeT, yield[a, , cr]/1000, type = 'l', lwd = 2, col = "forestgreen",
        xlab = 'Time (years)', ylab = 'Yield (metric tons)',
-       yaxt = 'n', ylim = c(0, 10), xaxt = 'n', main = main_title)
+       yaxt = 'n', ylim = c(0, 100), xaxt = 'n', main = main_title)
   axis(1, seq(0, 100, 50))
-  axis(2, seq(0, 10, 5))
+  axis(2, seq(0, 100, 50))
   box()
   
 }
