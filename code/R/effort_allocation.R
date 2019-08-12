@@ -5,7 +5,7 @@ effort_allocation <- function(a, t, cr, allocation, A, E, biomass) {
     prop_biomass <- biomass[, t - 1]/sum(biomass[, t - 1, cr])
     E[a, t, cr] <- sum(E[, t - 1, cr])*prop_biomass
     
-  } else if (t > time) {
+  } else if (t > time1) {
     
     areas <- 1:A
     reserve <- median(areas)
