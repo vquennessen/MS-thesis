@@ -23,6 +23,7 @@ source("./code/R/stable_age_distribution.R")
 source("./code/R/catch_at_age.R")
 source("./code/R/effort_allocation.R")
 source("./code/R/initial_size.R")
+source("./code/R/vulnerability_to_gear.R")
 
 # Set model parameters (fixed)
 CR            <- 8                   # number of control rules
@@ -155,8 +156,8 @@ for (cr in 1:CR) {
       
       # fishing
       if (fishing == T) {
-        catch[, a, t, cr] <- catch_at_age(a, t, cr, N, FM, catch, catch_form, 
-                                          season)
+        catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch, 
+                                          catch_form, season)
         N[, a, t, cr] <- N[, a, t, cr] - catch[, a, t, cr]
         yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
       }
@@ -174,6 +175,9 @@ for (cr in 1:CR) {
   for (t in (time1 + 1):timeT) {
     
     for (a in 1:A) {
+      
+      # effort allocation
+      E <- effort_allocation(a, t, cr, allocation, A, E, biomass)
       
       # biology
       PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat,
@@ -195,15 +199,12 @@ for (cr in 1:CR) {
       # management
       if (management == T) {
         E <- control_rule(a, t, cr, E, count_sp)
-        
-        # effort allocation
-        E <- effort_allocation(a, t, cr, allocation, A, E, biomass)
       }
       
       # fishing
       if (fishing == T) {
-        catch[, a, t, cr] <- catch_at_age(a, t, cr, N, FM, catch, catch_form, 
-                                          fishing)
+        catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch, 
+                                          catch_form, season)
         N[, a, t, cr] <- N[, a, t, cr] - catch[, a, t, cr]
         yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
       }

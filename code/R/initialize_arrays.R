@@ -117,8 +117,8 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
         abundance_all[a, t, cr] <- sum(N[, a, t, cr])
         abundance_mature[a, t, cr] <- sum(N[m:(max_age-1), a, t, cr])
         biomass[a, t, cr] <- sum(N[, a, t, cr] * W)
-        catch[, a, t, cr] <- catch_at_age(a, t, cr, N, FM, catch, catch_form, 
-                                          season)
+        catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch, 
+                                          catch_form, season)
         yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
       }
     }

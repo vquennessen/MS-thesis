@@ -1,4 +1,5 @@
-catch_at_age <- function(a, t, cr, N, FM, catch, catch_form, season) {
+catch_at_age <- function(a, t, cr, FM, M, N, A, Fb, E, catch, catch_form, 
+                         season) {
   
   if (catch_form == 'continuous') {  
     
