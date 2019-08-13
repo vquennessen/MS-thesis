@@ -37,7 +37,7 @@ fishing_mortality <- function(a, t, cr, FM, A, Fb, E, S) {
   selectivity <- array(S, c(length(S), 1)) 
   
   # Effort as a matrix
-  # Dimensions = 1 * area
+  # Dimensions = area * time * CR
   effort <- E[a, t, cr]
 
   # Fishing mortality
