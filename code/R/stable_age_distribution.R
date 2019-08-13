@@ -47,11 +47,11 @@ stable_age_distribution <- function(b, c, max_age, m, L0, W0, rec_age, M, Fb,
   V <- Re(e$vectors)
   L <- Re(e$values)
   
-  n0 <- abs(V[, which(L == max(L))])
+  n0 <- V[, which(L == max(L))]
   
   # dominant eigenvalue starts stable age distribution, 
   # take out ages before recruitment
-  SAD <- n0[(rec_age + 1):(max_age + 1)]
+  SAD <- abs(n0[(rec_age + 1):(max_age + 1)])
   
   return(SAD)
   
