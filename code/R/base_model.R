@@ -220,7 +220,7 @@ for (cr in 1:CR) {
   main_title <- sprintf("CR %i, Area %i", cr, a)
   
   y1 <- 1250
-  y2 <- 25
+  y2 <- 125
   
   # plot abundance (1000s of individuals) in blue
   plot(1:timeT, abundance_all[a, , cr]/1000, pch = 16, col = "deepskyblue3",

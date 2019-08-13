@@ -7,7 +7,7 @@ initial_size <- function(SAD) {
   P <- -1*floor(log10(Q))
   
   # set that value as the initial size of the whole population for time = 1, 2
-  Init_size <- 1*10^P
+  Init_size <- 1*10^(P/2)
   
   return(Init_size)
   
