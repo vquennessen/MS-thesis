@@ -218,12 +218,15 @@ for (cr in 1:CR) {
   
   main_title <- sprintf("CR %i, Area %i", cr, a)
   
+  y1 <- 1250
+  y2 <- 25
+  
   # plot abundance (1000s of individuals) in blue
   plot(1:timeT, abundance_all[a, , cr]/1000, pch = 16, col = "deepskyblue3",
        xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
-       yaxt = 'n', ylim = c(0, 5000), xaxt = 'n', main = main_title)
-  axis(1, seq(0, 5500, 50))
-  axis(2, seq(0, 5000, 2500))
+       yaxt = 'n', ylim = c(0, y1), xaxt = 'n', main = main_title)
+  axis(1, seq(0, timeT, timeT/2))
+  axis(2, seq(0, y1, y1/2))
   
   # add red line for biomass (metric tons)
   lines(1:timeT, biomass[a, , cr]/1000, type = 'l', lwd = 2, col = "firebrick3")
@@ -232,9 +235,9 @@ for (cr in 1:CR) {
   # plot yield over time (metric tons)
   plot(1:timeT, yield[a, , cr]/1000, type = 'l', lwd = 2, col = "forestgreen",
        xlab = 'Time (years)', ylab = 'Yield (metric tons)',
-       yaxt = 'n', ylim = c(0, 100), xaxt = 'n', main = main_title)
-  axis(1, seq(0, 100, 50))
-  axis(2, seq(0, 100, 50))
+       yaxt = 'n', ylim = c(0, y2), xaxt = 'n', main = main_title)
+  axis(1, seq(0, timeT, timeT/2))
+  axis(2, seq(0, y2, y2/2))
   box()
   
 }
