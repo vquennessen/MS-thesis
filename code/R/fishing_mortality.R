@@ -29,9 +29,8 @@
 
 fishing_mortality <- function(a, t, cr, FM, A, Fb, E, S) {
 
-  # Catchability
-  # Based on Babcock & MacCall (2011): Eq. (6)
-  catchability <- (A*Fb)/(sum(E[, t, cr]))
+  # Vulnerability to fishing gear
+  vulnerability <- vulnerability_to_gear(a, t, cr, A, Fb, E)
   
   # Selectivity as a matrix
   # dimensions = age * 1
@@ -44,7 +43,7 @@ fishing_mortality <- function(a, t, cr, FM, A, Fb, E, S) {
   # Fishing mortality
   # Based on Babcock & MacCall (2011): Eq. (5)
   # Dimensions = age * area * time * CR
-  FM[, a, t, cr] <- catchability * selectivity * effort
+  FM[, a, t, cr] <- vulnerability * selectivity * effort
   
   return(FM[, a, t, cr])
   
