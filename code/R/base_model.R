@@ -19,11 +19,12 @@ source("./code/R/sampling.R")
 source("./code/R/density_ratio.R")
 source("./code/R/management.R")
 source("./code/R/control_rule.R")
-source("./code/R/stable_age_distribution.R")
+source("./code/R/Leslie_SAD.R")
 source("./code/R/catch_at_age.R")
 source("./code/R/effort_allocation.R")
 source("./code/R/initial_size.R")
 source("./code/R/vulnerability_to_gear.R")
+source("./code/R/equilibrium_SAD.R")
 
 # Set model parameters (fixed)
 CR            <- 8                   # number of control rules
