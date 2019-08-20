@@ -101,7 +101,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
 
   # Stable age distribution
   # Dimensions = 1 * age (0 to max_age)
-  SAD <- stable_age_distribution(b, c, max_age, m, L0, W0, rec_age, M, Fb, 
+  SAD <- Leslie_SAD(b, c, max_age, m, L0, W0, rec_age, M, Fb, 
                                  h, R0, W)
 
   # Initial size of whole population at time = 1, 2

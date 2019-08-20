@@ -1,4 +1,4 @@
-stable_age_distribution <- function(b, c, max_age, m, L0, W0, rec_age, M, Fb, 
+Leslie_SAD <- function(b, c, max_age, m, L0, W0, rec_age, M, Fb, 
                                     h, R0, W) {
   
   # rows for each age class, including age 0
@@ -33,7 +33,7 @@ stable_age_distribution <- function(b, c, max_age, m, L0, W0, rec_age, M, Fb,
   # recruitment curve
   A <- Q1 - B*E0
 
-  L2 <- L2*A
+  L2 <- L2*(1/A)
   
   ### Put matrix together
   one <- two <- matrix(rep(0, length(ages)^2), nrow = length(ages))
@@ -51,7 +51,7 @@ stable_age_distribution <- function(b, c, max_age, m, L0, W0, rec_age, M, Fb,
   
   # dominant eigenvalue starts stable age distribution, 
   # take out ages before recruitment
-  SAD <- abs(n0[(rec_age + 1):(max_age + 1)])
+  SAD <- n0[(rec_age + 1):(max_age + 1)]
   
   return(SAD)
   
