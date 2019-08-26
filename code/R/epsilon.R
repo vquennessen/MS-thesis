@@ -14,21 +14,21 @@
 #' rho_R <- par[[25]]
 #' epsilon(t, sigma_R, rho_R)
 
-epsilon <- function (A, t, cr, nuR, sigma_R, rho_R) {
+epsilon <- function (A, time, CR, nuR, sigma_R, rho_R) {
   
   # Error term for recruitment
   # Based on Babcock & MacCall (2011): Eq. (4)
   
   # initialize epsilon vector
   # Dimensions = area * time * CR
-  Eps <- array(rep(0, A*t*CR), c(A, t, CR))
+  Eps <- array(rep(0, A*time*CR), c(A, time, CR))
   
   # eps[, 1, ]
   Eps[, 1, ] <- nuR[, 1, ]*sqrt(1 + rho_R^2)
   
   # fill in rest of epsilon vector
   for (a in 1:A) {
-    for (t in 2:t) {
+    for (t in 2:time) {
       for (cr in 1:CR) {
         Eps[a, t, cr] <- rho_R*Eps[a, t-1, cr] + nuR[a, t, cr]*sqrt(1 + rho_R^2)
       }

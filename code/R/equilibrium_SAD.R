@@ -1,43 +1,66 @@
-equilibrium_SAD <- function(a, cr, allocation, A, E, rec_age, max_age, n, W, R0,
-                            Mat, h, B0, Eps, sigma_R, Fb, E, S, M, FM, season,
-                            catch_form, equilibrium_time, m) {
+equilibrium_SAD <- function(a, cr, allocation, A, rec_age, max_age, n, W, R0,
+                            Mat, h, B0, Eps, sigma_R, Fb, S, M, season,
+                            catch_form, eq_time, m, stochasticity) {
   
   # Initialize population size and catch arrays
   # Dimensions = age * 1 * time * 1
-  N <- catch <- array(rep(0, n*equilibrium_time), c(n, 1, equilibrium_time, 1))
+  N2 <- catch2 <- FM2 <- array(rep(0, n*eq_time), c(n, 1, eq_time, 1))
   
   # Initialize biomass and SSB arrays
   # Dimensions = 1 * time * 1
-  biomass <- SSB <- array(rep(0, equilibrium_time), c(1, equilibrium_time, 1))
+  biomass2 <- SSB2 <- E2 <- array(rep(0, eq_time), c(1, eq_time, 1))
+  abundance_all2 <- abundance_mature2 <- array(rep(0, eq_time), c(1, eq_time, 1))
+  
+  # Recruitment normal variable
+  # Dimensions = area * timeT * CR
+  if (stochasticity == T) {
+    nuR2 <- array(rnorm(1*eq_time*1, 0, sigma_R), c(1, eq_time, 1))
+  } else if (stochasticity == F) {
+    nuR2 <- array(rep(0.5, 1*eq_time*1), c(1, eq_time, 1))
+  }
+  
+  # Recruitment error
+  # Dimensions = area * timeT * CR
+  Eps2 <- epsilon(1, eq_time, 1, nuR2, sigma_R, rho_R)
+  
+  # Initial fishing effort
+  E2[, 1:eq_time, ] <- rep(1/A, eq_time)
   
   # Start each age class with 10 individuals
-  N[, 1, 1, 1] <- rep(10, n)
-  biomass[1, 1, 1] <- sum(N[, 1]*W)
-  SSB[1, 1, 1] <- sum(N[m:n, 1, 1, 1]*W)
-  
+  # Enter FM, N, abundance, and biomasses for time = 1 to rec_age
+  # Dimensions = age * area * time * CR
+  for (t in 1:(rec_age + 1)) {
+    FM2[, 1, t, 1] <- fishing_mortality(1, t, 1, FM2, A, Fb, E2, S)
+    N2[, 1, t, 1] <- rep(10, n)
+    biomass2[1, t, 1] <- sum(N2[, 1, t, 1] * W)
+    catch2[, 1, t, 1] <- catch_at_age(1, t, 1, FM2, M, N2, A, Fb, E2, catch2, 
+                                      catch_form, season)
+  }
+
   # Step population forward in time with set fishing level
-  for (t in 2:equilibrium_time) {
+  for (t in (rec_age + 1):eq_time) {
     
     # effort allocation
-    E <- effort_allocation(1, t, 1, allocation, A, E, biomass)
+    E2 <- effort_allocation(1, t, 1, allocation, A, E2, biomass2, eq_time)
     
     # biology
-    PD <- pop_dynamics(1, t, 1, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
-                       h, B0, Eps, sigma_R, Fb, E, S, M)
+    PD <- pop_dynamics(1, t, 1, rec_age, max_age, n, SSB2, N2, W, Mat, A, R0, 
+                       h, B0, Eps2, sigma_R, Fb, E2, S, M, FM2, m, 
+                       abundance_all2, abundance_mature2, biomass2)
     
-    SSB                <- PD[[1]]
-    FM                 <- PD[[2]]
-    N                  <- PD[[3]]
-    biomass            <- PD[[6]]
+    SSB2                <- PD[[1]]
+    FM2                 <- PD[[2]]
+    N2                  <- PD[[3]]
+    biomass2            <- PD[[6]]
     
     # fishing
-    catch[, 1, t, 1] <- catch_at_age(1, t, 1, FM, M, N, A, Fb, E, catch, 
+    catch2[, 1, t, 1] <- catch_at_age(1, t, 1, FM2, M, N2, A, Fb, E2, catch2, 
                                      catch_form, season)
-    N[, 1, t, 1] <- N[, 1, t, 1] - catch[, 1, t, 1]
+    N2[, 1, t, 1] <- N2[, 1, t, 1] - catch2[, 1, t, 1]
     
   }
   
-  SAD <- N[, 1, equilibrium_time, 1]
+  SAD <- N2[, 1, eq_time, 1]
   
   return(SAD)
   

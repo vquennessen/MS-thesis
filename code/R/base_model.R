@@ -40,6 +40,7 @@ time2         <- 50                   # number of timesteps (years) after
 allocation    <- 'equal'             # distribution of fishing effort (or 'IFD')
 R0            <- 1e+5                # unfished recruitment, arbitrary value, 
                                      #     over all areas   
+stochasticity <- F
 sampling <- F
 management <- F
 fishing <- T
@@ -101,29 +102,28 @@ IA <- initialize_arrays(A, time1, time2, R0, rec_age, max_age, L1f, L2f, Kf,
                         a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, rho_R, 
                         fleets, alpha, beta, start, F_fin, L_50_up, L50_down, 
                         cf, switch, full, x, sp, M, CR, phi, catch_form, 
-                        season)
+                        season, stochasticity = F)
 
 timeT            <- IA[[1]]       # total amount of timesteps (years)
 E                <- IA[[2]]       # nominal fishing effort in each area 
-age              <- IA[[3]]       # ages for which fish have recruited
-n                <- IA[[4]]       # number of age classes
-L                <- IA[[5]]       # Length at age, dim = 1*age
-W                <- IA[[6]]       # Weight at age, dim = 1*age
-Mat              <- IA[[7]]       # Fraction mature at age, dim = 1*age
-m                <- IA[[8]]       # Age at which fraction mature > 0.5
-S                <- IA[[9]]       # Selectivity at age
-FM               <- IA[[10]]      # Fishing mortality rate, dim = age*area*time
-N                <- IA[[11]]      # Population size, dim = age*area*time
-SSB              <- IA[[12]]      # Spawning stock biomass, dim = area*time
-abundance_all    <- IA[[13]]      # Abundance, dim = area*time
-abundance_mature <- IA[[14]]      # Abundance, dim = area*time
-biomass          <- IA[[15]]      # Biomass, dim = area*time
-count_sp         <- IA[[16]]      # Species count when sampling, dim = area*time
-nuS              <- IA[[17]]      # Sampling normal variable, dim = area*time*CR
-Eps              <- IA[[18]]      # Epsilon vector, dim = area*time*CR
-catch            <- IA[[19]]      # Catch at age
-yield            <- IA[[20]]      # Yield per area 
-B0               <- IA[[21]]      # Unfished spawning stock biomass
+n                <- IA[[3]]       # number of age classes
+L                <- IA[[4]]       # Length at age, dim = 1*age
+W                <- IA[[5]]       # Weight at age, dim = 1*age
+Mat              <- IA[[6]]       # Fraction mature at age, dim = 1*age
+m                <- IA[[7]]       # Age at which fraction mature > 0.5
+S                <- IA[[8]]       # Selectivity at age
+FM               <- IA[[9]]       # Fishing mortality rate, dim = age*area*time
+N                <- IA[[10]]      # Population size, dim = age*area*time
+SSB              <- IA[[11]]      # Spawning stock biomass, dim = area*time
+abundance_all    <- IA[[12]]      # Abundance, dim = area*time
+abundance_mature <- IA[[13]]      # Abundance, dim = area*time
+biomass          <- IA[[14]]      # Biomass, dim = area*time
+count_sp         <- IA[[15]]      # Species count when sampling, dim = area*time
+nuS              <- IA[[16]]      # Sampling normal variable, dim = area*time*CR
+Eps              <- IA[[17]]      # Epsilon vector, dim = area*time*CR
+catch            <- IA[[18]]      # Catch at age
+yield            <- IA[[19]]      # Yield per area 
+B0               <- IA[[20]]      # Unfished spawning stock biomass
 
 ##### Population Dynamics - Time Varying #######################################
 
@@ -134,11 +134,12 @@ for (cr in 1:CR) {
     for (a in 1:A) {
       
       # effort allocation
-      E <- effort_allocation(a, t, cr, allocation, A, E, biomass)
+      E <- effort_allocation(a, t, cr, allocation, A, E, biomass, time1)
       
       # biology
       PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
-                         h, B0, Eps, sigma_R, Fb, E, S, M)
+                         h, B0, Eps, sigma_R, Fb, E, S, M, FM, m, abundance_all, 
+                         abundance_mature, biomass)
       
       SSB                <- PD[[1]]
       FM                 <- PD[[2]]
@@ -178,11 +179,12 @@ for (cr in 1:CR) {
     for (a in 1:A) {
       
       # effort allocation
-      E <- effort_allocation(a, t, cr, allocation, A, E, biomass)
+      E <- effort_allocation(a, t, cr, allocation, A, E, biomass, time1)
       
       # biology
       PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat,
-                         A, R0, h, B0, Eps, sigma_R, Fb, E, S, M)
+                         A, R0, h, B0, Eps, sigma_R, Fb, E, S, M, FM, m, 
+                         abundance_all, abundance_mature, biomass)
       
       SSB                <- PD[[1]]
       FM                 <- PD[[2]]

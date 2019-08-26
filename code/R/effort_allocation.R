@@ -1,11 +1,11 @@
-effort_allocation <- function(a, t, cr, allocation, A, E, biomass) {
+effort_allocation <- function(a, t, cr, allocation, A, E, biomass, time) {
   
   if (allocation == 'IFD') {
     
     prop_biomass <- biomass[, t - 1]/sum(biomass[, t - 1, cr])
     E[a, t, cr] <- sum(E[, t - 1, cr])*prop_biomass
     
-  } else if (t > time1) {
+  } else if (t > time) {
     
     areas <- 1:A
     reserve <- median(areas)
