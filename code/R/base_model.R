@@ -118,13 +118,14 @@ SSB              <- IA[[11]]      # Spawning stock biomass, dim = area*time
 abundance_all    <- IA[[12]]      # Abundance, dim = area*time
 abundance_mature <- IA[[13]]      # Abundance, dim = area*time
 biomass          <- IA[[14]]      # Biomass, dim = area*time
-count_sp         <- IA[[15]]      # Species count when sampling, dim = area*time
+Count            <- IA[[15]]      # Species count when sampling, dim = area*time
 nuS              <- IA[[16]]      # Sampling normal variable, dim = area*time*CR
 Eps              <- IA[[17]]      # Epsilon vector, dim = area*time*CR
 catch            <- IA[[18]]      # Catch at age
 yield            <- IA[[19]]      # Yield per area 
 B0               <- IA[[20]]      # Unfished spawning stock biomass
-delta            <- IA[[21]]      # Constant of proportionality
+Delta            <- IA[[21]]      # Constant of proportionality
+Gamma            <- IA[[22]]      # Gamma
 
 ##### Population Dynamics - Time Varying #######################################
 
@@ -152,8 +153,8 @@ for (cr in 1:CR) {
       # # sampling
       # if (sampling == T) {
       #   if (t > (time1 - 3)) {
-      #     count_sp <- sampling(a, t, cr, delta, abundance_all,
-      #                          abundance_mature, transects, x, count_sp, nuS)
+      #     Count <- sampling(a, t, cr, Delta, Gamma, abundance_all,
+      #                          abundance_mature, transects, x, Count, nuS)
       #   }
       # }
       # 
@@ -196,13 +197,13 @@ for (cr in 1:CR) {
       
       # sampling
       if (sampling == T) {
-        count_sp <- sampling(a, t, cr, delta, abundance_all, abundance_mature,
-                             transects, x, count_sp, nuS)
+        Count <- sampling(a, t, cr, Delta, Gamma, abundance_all, 
+                             abundance_mature, transects, x, count_sp, nuS)
       }
       
       # management
       if (management == T) {
-        E <- control_rule(a, t, cr, E, count_sp)
+        E <- control_rule(a, t, cr, E, Count)
       }
       
       # fishing

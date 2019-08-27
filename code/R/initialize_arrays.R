@@ -64,7 +64,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   
   # Initialize count array
   # Dimensions = area * time * transects * 2 * CR
-  count_sp <- array(rep(0, A*timeT*transects*2*CR), c(A, timeT, transects, 2, CR))
+  Count <- array(rep(0, A*timeT*transects*2*CR), c(A, timeT, transects, 2, CR))
   
   # Calculate standard deviation of normal variable
   # Based on Babcock & MacCall (2011): Eq. (15)
@@ -142,11 +142,15 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   
   # Calculate delta - constant of proportionality
   # Based on Babcock & MacCall (2011): Eq. (13)
-  delta <- r / D
+  Delta <- r / D
+  
+  # Calculate gamma
+  # Based on Babcock & MacCall (2011): Eq. (16)
+  Gamma <- x / D
   
   output <- list(timeT, E, n, L, W, Mat, m, S, FM, N, SSB, 
-                 abundance_all, abundance_mature, biomass, count_sp, nuS, 
-                 Eps, catch, yield, B0, delta)
+                 abundance_all, abundance_mature, biomass, Count, nuS, 
+                 Eps, catch, yield, B0, Delta, Gamma)
   
   return(output)
   
