@@ -1,5 +1,5 @@
-sampling <- function(a, t, cr, Delta, Gamma, abundance_all, abundance_mature, 
-                     transects, x, count_sp, nuS) {
+survey <- function(a, t, cr, Delta, Gamma, abundance_all, abundance_mature, 
+                     transects, x, Count, nuS) {
   
   # Total population size across all areas
   total_all <- sum(abundance_all[, t, cr])
@@ -20,8 +20,8 @@ sampling <- function(a, t, cr, Delta, Gamma, abundance_all, abundance_mature,
   presence_mature <- rbinom(transects, 1, p_mature)
   
   # Calculate species count given transects with positive visuals
-  count_sp[a, t, , 1, cr] <- presence_all*(Gamma*abundance_all[a, t, cr]*exp(nuS[a, t, cr]))
-  count_sp[a, t, , 2, cr] <- presence_mature*(Gamma*abundance_mature[a, t, cr]*exp(nuS[a, t, cr]))
+  Count[a, t, , 1, cr] <- presence_all*(Gamma*abundance_all[a, t, cr]*exp(nuS[a, t, cr]))
+  Count[a, t, , 2, cr] <- presence_mature*(Gamma*abundance_mature[a, t, cr]*exp(nuS[a, t, cr]))
   
-  return(count_sp)
+  return(Count[a, t, , , cr])
 }

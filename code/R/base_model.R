@@ -15,7 +15,7 @@ source("./code/R/spawning_stock_biomass.R")
 source("./code/R/recruitment.R")
 source("./code/R/pop_dynamics.R")
 source("./code/R/initialize_arrays.R")
-source("./code/R/sampling.R")
+source("./code/R/survey.R")
 source("./code/R/density_ratio.R")
 source("./code/R/management.R")
 source("./code/R/control_rule.R")
@@ -102,7 +102,7 @@ IA <- initialize_arrays(A, time1, time2, R0, rec_age, max_age, L1f, L2f, Kf,
                         a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, rho_R, 
                         fleets, alpha, beta, start, F_fin, L_50_up, L50_down, 
                         cf, switch, full, x, sp, M, CR, phi, catch_form, 
-                        season, stochasticity = F, r, d)
+                        season, stochasticity = F, r, D)
 
 timeT            <- IA[[1]]       # total amount of timesteps (years)
 E                <- IA[[2]]       # nominal fishing effort in each area 
@@ -150,21 +150,21 @@ for (cr in 1:CR) {
       abundance_mature   <- PD[[5]]
       biomass            <- PD[[6]]
       
-      # # sampling
-      # if (sampling == T) {
-      #   if (t > (time1 - 3)) {
-      #     Count <- sampling(a, t, cr, Delta, Gamma, abundance_all,
-      #                          abundance_mature, transects, x, Count, nuS)
-      #   }
-      # }
-      # 
-      # # fishing
-      # if (fishing == T) {
-      #   catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch, 
-      #                                     catch_form, season)
-      #   N[, a, t, cr] <- N[, a, t, cr] - catch[, a, t, cr]
-      #   yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
-      # }
+      # sampling
+      if (sampling == T) {
+        if (t > (time1 - 3)) {
+          Count[a, t, , , cr] <- survey(a, t, cr, Delta, Gamma, abundance_all,
+                               abundance_mature, transects, x, Count, nuS)
+        }
+      }
+
+      # fishing
+      if (fishing == T) {
+        catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch,
+                                          catch_form, season)
+        N[, a, t, cr] <- N[, a, t, cr] - catch[, a, t, cr]
+        yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
+      }
       
     }
     
@@ -197,8 +197,8 @@ for (cr in 1:CR) {
       
       # sampling
       if (sampling == T) {
-        Count <- sampling(a, t, cr, Delta, Gamma, abundance_all, 
-                             abundance_mature, transects, x, count_sp, nuS)
+        Count <- survey(a, t, cr, Delta, Gamma, abundance_all, 
+                             abundance_mature, transects, x, Count, nuS)
       }
       
       # management
