@@ -1,9 +1,5 @@
-sampling <- function(a, t, cr, r, D, abundance_all, abundance_mature, transects, 
+sampling <- function(a, t, cr, delta, abundance_all, abundance_mature, transects, 
                      x, count_sp, nuS) {
-  
-  # Calculate delta - constant of proportionality
-  # Based on Babcock & MacCall (2011): Eq. (13)
-  delta <- r / D
   
   # Total population size across all areas
   total_all <- sum(abundance_all[, t, cr])

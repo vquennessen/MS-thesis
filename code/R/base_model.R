@@ -29,19 +29,19 @@ source("./code/R/equilibrium_SAD.R")
 # Set model parameters (fixed)
 CR            <- 8                   # number of control rules
 transects     <- 24                  # number of transects per PISCO protocol
-                                     #     reserve implementation
+#     reserve implementation
 
 # Set model parameters (flexible)
 species       <- 'black rockfish 2003'
 A             <- 5                   # number of areas, should be odd
 time1          <- 50                 # number of timesteps (years) before 
-                                     #     reserve implementation
+#     reserve implementation
 time2         <- 50                   # number of timesteps (years) after
 allocation    <- 'equal'             # distribution of fishing effort (or 'IFD')
 R0            <- 1e+5                # unfished recruitment, arbitrary value, 
-                                     #     over all areas   
-stochasticity <- F
-sampling <- F
+#     over all areas   
+stochasticity <- T
+sampling <- T
 management <- F
 fishing <- T
 
@@ -87,12 +87,12 @@ L50_up                 <- par[[38]]       # L50 for upcurve
 L50_down               <- par[[39]]       # L50 for downcurve
 cf                     <- par[[40]]       # fraction of fishery caught / fleet
 switch                 <- par[[41]]       # length where selectivity switches 
-                                          #       from upcurve to 1
+#       from upcurve to 1
 full                   <- par[[42]]       # length at which downcurve starts
 catch_form             <- par[[43]]       # discrete or continuous catch
 season                 <- par[[44]]       # if catch_formulation = discrete, 
-                                          #       time at which fishing occurs:
-                                          #       0 at start, 1 at end of year
+#       time at which fishing occurs:
+#       0 at start, 1 at end of year
 
 
 ##### Population Dynamics - Non-Time Varying ###################################
@@ -102,7 +102,7 @@ IA <- initialize_arrays(A, time1, time2, R0, rec_age, max_age, L1f, L2f, Kf,
                         a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, rho_R, 
                         fleets, alpha, beta, start, F_fin, L_50_up, L50_down, 
                         cf, switch, full, x, sp, M, CR, phi, catch_form, 
-                        season, stochasticity = F)
+                        season, stochasticity = F, r, d)
 
 timeT            <- IA[[1]]       # total amount of timesteps (years)
 E                <- IA[[2]]       # nominal fishing effort in each area 
@@ -124,6 +124,7 @@ Eps              <- IA[[17]]      # Epsilon vector, dim = area*time*CR
 catch            <- IA[[18]]      # Catch at age
 yield            <- IA[[19]]      # Yield per area 
 B0               <- IA[[20]]      # Unfished spawning stock biomass
+delta            <- IA[[21]]      # Constant of proportionality
 
 ##### Population Dynamics - Time Varying #######################################
 
@@ -131,10 +132,10 @@ for (cr in 1:CR) {
   
   for (t in 3:time1) {
     
+    # effort allocation
+    E <- effort_allocation(a, t, cr, allocation, A, E, biomass, time1)
+    
     for (a in 1:A) {
-      
-      # effort allocation
-      E <- effort_allocation(a, t, cr, allocation, A, E, biomass, time1)
       
       # biology
       PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
@@ -148,21 +149,21 @@ for (cr in 1:CR) {
       abundance_mature   <- PD[[5]]
       biomass            <- PD[[6]]
       
-      # sampling
-      if (sampling == T) {
-        if (t > (time1 - 3)) {
-          count_sp <- sampling(a, t, cr, r, D, abundance_all,
-                               abundance_mature, transects, x, count_sp, nuS)
-        }
-      }
-      
-      # fishing
-      if (fishing == T) {
-        catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch, 
-                                          catch_form, season)
-        N[, a, t, cr] <- N[, a, t, cr] - catch[, a, t, cr]
-        yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
-      }
+      # # sampling
+      # if (sampling == T) {
+      #   if (t > (time1 - 3)) {
+      #     count_sp <- sampling(a, t, cr, delta, abundance_all,
+      #                          abundance_mature, transects, x, count_sp, nuS)
+      #   }
+      # }
+      # 
+      # # fishing
+      # if (fishing == T) {
+      #   catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch, 
+      #                                     catch_form, season)
+      #   N[, a, t, cr] <- N[, a, t, cr] - catch[, a, t, cr]
+      #   yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
+      # }
       
     }
     
@@ -195,7 +196,7 @@ for (cr in 1:CR) {
       
       # sampling
       if (sampling == T) {
-        count_sp <- sampling(a, t, cr, r, D, abundance_all, abundance_mature,
+        count_sp <- sampling(a, t, cr, delta, abundance_all, abundance_mature,
                              transects, x, count_sp, nuS)
       }
       
@@ -216,32 +217,40 @@ for (cr in 1:CR) {
     
   }
   
-  #### plot abundance, biomass, and yield over time for each area, once per CR ###
+}
+
+#### plot abundance, biomass, and yield over time for each area, once per CR ###
+
+for (cr in 1:CR) {
   
-  par(mfrow = c(1, 2))
-  
-  main_title <- sprintf("CR %i, Area %i", cr, a)
-  
-  y1 <- 1250
-  y2 <- 125
-  
-  # plot abundance (1000s of individuals) in blue
-  plot(1:timeT, abundance_all[a, , cr]/1000, pch = 16, col = "deepskyblue3",
-       xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
-       yaxt = 'n', ylim = c(0, y1), xaxt = 'n', main = main_title)
-  axis(1, seq(0, timeT, timeT/2))
-  axis(2, seq(0, y1, y1/2))
-  
-  # add red line for biomass (metric tons)
-  lines(1:timeT, biomass[a, , cr]/1000, type = 'l', lwd = 2, col = "firebrick3")
-  box()
-  
-  # plot yield over time (metric tons)
-  plot(1:timeT, yield[a, , cr]/1000, type = 'l', lwd = 2, col = "forestgreen",
-       xlab = 'Time (years)', ylab = 'Yield (metric tons)',
-       yaxt = 'n', ylim = c(0, y2), xaxt = 'n', main = main_title)
-  axis(1, seq(0, timeT, timeT/2))
-  axis(2, seq(0, y2, y2/2))
-  box()
+  for (a in 1:A) {
+    
+    par(mfrow = c(1, 2))
+    
+    main_title <- sprintf("CR %i, Area %i", cr, a)
+    
+    y1 <- 500
+    y2 <- 10
+    
+    # plot abundance (1000s of individuals) in blue
+    plot(1:timeT, abundance_all[a, , cr]/1000, pch = 16, col = "deepskyblue3",
+         xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
+         yaxt = 'n', ylim = c(0, y1), xaxt = 'n', main = main_title)
+    axis(1, seq(0, timeT, timeT/2))
+    axis(2, seq(0, y1, y1/2))
+    
+    # add red line for biomass (metric tons)
+    lines(1:timeT, biomass[a, , cr]/1000, type = 'l', lwd = 2, col = "firebrick3")
+    box()
+    
+    # plot yield over time (metric tons)
+    plot(1:timeT, yield[a, , cr]/1000, type = 'l', lwd = 2, col = "forestgreen",
+         xlab = 'Time (years)', ylab = 'Yield (metric tons)',
+         yaxt = 'n', ylim = c(0, y2), xaxt = 'n', main = main_title)
+    axis(1, seq(0, timeT, timeT/2))
+    axis(2, seq(0, y2, y2/2))
+    box()
+    
+  }
   
 }

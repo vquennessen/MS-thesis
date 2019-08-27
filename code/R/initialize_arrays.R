@@ -2,7 +2,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
                               Kf, a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, 
                               rho_R, fleets, alpha, beta, start, F_fin, 
                               L_50_up, L50_down, cf, switch, full, x, sp, M, CR, 
-                              phi, catch_form, season, stochasticity) {
+                              phi, catch_form, season, stochasticity, r, D) {
   
   # total amount of timesteps (years)
   timeT <- time1 + time2            
@@ -140,9 +140,13 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
     }
   }
   
+  # Calculate delta - constant of proportionality
+  # Based on Babcock & MacCall (2011): Eq. (13)
+  delta <- r / D
+  
   output <- list(timeT, E, n, L, W, Mat, m, S, FM, N, SSB, 
                  abundance_all, abundance_mature, biomass, count_sp, nuS, 
-                 Eps, catch, yield, B0)
+                 Eps, catch, yield, B0, delta)
   
   return(output)
   
