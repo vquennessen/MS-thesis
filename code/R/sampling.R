@@ -1,4 +1,4 @@
-survey <- function(a, t, cr, Delta, Gamma, abundance_all, abundance_mature, 
+sampling <- function(a, t, cr, Delta, Gamma, abundance_all, abundance_mature, 
                      transects, x, Count, nuS) {
   
   # Total population size across all areas

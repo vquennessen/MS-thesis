@@ -15,7 +15,7 @@ source("./code/R/spawning_stock_biomass.R")
 source("./code/R/recruitment.R")
 source("./code/R/pop_dynamics.R")
 source("./code/R/initialize_arrays.R")
-source("./code/R/survey.R")
+source("./code/R/sampling.R")
 source("./code/R/density_ratio.R")
 source("./code/R/management.R")
 source("./code/R/control_rule.R")
@@ -27,23 +27,23 @@ source("./code/R/vulnerability_to_gear.R")
 source("./code/R/equilibrium_SAD.R")
 
 # Set model parameters (fixed)
-CR            <- 8                   # number of control rules
-transects     <- 24                  # number of transects per PISCO protocol
+CR                   <- 8                   # number of control rules
+transects            <- 24                  # number of transects per PISCO protocol
 #     reserve implementation
 
 # Set model parameters (flexible)
-species       <- 'black rockfish 2003'
-A             <- 5                   # number of areas, should be odd
-time1          <- 50                 # number of timesteps (years) before 
+species              <- 'black rockfish 2003'
+A                    <- 5                   # number of areas, should be odd
+time1                <- 50                 # number of timesteps (years) before 
 #     reserve implementation
-time2         <- 50                   # number of timesteps (years) after
-allocation    <- 'equal'             # distribution of fishing effort (or 'IFD')
-R0            <- 1e+5                # unfished recruitment, arbitrary value, 
+time2                <- 50                   # number of timesteps (years) after
+allocation           <- 'equal'             # distribution of fishing effort (or 'IFD')
+R0                   <- 1e+5                # unfished recruitment, arbitrary value, 
 #     over all areas   
-stochasticity <- T
-sampling <- T
-management <- F
-fishing <- T
+stochasticity        <- T
+surveys              <- T
+fishery_management   <- T
+fishing              <- T
 
 ##### Load life history characteristics for species ############################
 
@@ -151,13 +151,13 @@ for (cr in 1:CR) {
       biomass            <- PD[[6]]
       
       # sampling
-      if (sampling == T) {
+      if (surveys == T) {
         if (t > (time1 - 3)) {
-          Count[a, t, , , cr] <- survey(a, t, cr, Delta, Gamma, abundance_all,
-                               abundance_mature, transects, x, Count, nuS)
+          Count[a, t, , , cr] <- sampling(a, t, cr, Delta, Gamma, abundance_all,
+                                          abundance_mature, transects, x, Count, nuS)
         }
       }
-
+      
       # fishing
       if (fishing == T) {
         catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch,
@@ -178,10 +178,10 @@ for (cr in 1:CR) {
   
   for (t in (time1 + 1):timeT) {
     
+    # effort allocation
+    E <- effort_allocation(a, t, cr, allocation, A, E, biomass, time1)
+    
     for (a in 1:A) {
-      
-      # effort allocation
-      E <- effort_allocation(a, t, cr, allocation, A, E, biomass, time1)
       
       # biology
       PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat,
@@ -196,14 +196,9 @@ for (cr in 1:CR) {
       biomass            <- PD[[6]]
       
       # sampling
-      if (sampling == T) {
-        Count <- survey(a, t, cr, Delta, Gamma, abundance_all, 
-                             abundance_mature, transects, x, Count, nuS)
-      }
-      
-      # management
-      if (management == T) {
-        E <- control_rule(a, t, cr, E, Count)
+      if (surveys == T) {
+        Count <- sampling(a, t, cr, Delta, Gamma, abundance_all, 
+                          abundance_mature, transects, x, Count, nuS)
       }
       
       # fishing
@@ -214,6 +209,11 @@ for (cr in 1:CR) {
         yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
       }
       
+    }
+    
+    # management
+    if (fishery_management == T) {
+      E <- control_rule(t, cr, E, Count, time1)
     }
     
   }
