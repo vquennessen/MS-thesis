@@ -102,7 +102,7 @@ IA <- initialize_arrays(A, time1, time2, R0, rec_age, max_age, L1f, L2f, Kf,
                         a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, rho_R, 
                         fleets, alpha, beta, start, F_fin, L_50_up, L50_down, 
                         cf, switch, full, x, sp, M, CR, phi, catch_form, 
-                        season, stochasticity = F, r, D)
+                        season, stochasticity, r, D)
 
 timeT            <- IA[[1]]       # total amount of timesteps (years)
 E                <- IA[[2]]       # nominal fishing effort in each area 
@@ -197,7 +197,7 @@ for (cr in 1:CR) {
       
       # sampling
       if (surveys == T) {
-        Count <- sampling(a, t, cr, Delta, Gamma, abundance_all, 
+        Count[a, t, , , cr] <- sampling(a, t, cr, Delta, Gamma, abundance_all, 
                           abundance_mature, transects, x, Count, nuS)
       }
       

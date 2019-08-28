@@ -7,8 +7,8 @@ sampling <- function(a, t, cr, Delta, Gamma, abundance_all, abundance_mature,
   
   # Calculate odds ratio of seeing a fish
   # Based on Babcock & MacCall (2011): Eq. (12)
-  odds_all <-  (Delta * abundance_all[a, t, cr]) / (total_all / A)
-  odds_mature <-  (Delta * abundance_mature[a, t, cr]) / (total_mature / A)
+  odds_all <-  (Delta * abundance_all[, t, cr]) / (total_all / A)
+  odds_mature <-  (Delta * abundance_mature[, t, cr]) / (total_mature / A)
   
   # Calculate probability based on odds ratio
   p_all <- 1 / (1 + exp(odds_all))
