@@ -1,5 +1,6 @@
 #' Runs base model, based on Babcock & MacCall (2011)
 
+# Clear environment and variables
 rm(list = ls())
 
 ##### Source functions #########################################################
@@ -27,19 +28,19 @@ source("./code/R/vulnerability_to_gear.R")
 source("./code/R/equilibrium_SAD.R")
 
 # Set model parameters (fixed)
-CR                   <- 8                   # number of control rules
-transects            <- 24                  # number of transects per PISCO protocol
-#     reserve implementation
+CR                   <- 8            # number of control rules
+transects            <- 24           # number of transects per PISCO protocol
+                                     #     reserve implementation
 
 # Set model parameters (flexible)
 species              <- 'black rockfish 2003'
-A                    <- 5                   # number of areas, should be odd
-time1                <- 50                 # number of timesteps (years) before 
-#     reserve implementation
-time2                <- 50                   # number of timesteps (years) after
-allocation           <- 'equal'             # distribution of fishing effort (or 'IFD')
-R0                   <- 1e+5                # unfished recruitment, arbitrary value, 
-#     over all areas   
+A                    <- 5            # number of areas, should be odd
+time1                <- 50           # number of timesteps (years) before 
+                                     #     reserve implementation
+time2                <- 50           # number of timesteps (years) after
+allocation           <- 'equal'      # distribution of fishing effort (or 'IFD')
+R0                   <- 1e+5         # unfished recruitment, arbitrary value, 
+                                     #     over all areas   
 stochasticity        <- T
 surveys              <- T
 fishery_management   <- T
@@ -71,7 +72,7 @@ p                      <- par[[25]]       # adult movement proportion
 D                      <- par[[26]]       # depletion
 Fb                     <- par[[27]]       # fishing mortality to cause D
 r                      <- par[[28]]       # proportion of positive transects 
-#       in PISCO monitoring data
+                                          #       in PISCO monitoring data
 x                      <- par[[29]]       # mean of positive transects
 sp                     <- par[[30]]       # std of positive transects
 c                      <- par[[31]]       # eggs produced per g, intercept
@@ -87,12 +88,12 @@ L50_up                 <- par[[38]]       # L50 for upcurve
 L50_down               <- par[[39]]       # L50 for downcurve
 cf                     <- par[[40]]       # fraction of fishery caught / fleet
 switch                 <- par[[41]]       # length where selectivity switches 
-#       from upcurve to 1
+                                          #       from upcurve to 1
 full                   <- par[[42]]       # length at which downcurve starts
 catch_form             <- par[[43]]       # discrete or continuous catch
 season                 <- par[[44]]       # if catch_formulation = discrete, 
-#       time at which fishing occurs:
-#       0 at start, 1 at end of year
+                                          #       time at which fishing occurs:
+                                          #       0 at start, 1 at end of year
 
 
 ##### Population Dynamics - Non-Time Varying ###################################
