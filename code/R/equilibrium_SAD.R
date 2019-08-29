@@ -38,7 +38,7 @@ equilibrium_SAD <- function(a, cr, allocation, A, rec_age, max_age, n, W, R0,
   }
 
   # Step population forward in time with set fishing level
-  for (t in (rec_age + 1):eq_time) {
+  for (t in (rec_age + 1):(eq_time - 1)) {
     
     # effort allocation
     E2 <- effort_allocation(1, t, 1, allocation, A, E2, biomass2, eq_time)
@@ -60,7 +60,7 @@ equilibrium_SAD <- function(a, cr, allocation, A, rec_age, max_age, n, W, R0,
     
   }
   
-  SAD <- N2[, 1, eq_time, 1]
+  SAD <- N2[, 1, eq_time - 1, 1]
   
   return(SAD)
   

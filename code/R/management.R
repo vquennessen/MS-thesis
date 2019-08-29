@@ -4,7 +4,7 @@ management <- function(t, cr, E, DR, CR_type, target_DR, floor_DR,
   #' If the control rule is based on effort, and the density ratio is higher
   #' than the target density ratio, allow effort in each area to increase by the
   #' allowed effort increase value (typically 10%) 
-  if (CR_type == 'effort' | DR > target_DR) {
+  if (CR_type == 'effort' || DR > target_DR) {
     
     E[, t, cr] <- E[, t - 1, cr]*(1 + effort_inc_allowed)
    
