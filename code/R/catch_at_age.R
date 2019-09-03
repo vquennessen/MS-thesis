@@ -1,3 +1,28 @@
+#' Catch at age
+#'
+#' @param a area, a number (1, A)
+#' @param t time, a number (1, timeT)
+#' @param cr control rule, a number (1, CR)
+#' @param FM fishing mortality, a 1D numeric array (length = age)
+#' @param M natural mortality, a number (0, 1)
+#' @param N population size, a 4D numeric array 
+#' (dimensions = age*area*time*control rule)
+#' @param A total number of areas, a number (> 1)
+#' @param Fb initial fishing mortality that leads to depletion, a number (0, 1)
+#' @param E fishing effort, a 3D numeric array 
+#' (dimensions = area*time*control rule)
+#' @param catch catch at age, a 4D numeric array 
+#' (dimensions = age*area*time*control rule)
+#' @param catch_form catch formulation, character, either 'continuous' or 
+#' 'discrete'
+#' @param season the season over which fishing occurs, 
+#' only applies if catch_form = 'discrete', a number (0, 1)
+#'
+#' @return returns the updated catch at age for all ages in area *a*, at time 
+#' *t*, under control rule *cr*
+#' @export
+#'
+#' @examples
 catch_at_age <- function(a, t, cr, FM, M, N, A, Fb, E, catch, catch_form, 
                          season) {
   
