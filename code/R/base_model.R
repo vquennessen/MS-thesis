@@ -3,6 +3,9 @@
 # Clear environment and variables
 rm(list = ls())
 
+# load necessary librarys
+library(viridis)
+
 ##### Source functions #########################################################
 
 source("./code/R/parameters.R")
@@ -223,36 +226,93 @@ for (cr in 1:CR) {
 
 #### plot abundance, biomass, and yield over time for each area, once per CR ###
 
-for (cr in 1:CR) {
-  
-  for (a in 1:A) {
-    
-    par(mfrow = c(1, 2))
-    
-    main_title <- sprintf("CR %i, Area %i", cr, a)
-    
-    y1 <- 500
-    y2 <- 10
-    
-    # plot abundance (1000s of individuals) in blue
-    plot(1:timeT, abundance_all[a, , cr]/1000, pch = 16, col = "deepskyblue3",
-         xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
-         yaxt = 'n', ylim = c(0, y1), xaxt = 'n', main = main_title)
-    axis(1, seq(0, timeT, timeT/2))
-    axis(2, seq(0, y1, y1/2))
-    
-    # add red line for biomass (metric tons)
-    lines(1:timeT, biomass[a, , cr]/1000, type = 'l', lwd = 2, col = "firebrick3")
-    box()
-    
-    # plot yield over time (metric tons)
-    plot(1:timeT, yield[a, , cr]/1000, type = 'l', lwd = 2, col = "forestgreen",
-         xlab = 'Time (years)', ylab = 'Yield (metric tons)',
-         yaxt = 'n', ylim = c(0, y2), xaxt = 'n', main = main_title)
-    axis(1, seq(0, timeT, timeT/2))
-    axis(2, seq(0, y2, y2/2))
-    box()
-    
+# for (cr in 1:CR) {
+#   
+#   for (a in 1:A) {
+#     
+#     par(mfrow = c(1, 2))
+#     
+#     main_title <- sprintf("CR %i, Area %i", cr, a)
+#     
+#     y1 <- 500
+#     y2 <- 10
+#     
+#     # plot abundance (1000s of individuals) in blue
+#     plot(1:timeT, abundance_all[a, , cr]/1000, pch = 16, col = "deepskyblue3",
+#          xlab = 'Time (years)', ylab = 'Abundance (1000s of individuals)',
+#          yaxt = 'n', ylim = c(0, y1), xaxt = 'n', main = main_title)
+#     axis(1, seq(0, timeT, timeT/2))
+#     axis(2, seq(0, y1, y1/2))
+#     
+#     # add red line for biomass (metric tons)
+#     lines(1:timeT, biomass[a, , cr]/1000, type = 'l', lwd = 2, col = "firebrick3")
+#     box()
+#     
+#     # plot yield over time (metric tons)
+#     plot(1:timeT, yield[a, , cr]/1000, type = 'l', lwd = 2, col = "forestgreen",
+#          xlab = 'Time (years)', ylab = 'Yield (metric tons)',
+#          yaxt = 'n', ylim = c(0, y2), xaxt = 'n', main = main_title)
+#     axis(1, seq(0, timeT, timeT/2))
+#     axis(2, seq(0, y2, y2/2))
+#     box()
+#     
+#   }
+#   
+# }
+
+##### Plot relative biomass over time after reserve implementation #############
+
+# initialize relative biomass matrix
+rel_biomass <- array(rep(0, A*time2*CR), c(A, time2, CR))
+
+# calculate relative biomass since reserve implementation
+for (a in 1:A) {
+  for (cr in 1:CR) {
+    rel_biomass[a, , cr] <- biomass[a, (time1 + 1):timeT, cr]/biomass[a, 1, cr]
   }
-  
 }
+
+# use colorblind color palette, viridis
+color <- viridis(CR)
+
+
+for (a in 1:A) {
+  title <- sprintf("Relative Biomass per Control Rule: Area %i", a)
+  
+  par(mar=c(5.1, 4.1, 4.1, 8.5), xpd=TRUE)
+  
+  # plot the relative biomass
+  plot(1, type = 'l',                     # make an empty line graph
+       main = title,                      # title of plot
+       ylab = 'Relative Biomass',         # axis labels
+       xlab = 'Years since marine reserve implementation',
+       yaxt = 'n',                        # get rid of y-axis
+       xlim = c(0, 50),                    # set x-axis limits
+       ylim = c(0.5, 1)
+          )
+  
+  # set specific y-axis
+  ytick <- seq(0.5, 1, by = 0.25)         # set yaxis tick marks
+  axis(side = 2,                          # specify y axis
+       at = ytick,                        # apply tick marks
+       labels = T,                        # apply appropriate labels
+       las = 1)                           # set text horizontal
+
+  for (cr in 1:CR) {
+    lines(rel_biomass[a, , cr],
+          col = color[cr],                # use pre-defined color palette
+          lwd = cr%%2 + 1,                # set line width
+          lty = ceiling(cr/2)             # set line type
+    )
+  }
+
+  # add a legend
+  legend(x = c(54, 64), y = c(0.8, 1.02), 
+         col = color, 
+         lwd = rep(c(2, 1), 4),
+         lty = rep(1:5, each = 2),
+         title = 'CR',  
+         c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8"), 
+         seg.len = 3.5,
+         cex = 0.9)
+  }
