@@ -31,7 +31,7 @@ parameters = function(species) {
     phi <- 1.1                              # unfished recruits per spawner
     sigma_R <- 0.5                          # recruitment standard deviation
     rho_R <- 0                              # recruitment autocorrelation
-    p <- 0.1                                # adult movement proportion
+    AMP <- 0.1                              # adult movement proportion
     D <- 0.488                              # depletion
     Fb <- 0.2                               # fishing mortality to cause D
     r <- 0.77                               # Proportion of positive transects 
@@ -63,7 +63,7 @@ parameters = function(species) {
   
   output = list(max_age, M, rec_age, af, bf, am, bm, a1f, L1f, a2f, L2f, Kf,
                 a1m, L1m, a2m, L2m, Km, L50, k_mat, ldp, h, phi, sigma_R,
-                rho_R, p, D, Fb, r, x, sp, c, b, fleets, alpha, beta, start, 
+                rho_R, AMP, D, Fb, r, x, sp, c, b, fleets, alpha, beta, start, 
                 F_fin, L50_up, L50_down, cf, switch, full, catch_form, fishing)
   
   return(output)

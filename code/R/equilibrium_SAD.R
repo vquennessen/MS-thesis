@@ -1,6 +1,7 @@
 equilibrium_SAD <- function(a, cr, allocation, A, rec_age, max_age, n, W, R0,
                             Mat, h, B0, Eps, sigma_R, Fb, S, M, season,
-                            catch_form, eq_time, m, stochasticity) {
+                            catch_form, eq_time, m, stochasticity, movement, 
+                            AMP) {
   
   # Initialize population size and catch arrays
   # Dimensions = age * 1 * time * 1
@@ -46,7 +47,8 @@ equilibrium_SAD <- function(a, cr, allocation, A, rec_age, max_age, n, W, R0,
     # biology
     PD <- pop_dynamics(1, t, 1, rec_age, max_age, n, SSB2, N2, W, Mat, A, R0, 
                        h, B0, Eps2, sigma_R, Fb, E2, S, M, FM2, m, 
-                       abundance_all2, abundance_mature2, biomass2)
+                       abundance_all2, abundance_mature2, biomass2, 
+                       movement, AMP)
     
     SSB2                <- PD[[1]]
     FM2                 <- PD[[2]]

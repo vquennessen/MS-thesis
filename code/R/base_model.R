@@ -48,6 +48,7 @@ stochasticity        <- T
 surveys              <- T
 fishery_management   <- T
 fishing              <- T
+movement             <- T
 
 ##### Load life history characteristics for species ############################
 
@@ -71,7 +72,7 @@ h                      <- par[[21]]       # steepness
 phi                    <- par[[22]]       # unfished recruits per spawner
 sigma_R                <- par[[23]]       # recruitment standard deviation
 rho_R                  <- par[[24]]       # recruitment autocorrelation
-p                      <- par[[25]]       # adult movement proportion
+AMP                    <- par[[25]]       # adult movement proportion
 D                      <- par[[26]]       # depletion
 Fb                     <- par[[27]]       # fishing mortality to cause D
 r                      <- par[[28]]       # proportion of positive transects 
@@ -106,7 +107,7 @@ IA <- initialize_arrays(A, time1, time2, R0, rec_age, max_age, L1f, L2f, Kf,
                         a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, rho_R, 
                         fleets, alpha, beta, start, F_fin, L_50_up, L50_down, 
                         cf, switch, full, x, sp, M, CR, phi, catch_form, 
-                        season, stochasticity, r, D)
+                        season, stochasticity, r, D, movement, AMP)
 
 timeT            <- IA[[1]]       # total amount of timesteps (years)
 E                <- IA[[2]]       # nominal fishing effort in each area 
@@ -145,7 +146,7 @@ for (cr in 1:CR) {
       # biology
       PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
                          h, B0, Eps, sigma_R, Fb, E, S, M, FM, m, abundance_all, 
-                         abundance_mature, biomass)
+                         abundance_mature, biomass, movement, AMP)
       
       SSB                <- PD[[1]]
       FM                 <- PD[[2]]
@@ -190,7 +191,8 @@ for (cr in 1:CR) {
       # biology
       PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat,
                          A, R0, h, B0, Eps, sigma_R, Fb, E, S, M, FM, m, 
-                         abundance_all, abundance_mature, biomass)
+                         abundance_all, abundance_mature, biomass, movement, 
+                         AMP)
       
       SSB                <- PD[[1]]
       FM                 <- PD[[2]]
@@ -279,7 +281,7 @@ color <- viridis(CR)
 for (a in 1:A) {
   title <- sprintf("Relative Biomass per Control Rule: Area %i", a)
   
-  par(mar=c(5.1, 4.1, 4.1, 8.5), xpd=TRUE)
+  #par(mar=c(5.1, 4.1, 4.1, 8.7), xpd=TRUE)
   
   # plot the relative biomass
   plot(1, type = 'l',                     # make an empty line graph
@@ -307,12 +309,12 @@ for (a in 1:A) {
   }
 
   # add a legend
-  legend(x = c(54, 64), y = c(0.8, 1.02), 
-         col = color, 
-         lwd = rep(c(2, 1), 4),
-         lty = rep(1:5, each = 2),
-         title = 'CR',  
-         c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8"), 
-         seg.len = 3.5,
-         cex = 0.9)
-  }
+#   legend(x = c(54, 64), y = c(0.8, 1.02), 
+#          col = color, 
+#          lwd = rep(c(2, 1), 4),
+#          lty = rep(1:5, each = 2),
+#          title = 'CR',  
+#          c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8"), 
+#          seg.len = 3.5,
+#          cex = 0.9)
+ }

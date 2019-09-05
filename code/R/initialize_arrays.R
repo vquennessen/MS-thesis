@@ -2,7 +2,8 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
                               Kf, a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, 
                               rho_R, fleets, alpha, beta, start, F_fin, 
                               L_50_up, L50_down, cf, switch, full, x, sp, M, CR, 
-                              phi, catch_form, season, stochasticity, r, D) {
+                              phi, catch_form, season, stochasticity, r, D, 
+                              movement, AMP) {
   
   # total amount of timesteps (years)
   timeT <- time1 + time2            
@@ -116,8 +117,8 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   # Stable age distribution, derived from equilibrium conditions with Fb
   eq_time <- 150
   SAD <- equilibrium_SAD(1, 1, allocation, A, rec_age, max_age, n, W, R0,
-                              Mat, h, B0, Eps, sigma_R, Fb, S, M, season,
-                              catch_form, eq_time, m, stochasticity = F)
+                         Mat, h, B0, Eps, sigma_R, Fb, S, M, season, catch_form, 
+                         eq_time, m, stochasticity, movement = F, AMP)
   
   # # Initial size of whole population at time = 1, 2
   # Init_size <- initial_size(SAD)
