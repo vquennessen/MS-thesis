@@ -283,7 +283,6 @@ for (a in 1:A) {
 # use colorblind color palette, viridis
 color <- viridis(CR)
 
-
 for (a in 1:A) {
   title <- sprintf("Relative Biomass per Control Rule: Area %i", a)
   
@@ -296,11 +295,11 @@ for (a in 1:A) {
        xlab = 'Years since marine reserve implementation',
        yaxt = 'n',                        # get rid of y-axis
        xlim = c(0, 50),                    # set x-axis limits
-       ylim = c(0.5, 1)
+       ylim = c(0.6, 1.4)
           )
   
   # set specific y-axis
-  ytick <- seq(0.5, 1, by = 0.25)         # set yaxis tick marks
+  ytick <- seq(0.6, 1.4, by = 0.4)        # set yaxis tick marks
   axis(side = 2,                          # specify y axis
        at = ytick,                        # apply tick marks
        labels = T,                        # apply appropriate labels
@@ -315,12 +314,12 @@ for (a in 1:A) {
   }
 
   # add a legend
-#   legend(x = c(54, 64), y = c(0.8, 1.02), 
-#          col = color, 
-#          lwd = rep(c(2, 1), 4),
-#          lty = rep(1:5, each = 2),
-#          title = 'CR',  
-#          c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8"), 
-#          seg.len = 3.5,
-#          cex = 0.9)
- }
+  legend(x = c(54, 63), y = c(1.125, 1.433),
+         col = color,
+         lwd = rep(c(2, 1), 4),
+         lty = rep(1:5, each = 2),
+         title = 'CR',
+         c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8"),
+         seg.len = 3.5,
+         cex = 0.9)
+}
