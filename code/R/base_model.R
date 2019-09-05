@@ -29,6 +29,7 @@ source("./code/R/effort_allocation.R")
 source("./code/R/initial_size.R")
 source("./code/R/vulnerability_to_gear.R")
 source("./code/R/equilibrium_SAD.R")
+source("./code/R/movement.R")
 
 # Set model parameters (fixed)
 CR                   <- 8            # number of control rules
