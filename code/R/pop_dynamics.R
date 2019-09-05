@@ -50,22 +50,6 @@ pop_dynamics <- function(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0,
   N[n, a, t, cr] <- N[n - 1, a, t - 1, cr] * exp(-1 * (FM[n - 1, a, t - 1, cr] + M)) + 
     N[n, a, t - 1, cr] * exp(-1 * (FM[n, a, t - 1, cr] + M)) 
   
-  # If there is movement, add movement
-  if (movement == T) {
-    
-    # First area
-    N[, 1, t, cr] <- (1 - AMP)*N[, 1, t, cr] + AMP*N[, 2, t, cr]
-    
-    # Intermediate areas
-    for (a in 2:(A-1)) {
-      N[, a, t, cr] <- (1 - 2*AMP)*N[, a, t, cr] + 
-        AMP*(N[, a-1, t, cr] + N[, a+1, t, cr])
-    }
-    
-    # Last area
-    N[, A, t, cr] <- (1 - AMP)*N[, A, t, cr] + AMP*N[, A-1, t, cr]
-  }
-  
   abundance_all[a, t, cr] <- sum(N[, a, t, cr])
   
   abundance_mature[a, t, cr] <- sum(N[m:n, a, t, cr])

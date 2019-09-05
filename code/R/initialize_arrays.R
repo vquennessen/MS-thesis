@@ -118,7 +118,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   eq_time <- 150
   SAD <- equilibrium_SAD(1, 1, allocation, A, rec_age, max_age, n, W, R0,
                          Mat, h, B0, Eps, sigma_R, Fb, S, M, season, catch_form, 
-                         eq_time, m, stochasticity, movement = F, AMP)
+                         eq_time, m, stochasticity)
   
   # # Initial size of whole population at time = 1, 2
   # Init_size <- initial_size(SAD)

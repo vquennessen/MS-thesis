@@ -48,7 +48,7 @@ stochasticity        <- T
 surveys              <- T
 fishery_management   <- T
 fishing              <- T
-movement             <- T
+adult_movement       <- T
 
 ##### Load life history characteristics for species ############################
 
@@ -107,7 +107,7 @@ IA <- initialize_arrays(A, time1, time2, R0, rec_age, max_age, L1f, L2f, Kf,
                         a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, rho_R, 
                         fleets, alpha, beta, start, F_fin, L_50_up, L50_down, 
                         cf, switch, full, x, sp, M, CR, phi, catch_form, 
-                        season, stochasticity, r, D, movement, AMP)
+                        season, stochasticity, r, D)
 
 timeT            <- IA[[1]]       # total amount of timesteps (years)
 E                <- IA[[2]]       # nominal fishing effort in each area 
@@ -141,12 +141,15 @@ for (cr in 1:CR) {
     # effort allocation
     E <- effort_allocation(a, t, cr, allocation, A, E, biomass, time1)
     
+    # If there is adult movement, add movement
+    if (adult_movement == T) { N <- movement(t, cr, N, A, AMP) }
+    
     for (a in 1:A) {
       
       # biology
       PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
                          h, B0, Eps, sigma_R, Fb, E, S, M, FM, m, abundance_all, 
-                         abundance_mature, biomass, movement, AMP)
+                         abundance_mature, biomass)
       
       SSB                <- PD[[1]]
       FM                 <- PD[[2]]
@@ -186,13 +189,15 @@ for (cr in 1:CR) {
     # effort allocation
     E <- effort_allocation(a, t, cr, allocation, A, E, biomass, time1)
     
+    # If there is adult movement, add movement
+    if (adult_movement == T) { N <- movement(t, cr, N, A, AMP) }
+    
     for (a in 1:A) {
       
       # biology
       PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat,
                          A, R0, h, B0, Eps, sigma_R, Fb, E, S, M, FM, m, 
-                         abundance_all, abundance_mature, biomass, movement, 
-                         AMP)
+                         abundance_all, abundance_mature, biomass)
       
       SSB                <- PD[[1]]
       FM                 <- PD[[2]]
