@@ -279,8 +279,6 @@ base_model <- function(species, A, time1, time2, allocation, R0, stochasticity,
   for (a in 1:A) {
     title <- sprintf("Relative Biomass per Control Rule: Area %i", a)
     
-    #par(mar=c(5.1, 4.1, 4.1, 8.7), xpd=TRUE)
-    
     # plot the relative biomass
     plot(1, type = 'l',                          # make an empty line graph
          main = title,                           # title of plot
