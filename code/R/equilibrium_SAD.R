@@ -21,7 +21,7 @@ equilibrium_SAD <- function(a, cr, allocation, A, rec_age, max_age, n, W, R0,
   
   # Recruitment error
   # Dimensions = area * timeT * CR
-  Eps2 <- epsilon(1, eq_time, 1, nuR2, sigma_R, rho_R)
+  Eps2 <- epsilon(1, eq_time, 1, nuR2, rho_R)
   
   # Initial fishing effort
   E2[, 1:eq_time, ] <- rep(1/A, eq_time)
