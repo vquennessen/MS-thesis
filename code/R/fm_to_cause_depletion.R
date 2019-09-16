@@ -103,21 +103,21 @@ FM_to_cause_depletion <- function(true_dep, allocation, A, R0, B0, Eps, S,
   biomass2 <- SSB2 <- E2 <- nuR2 <- array(rep(0, eq_time), c(1, eq_time, 1))
   abundance_all2 <- abundance_mature2 <- array(rep(0, eq_time), c(1, eq_time, 1))
   
+  # Recruitment error
+  # Dimensions = area * eq_time - 1 * CR
+  Eps2 <- epsilon(1, eq_time - 1, 1, nuR2, rho_R)
+    
+  # Initial fishing effort
+  E2[, 1:(eq_time - 1), ] <- rep(1/A, eq_time - 1)
+  
   # Initialize FM and depletion levels
-  fb_values <- seq(from = 0, to = 1, by = 0.001)
+  fb_values <- seq(from = 0, to = 1, by = 0.01)
   fn <- length(fb_values)
   dep <- array(rep(0, fn), c(1, fn))
   
   # Substitute in values for Fb to get depletion level
   for (fb in 1:fn) { 
-    
-    # Recruitment error
-    # Dimensions = area * timeT * CR
-    Eps2 <- epsilon(1, eq_time, 1, nuR2, rho_R)
-    
-    # Initial fishing effort
-    E2[, 1:eq_time, ] <- rep(1/A, eq_time)
-    
+  
     # Start each age class with 10 individuals
     # Enter FM, N, abundance, and biomasses for time = 1 to rec_age
     # Dimensions = age * area * time * CR
@@ -152,11 +152,13 @@ FM_to_cause_depletion <- function(true_dep, allocation, A, R0, B0, Eps, S,
       
     }
     
-    dep[fb] <- biomass2[eq_time - 1] / B0
+    dep[fb] <- 1 - (biomass2[eq_time - 1] / B0)
     
   }
   
-  closest_Fb <- 1 - fb_values[which.min(abs(dep - true_dep))] 
+  plot(fb_values, dep)
+  
+  closest_Fb <- fb_values[which.min(abs(dep - true_dep))] 
   
   return(closest_Fb)
   
