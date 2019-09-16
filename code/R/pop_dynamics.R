@@ -28,7 +28,7 @@
 
 pop_dynamics <- function(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
                          h, B0, Eps, sigma_R, Fb, E, S, M, FM, m, abundance_all, 
-                         abundance_mature, biomass, movement, AMP) {
+                         abundance_mature, biomass) {
   
   # Calculate spawning stock biomass
   SSB[a, t, cr] <- spawning_stock_biomass(a, t, cr, N, W, Mat)
