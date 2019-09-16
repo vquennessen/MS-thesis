@@ -119,7 +119,7 @@ FM_to_cause_depletion <- function(true_dep, allocation, A, R0, B0, Eps, S,
   for (fb in 1:fn) { 
   
     # Start each age class with 10 individuals
-    # Enter FM, N, abundance, and biomasses for time = 1 to rec_age
+    # Enter FM, N, abundance, and biomasses for time = 1 to rec_age + 1
     # Dimensions = age * area * time * CR
     for (t in 1:(rec_age + 1)) {
       FM2[, 1, t, 1] <- fishing_mortality(1, t, 1, FM2, A, fb, E2, S)
@@ -156,9 +156,10 @@ FM_to_cause_depletion <- function(true_dep, allocation, A, R0, B0, Eps, S,
     
   }
   
-  plot(fb_values, dep)
-  
   closest_Fb <- fb_values[which.min(abs(dep - true_dep))] 
+  
+  plot(fb_values, dep, ylim = c(-0.3, 1))
+  abline(v = closest_Fb, col = 'red')
   
   return(closest_Fb)
   
