@@ -83,7 +83,7 @@ parameters = function(species) {
     D <- 0.604                              # depletion
     Fb <- XXX                               # fishing mortality to cause D
     r <- 0.77                               # Proportion of positive transects 
-    #       in PISCO monitoring data
+                                            #       in PISCO monitoring data
     x <- 15.42                              # mean of positive transects
     sp <- 16.97                             # std of positive transects
     
@@ -91,14 +91,16 @@ parameters = function(species) {
     b <- 0.0941                             # eggs produced per g, slope
     
     #### fleets: sport, hook, trawl ####
-    fleets <- c('sport', 'hook', 'trawl')   # names of fleets
+    fleets <- c('trawl', 'live', 'dead',    # names of fleets
+                'recO', 'recS')   
     alpha <- c(0.45, 0.369, 0.426)          # slope of upcurve per fleet
     beta <- c(1.28, 0.419, 0)               # slope of downcurve per fleet
     start <- c(20, 20, 20)                  # vulnerability start length / fleet
     F_fin <- c(0.265, 0.29, 0)              # final selectivity if dome-shaped 
     L50_up <- c(25.2, 33.2, 46)             # L50 value for upcurve
     L50_down <- c(36.7, 46.4, 50)           # L50 value for downcurve
-    cf <- c(0.71, 0.28, 0.01)               # fraction of fishery caught / fleet
+    cf <- c(0.0001, 0.1679, 0.0982,         # fraction of fishery caught / fleet
+            0.6979, 0.0358)               
     switch <- c(29, 29, 0)                  # length where selectivity switches 
     #       from upcurve to 1
     full <- c(31, 39, 0)                    # length at which downcurve starts
