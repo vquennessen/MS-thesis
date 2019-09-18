@@ -4,7 +4,7 @@ species <- 'black rockfish 2003'
 A <- 5
 time1 <- 50
 time2 <- 50
-allocation <- 'equal'
+allocation <- 'IFD'
 R0 <- 1e+5
 stochasticity <- T
 surveys <- T
