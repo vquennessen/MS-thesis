@@ -3,7 +3,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
                               rho_R, fleets, alpha, beta, start, F_fin, 
                               L50_up, L50_down, cf, switch, full, x, sp, M, CR, 
                               phi, catch_form, season, stochasticity, r, D, 
-                              transects) {
+                              transects, h) {
   
   # total amount of timesteps (years)
   timeT <- time1 + time2            
@@ -118,7 +118,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   eq_time <- 150
   SAD <- equilibrium_SAD(1, 1, allocation, A, rec_age, max_age, n, W, R0,
                          Mat, h, B0, Eps, sigma_R, Fb, S, M, season, catch_form, 
-                         eq_time, m, stochasticity)
+                         eq_time, m, stochasticity, rho_R)
   
   # # Initial size of whole population at time = 1, 2
   # Init_size <- initial_size(SAD)
@@ -136,7 +136,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
         catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch, 
                                           catch_form, season)
         yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
-        SSB[a, t, cr] <- spawning_stock_biomass(a, t, cr, N, W, Mat)
+        SSB[a, t, cr] <- spawning_stock_biomass(a, t, cr, rec_age, N, W, Mat)
       }
     }
   }
