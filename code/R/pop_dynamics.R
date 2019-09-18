@@ -31,7 +31,7 @@ pop_dynamics <- function(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0,
                          abundance_mature, biomass) {
   
   # Calculate spawning stock biomass
-  SSB[a, t, cr] <- spawning_stock_biomass(a, t, cr, N, W, Mat)
+  SSB[a, t, cr] <- spawning_stock_biomass(a, t, cr, rec_age, N, W, Mat)
   
   # Calculate fishing mortality
   FM[, a, t, cr] <- fishing_mortality(a, t, cr, FM, A, Fb, E, S)
