@@ -96,7 +96,7 @@ base_model <- function(species, A, time1, time2, allocation, R0, stochasticity,
                           a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, rho_R, 
                           fleets, alpha, beta, start, F_fin, L50_up, L50_down, 
                           cf, switch, full, x, sp, M, CR, phi, catch_form, 
-                          season, stochasticity, r, D, transects)
+                          season, stochasticity, r, D, transects, h)
   
   timeT            <- IA[[1]]     # total amount of timesteps (years)
   E                <- IA[[2]]     # nominal fishing effort in each area 
@@ -128,7 +128,7 @@ base_model <- function(species, A, time1, time2, allocation, R0, stochasticity,
     for (t in 3:time1) {
       
       # effort allocation
-      E <- effort_allocation(a, t, cr, allocation, A, E, biomass, time1)
+      E <- effort_allocation(a, t, cr, allocation, A, E, yield, time1)
       
       # If there is adult movement, add movement
       if (adult_movement == T) { N <- movement(t, cr, N, A, AMP) }
@@ -177,7 +177,7 @@ base_model <- function(species, A, time1, time2, allocation, R0, stochasticity,
     for (t in (time1 + 1):timeT) {
       
       # effort allocation
-      E <- effort_allocation(a, t, cr, allocation, A, E, biomass, time1)
+      E <- effort_allocation(a, t, cr, allocation, A, E, yield, time1)
       
       # If there is adult movement, add movement
       if (adult_movement == T) { N <- movement(t, cr, N, A, AMP) }
