@@ -10,7 +10,7 @@ stochasticity <- T
 surveys <- T
 fishery_management <- T
 fishing <- T
-adult_movement <- F
+adult_movement <- T
 
 base_model(species, A, time1, time2, allocation, R0, stochasticity, surveys, 
            fishery_management, fishing, adult_movement)
