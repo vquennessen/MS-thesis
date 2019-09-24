@@ -44,7 +44,7 @@ selectivity_at_age <- function(L, fleets, alpha, beta, start, F_fin, L50_up,
     upcurve <- (1)/(1 + exp(-1*alpha[i]*(L - L50_up[i])))
     
     # define selectivity as asymptotic or dome-shaped for each fleet
-    if (switch[i] > 0.0001) {
+    if (switch[i] != 0) {
       
       # Based on Babcock & MacCall (2011): Eq. (9) for dome-shaped selectivity
       downcurve <- 1 - (1 - F_fin[i])/(1 + exp(-1*beta[i]*(L - L50_down[i])))
