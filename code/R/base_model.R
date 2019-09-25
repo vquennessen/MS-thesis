@@ -245,6 +245,11 @@ base_model <- function(species, A, time1, time2, allocation, R0, stochasticity,
   y2 <- 1.6
   y_by <- (y2 - y1)/2
   
+  # x-axis limits
+  x1 <- 0
+  x2 <- time2
+  x_by <- x2/2
+  
   for (a in 1:A) {
     title <- sprintf("Relative Biomass per Control Rule: Area %i", a)
     
@@ -253,17 +258,25 @@ base_model <- function(species, A, time1, time2, allocation, R0, stochasticity,
          main = title,                           # title of plot
          ylab = 'Relative Biomass',              # axis labels
          xlab = 'Years since marine reserve implementation',
+         xaxt = 'n',
          yaxt = 'n',                             # get rid of y-axis
-         xlim = c(0, 50),                        # set x-axis limits
+         xlim = c(x1, x2),                       # set x-axis limits
          ylim = c(y1, y2)
     )
     
     # set specific y-axis
-    ytick <- seq(y1, y2, by = y_by)             # set yaxis tick marks
+    ytick <- seq(y1, y2, by = y_by)              # set y axis tick marks
     axis(side = 2,                               # specify y axis
          at = ytick,                             # apply tick marks
          labels = T,                             # apply appropriate labels
          las = 1)                                # set text horizontal
+    
+    # set specific x-axis
+    xtick <- seq(x1, x2, by = x_by)              # set x axis tick marks
+    axis(side = 1,                               # specify x axis
+         at = xtick,                             # apply tick marks
+         labels = T,                             # apply appropriate labels
+         las = 1)                                # set text horizontal    
     
     for (cr in 1:CR) {
       lines(rel_biomass[a, , cr],
@@ -301,28 +314,39 @@ base_model <- function(species, A, time1, time2, allocation, R0, stochasticity,
   yy2 <- 1.7 
   yy_by <- (yy2 - yy1)/2
   
+  # x-axis limits
+  xx1 <- 0
+  xx2 <- time2
+  xx_by <- xx2/2
+  
   for (a in 1:A) {
     title <- sprintf("Relative Yield per Control Rule: Area %i", a)
-    
-    
     
     # plot the relative yield
     plot(1, type = 'l',                          # make an empty line graph
          main = title,                           # title of plot
          ylab = 'Relative Yield',                # axis labels
          xlab = 'Years since marine reserve implementation',
+         xaxt = 'n', 
          yaxt = 'n',                             # get rid of y-axis
-         xlim = c(0, 50),                        # set x-axis limits
+         xlim = c(xx1, xx2),                     # set x-axis limits
          ylim = c(yy1, yy2)
     )
     
     
     # set specific y-axis
-    ytick <- seq(yy1, yy2, by = yy_by)              # set yaxis tick marks
+    yytick <- seq(yy1, yy2, by = yy_by)          # set yaxis tick marks
     axis(side = 2,                               # specify y axis
-         at = ytick,                             # apply tick marks
+         at = yytick,                            # apply tick marks
          labels = T,                             # apply appropriate labels
          las = 1)                                # set text horizontal
+    
+    # set specific x-axis
+    xxtick <- seq(xx1, xx2, by = xx_by)          # set x axis tick marks
+    axis(side = 1,                               # specify x axis
+         at = xxtick,                            # apply tick marks
+         labels = T,                             # apply appropriate labels
+         las = 1)                                # set text horizontal    
     
     for (cr in 1:CR) {                           # add one line per control rule
       lines(rel_yield[a, , cr],
