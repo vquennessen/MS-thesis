@@ -43,7 +43,7 @@ equilibrium_SAD <- function(a, cr, allocation, A, rec_age, max_age, n, W, R0,
   for (t in (rec_age + 1):(eq_time - 1)) {
     
     # effort allocation
-    E2 <- effort_allocation(1, t, 1, allocation, A, E2, yield2, eq_time)
+    E2 <- effort_allocation(t, 1, allocation, A, E2, yield2, eq_time)
     
     # biology
     PD <- pop_dynamics(1, t, 1, rec_age, max_age, n, SSB2, N2, W, Mat, A, R0, 
