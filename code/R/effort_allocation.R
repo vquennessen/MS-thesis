@@ -1,4 +1,4 @@
-effort_allocation <- function(a, t, cr, allocation, A, E, yield, time1) {
+effort_allocation <- function(t, cr, allocation, A, E, yield, time1) {
   
   # separate areas inside and outside of reserve
   areas <- 1:A

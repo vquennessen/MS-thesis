@@ -128,7 +128,7 @@ base_model <- function(species, A, time1, time2, allocation, R0, stochasticity,
     for (t in 3:time1) {
       
       # effort allocation
-      E <- effort_allocation(a, t, cr, allocation, A, E, yield, time1)
+      E <- effort_allocation(t, cr, allocation, A, E, yield, time1)
       
       # If there is adult movement, add movement
       if (adult_movement == T) { N <- movement(t, cr, N, A, AMP) }
@@ -177,7 +177,7 @@ base_model <- function(species, A, time1, time2, allocation, R0, stochasticity,
     for (t in (time1 + 1):timeT) {
       
       # effort allocation
-      E <- effort_allocation(a, t, cr, allocation, A, E, yield, time1)
+      E <- effort_allocation(t, cr, allocation, A, E, yield, time1)
       
       # If there is adult movement, add movement
       if (adult_movement == T) { N <- movement(t, cr, N, A, AMP) }
