@@ -29,11 +29,11 @@ effort_allocation <- function(t, cr, allocation, A, E, yield, time1) {
   #' marine reserve, regardless of yield
   } else if (allocation == 'equal') {
     
-    if (time < time1) {
+    if (t < time1) {
       
       E[, t, cr] <- rep(sum(E[, t, cr])/A, A)
       
-    } else if (time >= time1) {
+    } else if (t >= time1) {
     
     E[reserve, t, cr] <- 0
     E[outside, t, cr] <- rep(sum(E[, t-1, cr])/(A-1), A-1)
