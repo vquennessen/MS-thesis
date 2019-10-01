@@ -87,8 +87,7 @@ base_model <- function(species, A, time1, time2, allocation, R0, stochasticity,
   season                 <- par[[44]]       # if catch_formulation = discrete, 
                                             #       time at which fishing occurs:
                                             #       0 at start, 1 at end of year
-  
-  
+
   ##### Population Dynamics - Non-Time Varying #################################
   
   # Initialize arrays for time-varying dynamics
