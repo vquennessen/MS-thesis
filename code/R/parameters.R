@@ -81,7 +81,7 @@ parameters = function(species) {
     rho_R <- 0                              # recruitment autocorrelation
     AMP <- 0.1                              # adult movement proportion
     D <- 0.604                              # depletion
-    Fb <- 0.2                            # fishing mortality to cause D 
+    Fb <- 0.08                            # fishing mortality to cause D 
                                          ### TODO: find true value of Fb???
     r <- 0.77                               # Proportion of positive transects 
                                             #       in PISCO monitoring data
@@ -94,22 +94,22 @@ parameters = function(species) {
     #### fleets: sport, hook, trawl ####
     fleets <- c('trawl', 'live', 'dead',    # names of fleets
                 'recO', 'recS')   
-    alpha <- c(0.45, 0.369, 0.426)          # slope of upcurve per fleet
-    beta <- c(1.28, 0.419, 0)               # slope of downcurve per fleet
-    start <- c(20, 20, 20)                  # vulnerability start length / fleet
-    F_fin <- c(0.265, 0.29, 0)              # final selectivity if dome-shaped 
-    L50_up <- c(25.2, 33.2, 46)             # L50 value for upcurve
-    L50_down <- c(36.7, 46.4, 50)           # L50 value for downcurve
+    alpha <- c(0.325, 0.4, 0.35, 
+               0.65, 0.425)                 # slope of upcurve per fleet
+    beta <- c(0.25, 0.5, 0.4, 1.1, 0.5)     # slope of downcurve per fleet
+    start <- c(0, 0, 0, 0, 0)
+    F_fin <- c(0.325, 0.05, -0.11, 
+               -0.025, 0.135)               # final selectivity if dome-shaped 
+    L50_up <- c(7, 5, 5, 5, 3)              # L50 value for upcurve
+    L50_down <- c(15, 13, 13, 12, 6.5)      # L50 value for downcurve
     cf <- c(0.0001, 0.1679, 0.0982,         # fraction of fishery caught / fleet
             0.6979, 0.0358)               
-    switch <- c(29, 29, 0)                  # length where selectivity switches 
-    #       from upcurve to 1
-    full <- c(31, 39, 0)                    # length at which downcurve starts
+    switch <- c(0, 0, 0, 0, 0)
+    full <- c(0, 0, 0, 0, 0)
     catch_form <- 'continuous'              # discrete or continuous catch
     season <- 0.5                           # if catch_formulation = discrete, 
-    #       time at which fishing occurs
-    #       0 = beginning, 1 = end
-    
+                                            #       time at which fishing occurs
+                                            #       0 = beginning, 1 = end
   }
   
   output = list(max_age, M, rec_age, af, bf, am, bm, a1f, L1f, a2f, L2f, Kf,
