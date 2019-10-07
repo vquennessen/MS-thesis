@@ -240,8 +240,8 @@ base_model <- function(species, A, time1, time2, allocation, R0, stochasticity,
   par(mar = c(5.1, 4.1, 4.1, 8.7), xpd = T)
   
   # y-axis limits
-  y1 <- 0.6
-  y2 <- 1.6
+  y1 <- 0
+  y2 <- 2
   y_by <- (y2 - y1)/2
   
   # x-axis limits
@@ -309,8 +309,8 @@ base_model <- function(species, A, time1, time2, allocation, R0, stochasticity,
   }
   
   # y-axis limits
-  yy1 <- 0.5
-  yy2 <- 1.7 
+  yy1 <- -1
+  yy2 <- 1 
   yy_by <- (yy2 - yy1)/2
   
   # x-axis limits

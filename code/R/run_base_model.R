@@ -1,6 +1,6 @@
 source('./code/R/base_model.R')
 
-species <- 'black rockfish 2003'
+species <- 'black rockfish 2015'
 A <- 5
 time1 <- 50
 time2 <- 50
