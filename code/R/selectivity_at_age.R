@@ -1,88 +1,57 @@
-#' Selectivity at age
-#'
-#' @param L length at age, a numeric vector
-#' @param fleets fleet names, a string of character variables
-#' @param alpha slope of upcurve per fleet, a numeric vector
-#' @param beta slope of downcurve per fleet, a numeric vector
-#' @param start length at initial vulnerability per fleet, a numeric vector
-#' @param F_fin final selectivities per fleet, if dome-shaped, a numeric vector
-#' @param L50_up L50 for upcurve per fleet, a numeric vector
-#' @param L50_down L50 for downcurve per fleet, a numeric vector
-#' @param cf fraction of fishery caught per fleet, a numeric vector
-#' @param switch lengths where selectivity switches from upcurve to 1 per fleet, 
-#' a numeric vector
-#' @param full lengths where selectivity switches from 1 to downcurve per fleet,
-#' a numeric vector
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' fleets <- c('sport', 'hook', 'trawl')
-#' alpha <- c(0.45, 0.369, 0.426)          
-#' beta <- c(1.28, 0.419, 0)              
-#' start <- c(20, 20, 20)                  
-#' F_fin <- c(0.265, 0.29, 0)              
-#' L50_up <- c(25.2, 33.2, 46)             
-#' L50_down <- c(36.7, 46.4, 50)           
-#' cf <- c(0.71, 0.28, 0.01)               
-#' switch <- c(29, 29, 0)                  
-#' full <- c(31, 39, 0)                    
-#' selectivity_at_age(L, fleets, alpha, beta, start, F_fin, L50_up, L50_down,
-#' cf, switch)
-
-selectivity_at_age <- function(L, fleets, alpha, beta, start, F_fin, L50_up, 
-                               L50_down, cf, switch, full) {
+selectivity_at_age <- function(fleets, L, max_age, rec_age, alpha, L50up, 
+                               L50down, Ffin, beta, n, cf, age) {
   
-  n <- length(L)
-  f <- length(fleets) # number of fleets
-  selectivity <- array(rep(0, f*n), c(f, n))
+  # length of fleet vector
+  f <- length(fleets)
+  
+  # translate L50_up and L50_down to lengths instead of ages
+  L50upL <- L[L50_up - rec_age + 1]
+  L50downL <- L[L50_down - rec_age + 1]
+  
+  # initialize upcurves and downcurves
+  upcurve <- array(rep(NA, f*(max_age + 1)), c(f, max_age + 1))
+  downcurve <- array(rep(NA, f*(max_age + 1)), c(f, max_age + 1))
+  for (i in 1:rec_age) {
+    upcurve[, i] <- downcurve[, i] <- 0
+  }
+  
+  # initialize selectivity at age array
+  # dimensions = age * fleet
+  S <- array(rep(0, f*n), c(f, n))
   
   for (i in 1:f) {
+    upcurve[i, age + 1] <- 1 / (1 + exp(-1*alpha[i]*(L - L50upL[i])))
+    downcurve[i, age + 1] <- 1 - 
+      (1 - F_fin[i]) / (1 + exp(-1*beta[i]*(L - L50downL[i])))
     
-    # Based on Babcock & MacCall (2011): Eq. (8)
-    upcurve <- (1)/(1 + exp(-1*alpha[i]*(L - L50_up[i])))
-    
-    # define selectivity as asymptotic or dome-shaped for each fleet
-    if (switch[i] != 0) {
-      
-      # Based on Babcock & MacCall (2011): Eq. (9) for dome-shaped selectivity
-      downcurve <- 1 - (1 - F_fin[i])/(1 + exp(-1*beta[i]*(L - L50_down[i])))
-      
-    } else {
-      # if asymptotic selectivity
-      downcurve <- 1
-    }
-    
-    for (j in 1:n) {
-      
-      # if asymptotic, or length < switch length, selectivity = upcurve
-      if (switch[i] == 0 | L[j] <= switch[i]) {
-        selectivity[i, j] <- upcurve[j]
-        
-        # otherwise, if switch length < length <= full length and dome-shaped 
-        # selectivity, selectivity = 1
-      } else if (L[j] > switch[i] & L[j] <= full[i] & switch[i] > 0) {
-        selectivity[i, j] <- 1
-        
-        # finally, if length => full length and dome-shaped selectivity, 
-        # selectivity = downcurve
-      } else if (L[j] >= full[i] & switch[i] > 0) {
-        selectivity[i, j] <- downcurve[j]
-      }
-      
-    # multiply each row by the fraction of the fishery caught in that fleet  
-    selectivity[i, ] <- cf[i]*selectivity[i, ]
-      
+    for (a in 1:n) {
+      S[i, a] <- min(upcurve[i, a + rec_age], downcurve[i, a + rec_age])
     }
     
   }
-
-  # Selectivity at Age
-  # Based on Babcock & MacCall (2011): Eq. (7)  
-  # Dimensions = 1 * age
-  selectivity_at_age <- colSums(selectivity)
   
-  return(selectivity_at_age)
-
+  # ############################################################################
+  # ##### plot selectivities to double check they're right 
+  # ############################################################################
+  # 
+  # plot(age, S[1, ], type = 'l', lwd = 2, col = 'purple', 
+  #      ylim = c(0, 1), 
+  #      main = "Vic's Attempt", 
+  #      xlab = 'Age (year)', 
+  #      ylab = 'Selectivity', 
+  #      xlim = c(0, 40))
+  # lines(age, S[2, ], type = 'l', lwd = 2, col = 'blue')
+  # lines(age, S[3, ], type = 'l', lwd = 2, col = 'green')
+  # lines(age, S[4, ], type = 'l', lwd = 2, col = 'yellow')
+  # lines(age, S[5, ], type = 'l', lwd = 2, col = 'red')
+  # legend(x = 'topright', fleets, lwd = 2, cex = 0.8, 
+  #        col = c('purple', 'blue', 'green', 'yellow', 'red'))
+  # 
+  # 
+  
+  S[i, ] <- cf[i]*S[i, ]
+  selectivity <- colSums(S)
+  
+  return (selectivity)
+  
 }
