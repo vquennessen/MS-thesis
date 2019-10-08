@@ -3,9 +3,6 @@
 base_model <- function(species, A, time1, time2, allocation, R0, stochasticity, 
                        surveys, fishery_management, fishing, adult_movement) {
   
-  # Clear environment and variables
-  rm(list = ls())
-  
   # load necessary librarys
   library(viridis)
   

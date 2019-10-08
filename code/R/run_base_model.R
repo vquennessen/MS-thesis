@@ -1,3 +1,5 @@
+rm(list = ls())
+
 source('./code/R/base_model.R')
 
 species <- 'black rockfish 2015'
