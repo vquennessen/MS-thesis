@@ -1,5 +1,5 @@
-equilibrium_SAD <- function(a, cr, allocation, A, rec_age, max_age, n, W, R0,
-                            Mat, H, B0, Eps, sigma_R, Fb, S, M, season,
+equilibrium_SAD <- function(a, cr, A, rec_age, max_age, n, W, R0,
+                            Mat, h, B0, Eps, sigma_R, Fb, S, M, season,
                             catch_form, eq_time, m, stochasticity, rho_R) {
   
   # Initialize population size and catch arrays
@@ -42,9 +42,6 @@ equilibrium_SAD <- function(a, cr, allocation, A, rec_age, max_age, n, W, R0,
   # Step population forward in time with set fishing level
   for (t in (rec_age + 1):(eq_time - 1)) {
     
-    # effort allocation
-    E2 <- effort_allocation(t, 1, allocation, A, E2, yield2, eq_time)
-    
     # biology
     PD <- pop_dynamics(1, t, 1, rec_age, max_age, n, SSB2, N2, W, Mat, A, R0, 
                        h, B0, Eps2, sigma_R, Fb, E2, S, M, FM2, m, 
@@ -64,6 +61,10 @@ equilibrium_SAD <- function(a, cr, allocation, A, rec_age, max_age, n, W, R0,
   }
   
   SAD <- N2[, 1, eq_time - 1, 1]
+  
+  # Adjust stable age distribution to give total biomass of B0
+  B1 <- as.numeric(SAD %*% W)
+  SAD <- SAD * (B0 / B1)
   
   return(SAD)
   
