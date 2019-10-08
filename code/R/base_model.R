@@ -214,7 +214,7 @@ base_model <- function(species, A, time1, time2, allocation, R0, stochasticity,
       
       # management
       if (fishery_management == T) {
-        E <- control_rule(t, cr, E, Count, time1)
+        E <- control_rule(t, cr, E, Count, time1, transects)
       }
       
     }

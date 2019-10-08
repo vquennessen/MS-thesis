@@ -1,5 +1,5 @@
 density_ratio <- function (t, cr, Count, years_sampled, 
-                           fished_areas_sampled, fish_sampled) {
+                           fished_areas_sampled, fish_sampled, transects) {
   
   # set marine reserve area as middle area
   areas <- 1:A
