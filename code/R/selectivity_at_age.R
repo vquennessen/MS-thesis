@@ -1,5 +1,5 @@
-selectivity_at_age <- function(fleets, L, max_age, rec_age, alpha, L50up, 
-                               L50down, Ffin, beta, n, cf, age) {
+selectivity_at_age <- function(fleets, L, max_age, rec_age, alpha, L50_up, 
+                               L50_down, F_fin, beta, n, cf, age) {
   
   # length of fleet vector
   f <- length(fleets)

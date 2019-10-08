@@ -38,8 +38,8 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   
   # Selectivity at age
   # Dimensions = 1 * age
-  S <- selectivity_at_age(fleets, L, max_age, rec_age, alpha, L50up, L50down, 
-                          Ffin, beta, n, cf, age)
+  S <- selectivity_at_age(fleets, L, max_age, rec_age, alpha, L50_up, L50_down, 
+                          F_fin, beta, n, cf, age)
   
   # Fishing mortality
   # Initialize array
@@ -115,10 +115,9 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   # SAD <- Leslie_SAD(b, c, max_age, m, L0, W0, rec_age, M, Fb, h, R0, W)
 
   # Stable age distribution, derived from equilibrium conditions with Fb
-  eq_time <- 150
-  SAD <- equilibrium_SAD(1, 1, allocation, A, rec_age, max_age, n, W, R0,
-                         Mat, h, B0, Eps, sigma_R, Fb, S, M, season, catch_form, 
-                         eq_time, m, stochasticity, rho_R)
+  SAD <- equilibrium_SAD(a = 1, cr = 1, A, rec_age, max_age, n, W, 
+                         R0, Mat, h, B0, Eps, sigma_R, Fb, S, M, season, 
+                         catch_form, eq_time = 150, m, stochasticity, rho_R)
   
   # # Initial size of whole population at time = 1, 2
   # Init_size <- initial_size(SAD)
