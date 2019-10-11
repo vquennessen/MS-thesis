@@ -116,14 +116,14 @@ Eps2 <- epsilon(A = 1, eq_time - 1, CR = 1, nuR2, rho_R)
 E2[, 1:eq_time, ] <- rep(1, eq_time)
 
 # Initialize FM and depletion levels
-fb_values <- seq(from = 0, to = 1, by = 0.01)
+fb_values <- seq(from = 0, to = 1, by = 0.1)
 fn <- length(fb_values)
 dep <- rep(0, fn)
 
 # Enter FM, N, abundance, and biomasses for time = 1 to rec_age
 for (t in 1:rec_age) {
   FM2[, 1, t, 1] <- 0
-  N2[, 1, t, 1] <- rep(1, n)
+  N2[, 1, t, 1] <- rep(100, n)
   biomass2[1, t, 1] <- sum(N2[, 1, t, 1] * W)
   catch2[, 1, t, 1] <- 0
   SSB2[1, t, 1] <- spawning_stock_biomass(a = 1, t, cr = 1, rec_age, N2, 
@@ -132,28 +132,6 @@ for (t in 1:rec_age) {
 
 # Substitute in values for Fb to get depletion level
 for (i in 1:fn) { 
-  
-  # # Start each age class with Stable Age Distribution
-  # # Enter FM, N, abundance, and biomasses for time = 1 to rec_age + 1
-  # # Dimensions = age * area * time * CR
-  # SAD <- equilibrium_SAD(1, 1, A = 1, rec_age, max_age, n, W, R0,
-  #                        Mat, h, B0, Eps2, sigma_R, Fb = fb_values[i], 
-  #                        S, M, season, catch_form, eq_time, m, stochasticity, 
-  #                        rho_R)
-  # 
-  # # Enter FM, N, abundance, and biomasses for time = 1 to rec_age
-  #   for (t in 1:rec_age) {
-  #       FM2[, 1, t, 1] <- fishing_mortality(a = 1, t, cr = 1, FM2, A = 1, 
-  #                                           Fb = fb_values[i], E2, S)
-  #       N2[, 1, t, 1] <- SAD
-  #       biomass2[1, t, 1] <- sum(N2[, 1, t, 1] * W)
-  #       catch2[, 1, t, 1] <- catch_at_age(a = 1, t, cr = 1, FM2, M, N2, A = 1, 
-  #                                         Fb = fb_values[i], E2, catch2, 
-  #                                         catch_form, season)
-  #       N2[, 1, t, 1] <- N2[, 1, t, 1] - catch2[, 1, t, 1]
-  #       SSB2[1, t, 1] <- spawning_stock_biomass(a = 1, t, cr = 1, rec_age, N2, 
-  #                                               W, Mat)
-  #     }
 
   # Step population forward in time with set fishing level
   for (t in (rec_age + 1):(eq_time - 1)) {
@@ -179,6 +157,8 @@ for (i in 1:fn) {
   }
   
   dep[i] <- 1 - (biomass2[eq_time - 1] / B0)
+  
+  plot(1:eq_time, biomass2, main = i, ylim = c(0, 7e+5))
   
 }
 
