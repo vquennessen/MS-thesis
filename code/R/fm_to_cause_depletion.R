@@ -57,7 +57,7 @@ rho_R                  <- par[[24]]       # recruitment autocorrelation
 AMP                    <- par[[25]]       # adult movement proportion
 D                      <- par[[26]]       # depletion
 r                      <- par[[28]]       # proportion of positive transects 
-                                          #       in PISCO monitoring data
+#       in PISCO monitoring data
 x                      <- par[[29]]       # mean of positive transects
 sp                     <- par[[30]]       # std of positive transects
 c                      <- par[[31]]       # eggs produced per g, intercept
@@ -73,12 +73,12 @@ L50_up                 <- par[[38]]       # L50 for upcurve
 L50_down               <- par[[39]]       # L50 for downcurve
 cf                     <- par[[40]]       # fraction of fishery caught / fleet
 switch                 <- par[[41]]       # length where selectivity switches 
-                                          #       from upcurve to 1
+#       from upcurve to 1
 full                   <- par[[42]]       # length at which downcurve starts
 catch_form             <- par[[43]]       # discrete or continuous catch
 season                 <- par[[44]]       # if catch_formulation = discrete, 
-                                          #       time at which fishing occurs:
-                                          #       0 at start, 1 at end of year
+#       time at which fishing occurs:
+#       0 at start, 1 at end of year
 
 # Calculated values
 age <- rec_age:max_age                          # applicable ages
@@ -93,72 +93,98 @@ S <- old_selectivity_at_age(L, fleets, alpha, beta, # selectivity at age
 
 # Initialize population size and catch arrays
 # Dimensions = age * 1 * time * 1
-N2 <- catch2 <- FM2 <- array(rep(0, n*eq_time), c(n, 1, eq_time, 1))
+N2 <- catch2 <- array(rep(0, n*eq_time), c(n, eq_time))
 
 # Initialize biomass, SSB, and recruitment normal variable arrays
 # Dimensions = 1 * time * 1
-biomass2 <- SSB2 <- E2 <- array(rep(0, eq_time), c(1, eq_time, 1))
-abundance_all2 <- abundance_mature2 <- array(rep(0, eq_time), c(1, eq_time, 1))
+biomass2 <- SSB2 <- E2 <- array(rep(0, eq_time), c(eq_time))
 
 # Recruitment normal variable
 # Dimensions = area * timeT * CR
 if (stochasticity == T) {
-  nuR2 <- array(rnorm(1*eq_time*1, 0, sigma_R), c(1, eq_time, 1))
+  nuR2 <- array(rnorm(eq_time, 0, sigma_R), c(eq_time))
 } else if (stochasticity == F) {
-  nuR2 <- array(rep(0, 1*eq_time*1), c(1, eq_time, 1))
+  nuR2 <- array(rep(0, eq_time), c(eq_time))
 }
 
 # Recruitment error
 # Dimensions = area * eq_time - 1 * CR
-Eps2 <- epsilon(A = 1, eq_time - 1, CR = 1, nuR2, rho_R)
+Eps2 <- array(rep(0, eq_time), c(eq_time))
+
+# eps[, 1, ]
+Eps2[1] <- nuR2[1]*sqrt(1 + rho_R^2)
+
+# fill in rest of epsilon vector
+for (t in 2:eq_time) {
+  Eps2[t] <- rho_R*Eps2[t-1] + nuR2[t]*sqrt(1 + rho_R^2)
+}
 
 # Fishing effort stays constant
-E2[, 1:eq_time, ] <- rep(1, eq_time)
+E2[1:eq_time] <- rep(1, eq_time)
 
 # Initialize FM and depletion levels
-fb_values <- seq(from = 0, to = 1, by = 0.1)
+fb_values <- seq(from = 0, to = 1, by = 0.001)
 fn <- length(fb_values)
 dep <- rep(0, fn)
 
 # Enter FM, N, abundance, and biomasses for time = 1 to rec_age
 for (t in 1:rec_age) {
-  FM2[, 1, t, 1] <- 0
-  N2[, 1, t, 1] <- rep(100, n)
-  biomass2[1, t, 1] <- sum(N2[, 1, t, 1] * W)
-  catch2[, 1, t, 1] <- 0
-  SSB2[1, t, 1] <- spawning_stock_biomass(a = 1, t, cr = 1, rec_age, N2, 
-                                          W, Mat)
+  N2[, t] <- rep(10, n)
+  biomass2[t] <- sum(N2[, t] * W)
+  catch2[, t] <- 0
+  SSB2[t] <- sum(N2[, t - rec_age]*W*Mat)
 }
 
 # Substitute in values for Fb to get depletion level
 for (i in 1:fn) { 
-
+  
   # Step population forward in time with set fishing level
   for (t in (rec_age + 1):(eq_time - 1)) {
     
-    # biology
-    PD <- pop_dynamics(a = 1, t, cr = 1, rec_age, max_age, n, SSB2, N2, W, 
-                       Mat, A = 1, R0, h, B0, Eps2, sigma_R, 
-                       Fb = fb_values[i], E2, S, M, FM2, m, abundance_all2, 
-                       abundance_mature2, biomass2)
+    # set constant fishing mortality
+    FM2 <- array(rep(fb_values[i], n*eq_time), c(n, eq_time))
     
-    SSB2                <- PD[[1]]
-    FM2                 <- PD[[2]]
-    N2                  <- PD[[3]]
-    biomass2            <- PD[[6]]
+    # Calculate spawning stock biomass
+    SSB2[t] <- sum(N2[, t - rec_age]*W*Mat)
+    
+    ##### Step population foward in time
+    
+    # Calculate recruitment and add recruits to population
+    R1 <- (0.8 * R0 * h * SSB2[t-1]) / (0.2 * B0 * (1 - h) + (h - 0.2) * SSB2[t-1]) 
+    N2[1, t] <- R1 * (exp(Eps2[t] - sigma_R^2 / 2))
+    
+    # Ages rec_age + 1 to max_age - 1
+    for (j in 2:(n - 1)) {
+      N2[j, t] <- N2[j - 1, t - 1] * exp(-1 * (FM2[j - 1, t - 1] + M))
+    }
+    
+    # Final age bin
+    N2[n, t] <- N2[n - 1, t - 1] * exp(-1 * (FM2[n - 1, t - 1] + M)) + 
+      N2[n, t - 1] * exp(-1 * (FM2[n, t - 1] + M)) 
     
     # fishing
-    catch2[, 1, t, 1] <- catch_at_age(a = 1, t, cr = 1, FM2, M, N2, A = 1, 
-                                      Fb = fb_values[i], E2, catch2, 
-                                      catch_form, season)
-    N2[, 1, t, 1] <- N2[, 1, t, 1] - catch2[, 1, t, 1]
-    biomass2[1, t, 1] <- sum(N2[, 1, t, 1] * W)
+    if (catch_form == 'continuous') {  
+      
+      coeff <- FM2[ , t]/(M + FM2[ , t])
+      catch2[ , t] <- coeff * N2[ , t] * exp(-1*(M + FM2[ , t]))
+      
+    } else if (catch_form == 'discrete') {
+      
+      vulnerability <- vulnerability_to_gear(a = 1, t, cr = 1, A = 1, 
+                                             Fb = fb_values[i], E2)
+      u <- 1 - exp(-1*vulnerability*E2[t])
+      catch2[, t] <- N2[, t]*S*u*exp(-1*(season - t)*M)
+      
+    }
+    
+    N2[, t] <- N2[, t] - catch2[, t]
+    biomass2[t] <- sum(N2[, t] * W)
     
   }
   
   dep[i] <- 1 - (biomass2[eq_time - 1] / B0)
   
-  plot(1:eq_time, biomass2, main = i, ylim = c(0, 7e+5))
+  # plot(1:eq_time, biomass2, main = i)
   
 }
 
@@ -166,4 +192,5 @@ closest_Fb <- fb_values[which.min(abs(dep - true_dep))]
 
 plot(fb_values, dep)
 abline(v = closest_Fb, col = 'red')
+abline(h = true_dep, col = 'green')
 print(closest_Fb)
