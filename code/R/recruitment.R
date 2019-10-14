@@ -23,7 +23,7 @@ recruitment = function(a, t, cr, SSB, A, R0, h, B0, Eps, sigma_R) {
   adjR0 <- R0 / A
   
   R1 <- (0.8 * adjR0 * h * SSB[a, t-1, cr]) / (0.2 * B0 * (1 - h) + (h - 0.2) * SSB[a, t-1, cr]) 
-  R <- R1 * (exp(Eps - sigma_R^2 / 2))
+  R <- R1 * (exp(Eps[a, t, cr] - sigma_R^2 / 2))
 
   return(R)
   
