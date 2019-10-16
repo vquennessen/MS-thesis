@@ -90,6 +90,7 @@ m <- age[min(which(Mat > 0.5))]                 # age at 50% mature
 B0 <- R0/phi                                    # unfished spawning stock biomass
 S <- old_selectivity_at_age(L, fleets, alpha, beta, # selectivity at age
                             start, F_fin, L50_up, L50_down, cf, switch, full)
+Fb <- 0
 
 # Initialize population size and catch arrays
 # Dimensions = age * 1 * time * 1
@@ -97,7 +98,7 @@ N2 <- catch2 <- array(rep(0, n*eq_time), c(n, eq_time))
 
 # Initialize biomass, SSB, and recruitment normal variable arrays
 # Dimensions = 1 * time * 1
-biomass2 <- SSB2 <- E2 <- array(rep(0, eq_time), c(eq_time))
+SSB2 <- E2 <- array(rep(0, eq_time), c(eq_time))
 
 # Recruitment normal variable
 # Dimensions = area * timeT * CR
@@ -127,10 +128,12 @@ fb_values <- seq(from = 0, to = 1, by = 0.001)
 fn <- length(fb_values)
 dep <- rep(0, fn)
 
+biomass2 <- array(rep(NA, fn*eq_time), c(fn, eq_time))
+
 # Enter FM, N, abundance, and biomasses for time = 1 to rec_age
 for (t in 1:rec_age) {
   N2[, t] <- rep(10, n)
-  biomass2[t] <- sum(N2[, t] * W)
+  biomass2[, t] <- sum(N2[, t] * W)
   catch2[, t] <- 0
   SSB2[t] <- sum(N2[, t - rec_age]*W*Mat)
 }
@@ -170,23 +173,24 @@ for (i in 1:fn) {
       
     } else if (catch_form == 'discrete') {
       
-      vulnerability <- vulnerability_to_gear(a = 1, t, cr = 1, A = 1, 
-                                             Fb = fb_values[i], E2)
+      vulnerability <- vulnerability_to_gear(a = 1, t, cr = 1, A = 1, Fb, E2)
       u <- 1 - exp(-1*vulnerability*E2[t])
       catch2[, t] <- N2[, t]*S*u*exp(-1*(season - t)*M)
       
     }
     
     N2[, t] <- N2[, t] - catch2[, t]
-    biomass2[t] <- sum(N2[, t] * W)
+    biomass2[i, t] <- sum(N2[, t] * W)
+    
     
   }
   
-  dep[i] <- 1 - (biomass2[eq_time - 1] / B0)
-  
+ # biomass3[i]<-biomass2[]
   # plot(1:eq_time, biomass2, main = i)
   
 }
+
+dep <- 1 - (biomass2[, eq_time - 1] / biomass2[1, eq_time - 1])
 
 closest_Fb <- fb_values[which.min(abs(dep - true_dep))] 
 
