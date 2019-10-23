@@ -4,10 +4,10 @@
 rm(list = ls())
 
 species <- 'black rockfish 2003'
-eq_time <- 151
+eq_time <- 150
 true_dep <- 0.488
 R0 <- 1e+5
-stochasticity <- F
+stochasticity <- T
 
 # source required functions
 source("./code/R/parameters.R")
@@ -96,9 +96,9 @@ Fb <- 0
 # Dimensions = age * 1 * time * 1
 N2 <- catch2 <- array(rep(0, n*eq_time), c(n, eq_time))
 
-# Initialize biomass, SSB, and recruitment normal variable arrays
+# Initialize biomass, SSB, and recruitment error
 # Dimensions = 1 * time * 1
-SSB2 <- E2 <- array(rep(0, eq_time), c(eq_time))
+SSB2 <- Eps2 <- array(rep(0, eq_time), c(eq_time))
 
 # Recruitment normal variable
 # Dimensions = area * timeT * CR
@@ -108,11 +108,7 @@ if (stochasticity == T) {
   nuR2 <- array(rep(0, eq_time), c(eq_time))
 }
 
-# Recruitment error
-# Dimensions = area * eq_time - 1 * CR
-Eps2 <- array(rep(0, eq_time), c(eq_time))
-
-# eps[, 1, ]
+# eps[1]
 Eps2[1] <- nuR2[1]*sqrt(1 + rho_R^2)
 
 # fill in rest of epsilon vector
@@ -121,11 +117,11 @@ for (t in 2:eq_time) {
 }
 
 # Fishing effort stays constant
-E2[1:eq_time] <- rep(1, eq_time)
+E2 <- array(rep(1, eq_time), c(1, eq_time))
 
 # Initialize FM and depletion levels
-fb_values <- seq(from = 0, to = 1, by = 0.001)
-fn <- length(fb_values)
+FM_values <- seq(from = 0, to = 1, by = 0.001)
+fn <- length(FM_values)
 dep <- rep(0, fn)
 
 biomass2 <- array(rep(NA, fn*eq_time), c(fn, eq_time))
@@ -142,10 +138,10 @@ for (t in 1:rec_age) {
 for (i in 1:fn) { 
   
   # Step population forward in time with set fishing level
-  for (t in (rec_age + 1):(eq_time - 1)) {
+  for (t in (rec_age + 1):eq_time) {
     
     # set constant fishing mortality
-    FM2 <- array(rep(fb_values[i], n*eq_time), c(n, eq_time))
+    FM2 <- FM_values[i]
     
     # Calculate spawning stock biomass
     SSB2[t] <- sum(N2[, t - rec_age]*W*Mat)
@@ -158,30 +154,19 @@ for (i in 1:fn) {
     
     # Ages rec_age + 1 to max_age - 1
     for (j in 2:(n - 1)) {
-      N2[j, t] <- N2[j - 1, t - 1] * exp(-1 * (FM2[j - 1, t - 1] + M))
+      N2[j, t] <- N2[j - 1, t - 1] * exp(-1 * (FM2 + M))
     }
     
     # Final age bin
-    N2[n, t] <- N2[n - 1, t - 1] * exp(-1 * (FM2[n - 1, t - 1] + M)) + 
-      N2[n, t - 1] * exp(-1 * (FM2[n, t - 1] + M)) 
+    N2[n, t] <- N2[n - 1, t - 1] * exp(-1 * (FM2 + M)) + 
+      N2[n, t - 1] * exp(-1 * (FM2 + M)) 
     
     # fishing
-    if (catch_form == 'continuous') {  
-      
-      coeff <- FM2[ , t]/(M + FM2[ , t])
-      catch2[ , t] <- coeff * N2[ , t] * exp(-1*(M + FM2[ , t]))
-      
-    } else if (catch_form == 'discrete') {
-      
-      vulnerability <- vulnerability_to_gear(a = 1, t, cr = 1, A = 1, Fb, E2)
-      u <- 1 - exp(-1*vulnerability*E2[t])
-      catch2[, t] <- N2[, t]*S*u*exp(-1*(season - t)*M)
-      
-    }
+    coeff <- FM2/(M + FM2)
+    catch2[ , t] <- coeff * N2[ , t] * exp(-1*(M + FM2))
     
     N2[, t] <- N2[, t] - catch2[, t]
     biomass2[i, t] <- sum(N2[, t] * W)
-    
     
   }
   
@@ -190,11 +175,11 @@ for (i in 1:fn) {
   
 }
 
-dep <- 1 - (biomass2[, eq_time - 1] / biomass2[1, eq_time - 1])
+dep <- 1 - (biomass2[, eq_time] / biomass2[1, eq_time])
 
-closest_Fb <- fb_values[which.min(abs(dep - true_dep))] 
+closest_FM <- FM_values[which.min(abs(dep - true_dep))] 
 
-plot(fb_values, dep)
-abline(v = closest_Fb, col = 'red')
+plot(FM_values, dep)
+abline(v = closest_FM, col = 'red')
 abline(h = true_dep, col = 'green')
-print(closest_Fb)
+print(closest_FM)
