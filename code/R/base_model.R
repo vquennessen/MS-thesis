@@ -1,7 +1,8 @@
 #' Runs base model, based on Babcock & MacCall (2011)
 
-base_model <- function(species, A, time1, time2, allocation, R0, stochasticity, 
-                       surveys, fishery_management, fishing, adult_movement) {
+base_model <- function(species, A, time1, time2, CR, allocation, R0, 
+                       stochasticity, surveys, transects, fishery_management, 
+                       fishing, adult_movement) {
   
   # load necessary librarys
   library(viridis)
@@ -30,11 +31,6 @@ base_model <- function(species, A, time1, time2, allocation, R0, stochasticity,
   source("./code/R/vulnerability_to_gear.R")
   source("./code/R/equilibrium_SAD.R")
   source("./code/R/movement.R")
-  
-  # Set model parameters (fixed)
-  CR                   <- 8            # number of control rules
-  transects            <- 24           # number of transects per PISCO protocol
-                                       #     reserve implementation
   
   ##### Load life history characteristics for species ##########################
   
@@ -362,5 +358,9 @@ base_model <- function(species, A, time1, time2, allocation, R0, stochasticity,
            seg.len = 3.5,                        # adjust length of lines
            cex = 0.9)                            # text size
   }
+  
+  output <- list(rel_yield, rel_biomass)
+  
+  return(output)
   
 }
