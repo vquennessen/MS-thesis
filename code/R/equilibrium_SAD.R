@@ -43,8 +43,8 @@ equilibrium_SAD <- function(a, cr, A, rec_age, max_age, n, W, R0,
   for (t in (rec_age + 1):(eq_time - 1)) {
     
     # biology
-    PD <- pop_dynamics(1, t, 1, rec_age, max_age, n, SSB2, N2, W, Mat, A, R0, 
-                       h, B0, Eps2, sigma_R, Fb, E2, S, M, FM2, m, 
+    PD <- pop_dynamics(a = 1, t, cr = 1, rec_age, max_age, n, SSB2, N2, W, Mat, 
+                       A, R0, h, B0, Eps2, sigma_R, Fb, E2, S, M, FM2, m, 
                        abundance_all2, abundance_mature2, biomass2)
     
     SSB2                <- PD[[1]]
