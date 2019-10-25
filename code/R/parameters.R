@@ -81,7 +81,7 @@ parameters = function(species) {
     rho_R <- 0                              # recruitment autocorrelation
     AMP <- 0.1                              # adult movement proportion
     D <- 0.604                              # depletion
-    Fb <- 0.01                            # fishing mortality to cause D 
+    Fb <- 0.02                            # fishing mortality to cause D 
                                          ### TODO: find true value of Fb???
     r <- 0.77                               # Proportion of positive transects 
                                             #       in PISCO monitoring data
