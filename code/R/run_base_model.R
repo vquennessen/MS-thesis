@@ -1,11 +1,13 @@
 rm(list = ls())
 
+setwd("C:/Users/Vic/Documents/Projects/DensityRatio")
+
 source('./code/R/base_model.R')
 
 species <- 'black rockfish 2015'
 A <- 5
-time1 <- 50
-time2 <- 50
+time1 <- 5
+time2 <- 5
 CR <- 8
 allocation <- 'IFD'
 R0 <- 1e+5
@@ -16,17 +18,19 @@ fishery_management <- T
 fishing <- T
 adult_movement <- T
 
-# set numbers of simulations
-sims <- c(1, 2, 10, 100)
+# # set numbers of simulations
+# sims <- c(1, 2, 10, 100)
+# 
+# data <- as.data.frame(sims)
+# data$time <- rep(0, length(sims))
+# 
+# for (j in 1:length(sims)) {
+#   
+#   start <- Sys.time()
+#   
+#   num_sims <- sims[j]
 
-data <- as.data.frame(sims)
-data$time <- rep(0, length(sims))
-
-for (j in 1:length(sims)) {
-  
-  start <- Sys.time()
-  
-  num_sims <- sims[j]
+num_sims <- 5
   
   # initialize yield and biomass arrays
   sims_yield <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
@@ -46,16 +50,12 @@ for (j in 1:length(sims)) {
     
   }
   
-  # write the simulation results to .csv files
-  write.table(sims_yield, row.names = F, col.names = F, append = F,
-              file = "C:/Users/Vic/Documents/Projects/DensityRatio/data/testing_yield.csv")
+  save(sims_yield, file = "sims_yield.Rda")
+  save(sims_biomass, file = "sims_biomass.Rda")
   
-  write.table(sims_biomass, row.names = F, col.names = F, append = F,
-              file = "C:/Users/Vic/Documents/Projects/DensityRatio/data/testing_biomass.csv")
-  
-  end <- Sys.time()
-  
-  data$time[j] <- difftime(end, start, units = 'mins')
-}
-
-data
+#   end <- Sys.time()
+#   
+#   data$time[j] <- difftime(end, start, units = 'mins')
+# }
+# 
+# data
