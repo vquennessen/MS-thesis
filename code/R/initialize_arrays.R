@@ -38,7 +38,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   
   # Selectivity at age
   # Dimensions = 1 * age
-  S <- selectivity_at_age(fleets, L, max_age, rec_age, alpha, L50_up, L50_down, 
+  S <- old_selectivity_at_age(fleets, L, max_age, rec_age, alpha, L50_up, L50_down, 
                           F_fin, beta, n, cf, age)
   
   # Fishing mortality

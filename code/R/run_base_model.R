@@ -4,7 +4,7 @@ setwd("C:/Users/Vic/Documents/Projects/DensityRatio")
 
 source('./code/R/base_model.R')
 
-species <- 'black rockfish 2015'
+species <- 'black rockfish 2003'
 A <- 5
 time1 <- 5
 time2 <- 5

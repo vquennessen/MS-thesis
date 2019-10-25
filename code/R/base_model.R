@@ -13,7 +13,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   source("./code/R/length_at_age.R")
   source("./code/R/weight_at_age.R")
   source("./code/R/fraction_mature_at_age.R")
-  source("./code/R/selectivity_at_age.R")
+  source("./code/R/old_selectivity_at_age.R")
   source("./code/R/fishing_mortality.R")
   source("./code/R/epsilon.R")
   source("./code/R/spawning_stock_biomass.R")
