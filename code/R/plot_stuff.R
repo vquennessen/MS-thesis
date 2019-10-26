@@ -1,4 +1,4 @@
-# plot_stuff <- function(yield.in, biomass.in, A, time2, CR) {
+plot_stuff <- function(filepath1, filepath2, A, time2, CR) {
   
 setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")  
 
@@ -38,9 +38,6 @@ library(viridis)
   } 
   
   ###### Plot relative yield + IQR over time after reserve implementation ######  
-  
-  ### set control rules to be compared:
-  comparing <- c(2, 5)
   
   # use colorblind color palette, viridis
   color <- viridis(CR)
@@ -88,12 +85,11 @@ library(viridis)
          labels = T,                             # apply appropriate labels
          las = 1)                                # set text horizontal    
     
-    for (cr in comparing) {
+    for (cr in 1:CR) {
       lines(Y_medians[a, , cr],
             col = color[cr],                     # use pre-defined color palette
-            lwd = cr%%2 + 1,                     # set line width
-            lty = ceiling(cr/2)                  # set line type
-      )
+            lwd = 2,                     # set line width
+            lty = cr)                  # set line type
       
       polygon(x = c(1:time2, rev(1:time2)), 
               y = c(Y_lowerIQR[a, , cr], rev(Y_upperIQR[a, , cr])), 
@@ -101,12 +97,12 @@ library(viridis)
     }
     
     # add a legend
-    legend(x = c(54, 62), y = c(y2 + 0.04, y2 - 0.475),   # position
+    legend(x = c(21.5, 29), y = c(y2 + 0.04, y2 - (y2-y1)/2.5),   # position
            col = color,                          # apply viridis color palette
-           lwd = rep(c(2, 1), 4),                # apply line thicknesses
-           lty = rep(1:5, each = 2),             # apply line patterns
+           lwd = 2,                # apply line thicknesses
+           lty = 1:CR,             # apply line patterns
            title = 'CR',                         # add legend title and labels
-           c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8"),
+           c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5"),
            seg.len = 3.5,                        # adjust length of lines
            cex = 0.9)                            # text size
   }
@@ -154,12 +150,11 @@ library(viridis)
          labels = T,                             # apply appropriate labels
          las = 1)                                # set text horizontal    
     
-    for (cr in comparing) {                           # add one line per control rule
+    for (cr in 1:CR) {                           # add one line per control rule
       lines(B_medians[a, , cr],
             col = color[cr],                     # use pre-defined color palette
-            lwd = cr%%2 + 1,                     # set line width
-            lty = ceiling(cr/2)                  # set line type
-      )
+            lwd = 2,                     # set line width
+            lty = cr)                 # set line type
       
       polygon(x = c(1:time2, rev(1:time2)), 
               y = c(B_lowerIQR[a, , cr], rev(B_upperIQR[a, , cr])), 
@@ -167,15 +162,14 @@ library(viridis)
     }
     
     # add a legend
-    legend(x = c(54, 62), y = c(yy2 + 0.05, yy2 - 0.55),   # position
+    legend(x = c(21.5, 29), y = c(y2 + 0.04, y2 - (y2-y1)/2.5),   # position
            col = color,                          # apply viridis color palette
-           lwd = rep(c(2, 1), 4),                # apply line thicknesses
-           lty = rep(1:5, each = 2),             # apply line patterns
+           lwd = 2,                              # apply line thicknesses
+           lty = 1:CR,                            # apply line patterns
            title = 'CR',                         # add legend title and labels
-           c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8"),
+           c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5"),
            seg.len = 3.5,                        # adjust length of lines
            cex = 0.9)                            # text size
   }
   
-# }
-
+}
