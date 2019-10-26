@@ -1,9 +1,11 @@
 # plot_stuff <- function(yield.in, biomass.in, A, time2, CR) {
   
-  library(viridis)
+setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")  
+
+library(viridis)
   
-  load("sims_yield.Rda")
-  load("sims_biomass.Rda")
+  load("../../data/sims_yield.Rda")
+  load("../../data/sims_biomass.Rda")
   
   # replace NA's in sims_yield with 0s
   sims_yield[is.na(sims_yield)] <- 0
@@ -37,6 +39,9 @@
   
   ###### Plot relative yield + IQR over time after reserve implementation ######  
   
+  ### set control rules to be compared:
+  comparing <- c(2, 5)
+  
   # use colorblind color palette, viridis
   color <- viridis(CR)
   
@@ -44,8 +49,8 @@
   par(mar = c(5.1, 4.1, 4.1, 8.7), xpd = T)
   
   # y-axis limits
-  y1 <- 0
-  y2 <- 1
+  y1 <- 0.5
+  y2 <- 1.5
   y_by <- (y2 - y1)/2
   
   # x-axis limits
@@ -53,8 +58,10 @@
   x2 <- time2
   x_by <- x2/2
   
-  for (a in 1:A) {
-    title <- sprintf("Relative yield range: Area %i", a)
+  for (a in 1:2) {
+    
+    area <- ifelse(a == 1, 'far from', 'near')
+    title <- sprintf("Relative yield range: %s reserve", area)
     
     # plot the relative biomass
     plot(1, type = 'l',                          # make an empty line graph
@@ -81,7 +88,7 @@
          labels = T,                             # apply appropriate labels
          las = 1)                                # set text horizontal    
     
-    for (cr in 1:CR) {
+    for (cr in comparing) {
       lines(Y_medians[a, , cr],
             col = color[cr],                     # use pre-defined color palette
             lwd = cr%%2 + 1,                     # set line width
@@ -94,7 +101,7 @@
     }
     
     # add a legend
-    legend(x = c(54, 62), y = c(y2 + 0.04, y2 - 0.45),   # position
+    legend(x = c(54, 62), y = c(y2 + 0.04, y2 - 0.475),   # position
            col = color,                          # apply viridis color palette
            lwd = rep(c(2, 1), 4),                # apply line thicknesses
            lty = rep(1:5, each = 2),             # apply line patterns
@@ -107,8 +114,8 @@
   ##### Plot relative biomass + IQR over time after reserve implementation #####
   
   # y-axis limits
-  yy1 <- 0
-  yy2 <- 2
+  yy1 <- 0.5
+  yy2 <- 1.5
   yy_by <- (yy2 - yy1)/2
   
   # x-axis limits
@@ -116,8 +123,10 @@
   xx2 <- time2
   xx_by <- xx2/2
   
-  for (a in 1:A) {
-    title <- sprintf("Relative biomass range: Area %i", a)
+  for (a in 1:3) {
+    
+    area <- ifelse(a < 2, 'far from', ifelse(a == 3, 'in', 'near'))
+    title <- sprintf("Relative biomass range: %s reserve", area)    
     
     # plot the relative yield
     plot(1, type = 'l',                          # make an empty line graph
@@ -145,7 +154,7 @@
          labels = T,                             # apply appropriate labels
          las = 1)                                # set text horizontal    
     
-    for (cr in 1:CR) {                           # add one line per control rule
+    for (cr in comparing) {                           # add one line per control rule
       lines(B_medians[a, , cr],
             col = color[cr],                     # use pre-defined color palette
             lwd = cr%%2 + 1,                     # set line width
