@@ -2,7 +2,7 @@
 
 base_model <- function(species, A, time1, time2, CR, allocation, R0, 
                        stochasticity, surveys, transects, fishery_management, 
-                       fishing, adult_movement) {
+                       fishing, adult_movement, plotting) {
   
   # load necessary librarys
   library(viridis)
@@ -30,6 +30,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   source("./vulnerability_to_gear.R")
   source("./equilibrium_SAD.R")
   source("./movement.R")
+  source("./transient_DR.R")
   
   ##### Load life history characteristics for species ##########################
   
@@ -161,6 +162,8 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     
   }
   
+  
+  
   ##### Implement Reserve, and apply control rules #############################
   
   for (cr in 1:CR) {
@@ -206,14 +209,12 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
       
       # management
       if (fishery_management == T) {
-        E <- control_rule(t, cr, E, Count, time1, transects)
+        E <- control_rule(t, cr, E, Count, time1, time2, transects, M)
       }
       
     }
     
   }
-  
-  ##### Plot relative biomass over time after reserve implementation ###########
   
   # initialize relative biomass matrix
   rel_biomass <- array(rep(0, A*time2*CR), c(A, time2, CR))
@@ -225,71 +226,6 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     }
   }
   
-  # use colorblind color palette, viridis
-  color <- viridis(CR)
-  
-  # set plot margins to leave room for legend
-  par(mar = c(5.1, 4.1, 4.1, 8.7), xpd = T)
-  
-  # y-axis limits
-  y1 <- 0.5
-  y2 <- 3.5
-  y_by <- (y2 - y1)/2
-  
-  # x-axis limits
-  x1 <- 0
-  x2 <- time2
-  x_by <- x2/2
-  
-  for (a in 1:A) {
-    title <- sprintf("Relative Biomass per Control Rule: Area %i", a)
-    
-    # plot the relative biomass
-    plot(1, type = 'l',                          # make an empty line graph
-         main = title,                           # title of plot
-         ylab = 'Relative Biomass',              # axis labels
-         xlab = 'Years since marine reserve implementation',
-         xaxt = 'n',
-         yaxt = 'n',                             # get rid of y-axis
-         xlim = c(x1, x2),                       # set x-axis limits
-         ylim = c(y1, y2)
-    )
-    
-    # set specific y-axis
-    ytick <- seq(y1, y2, by = y_by)              # set y axis tick marks
-    axis(side = 2,                               # specify y axis
-         at = ytick,                             # apply tick marks
-         labels = T,                             # apply appropriate labels
-         las = 1)                                # set text horizontal
-    
-    # set specific x-axis
-    xtick <- seq(x1, x2, by = x_by)              # set x axis tick marks
-    axis(side = 1,                               # specify x axis
-         at = xtick,                             # apply tick marks
-         labels = T,                             # apply appropriate labels
-         las = 1)                                # set text horizontal    
-    
-    for (cr in 1:CR) {
-      lines(rel_biomass[a, , cr],
-            col = color[cr],                     # use pre-defined color palette
-            lwd = cr%%2 + 1,                     # set line width
-            lty = ceiling(cr/2)                  # set line type
-      )
-    }
-    
-    # add a legend
-    legend(x = c(54, 62), y = c(y2 + 0.04, y2 - 0.45),   # position
-           col = color,                          # apply viridis color palette
-           lwd = rep(c(2, 1), 4),                # apply line thicknesses
-           lty = rep(1:5, each = 2),             # apply line patterns
-           title = 'CR',                         # add legend title and labels
-           c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8"),
-           seg.len = 3.5,                        # adjust length of lines
-           cex = 0.9)                            # text size
-  }
-  
-  ##### Plot relative yield over time after reserve implementation #############
-  
   # initialize relative yield matrix
   rel_yield <- array(rep(0, A*time2*CR), c(A, time2, CR))
   
@@ -300,62 +236,133 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     }
   }
   
-  # y-axis limits
-  yy1 <- 0
-  yy2 <- 6 
-  yy_by <- (yy2 - yy1)/2
-  
-  # x-axis limits
-  xx1 <- 0
-  xx2 <- time2
-  xx_by <- xx2/2
-  
-  for (a in 1:A) {
-    title <- sprintf("Relative Yield per Control Rule: Area %i", a)
+  if (plotting == T) {
     
-    # plot the relative yield
-    plot(1, type = 'l',                          # make an empty line graph
-         main = title,                           # title of plot
-         ylab = 'Relative Yield',                # axis labels
-         xlab = 'Years since marine reserve implementation',
-         xaxt = 'n', 
-         yaxt = 'n',                             # get rid of y-axis
-         xlim = c(xx1, xx2),                     # set x-axis limits
-         ylim = c(yy1, yy2)
-    )
+    ##### Plot relative biomass over time after reserve implementation ###########
     
+    # use colorblind color palette, viridis
+    color <- viridis(CR)
     
-    # set specific y-axis
-    yytick <- seq(yy1, yy2, by = yy_by)          # set yaxis tick marks
-    axis(side = 2,                               # specify y axis
-         at = yytick,                            # apply tick marks
-         labels = T,                             # apply appropriate labels
-         las = 1)                                # set text horizontal
+    # set plot margins to leave room for legend
+    par(mar = c(5.1, 4.1, 4.1, 8.7), xpd = T)
     
-    # set specific x-axis
-    xxtick <- seq(xx1, xx2, by = xx_by)          # set x axis tick marks
-    axis(side = 1,                               # specify x axis
-         at = xxtick,                            # apply tick marks
-         labels = T,                             # apply appropriate labels
-         las = 1)                                # set text horizontal    
+    # y-axis limits
+    y1 <- 0.5
+    y2 <- 2
+    y_by <- (y2 - y1)/2
     
-    for (cr in 1:CR) {                           # add one line per control rule
-      lines(rel_yield[a, , cr],
-            col = color[cr],                     # use pre-defined color palette
-            lwd = cr%%2 + 1,                     # set line width
-            lty = ceiling(cr/2)                  # set line type
+    # x-axis limits
+    x1 <- 0
+    x2 <- time2
+    x_by <- x2/2
+    
+    for (a in 1:A) {
+      title <- sprintf("Relative Biomass per Control Rule: Area %i", a)
+      
+      # plot the relative biomass
+      plot(1, type = 'l',                          # make an empty line graph
+           main = title,                           # title of plot
+           ylab = 'Relative Biomass',              # axis labels
+           xlab = 'Years since marine reserve implementation',
+           xaxt = 'n',
+           yaxt = 'n',                             # get rid of y-axis
+           xlim = c(x1, x2),                       # set x-axis limits
+           ylim = c(y1, y2)
       )
+      
+      # set specific y-axis
+      ytick <- seq(y1, y2, by = y_by)              # set y axis tick marks
+      axis(side = 2,                               # specify y axis
+           at = ytick,                             # apply tick marks
+           labels = T,                             # apply appropriate labels
+           las = 1)                                # set text horizontal
+      
+      # set specific x-axis
+      xtick <- seq(x1, x2, by = x_by)              # set x axis tick marks
+      axis(side = 1,                               # specify x axis
+           at = xtick,                             # apply tick marks
+           labels = T,                             # apply appropriate labels
+           las = 1)                                # set text horizontal    
+      
+      for (cr in 1:CR) {
+        lines(rel_biomass[a, , cr],
+              col = color[cr],                     # use pre-defined color palette
+              lwd = cr%%2 + 1,                     # set line width
+              lty = ceiling(cr/2)                  # set line type
+        )
+      }
+      
+      # add a legend
+      legend(x = c(22, 28), y = c(y2 + 0.04, y2 - 0.45),   # position
+             col = color,                          # apply viridis color palette
+             lwd = rep(c(2, 1), 4),                # apply line thicknesses
+             lty = rep(1:5, each = 2),             # apply line patterns
+             title = 'CR',                         # add legend title and labels
+             c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8"),
+             seg.len = 3.5,                        # adjust length of lines
+             cex = 0.9)                            # text size
     }
     
-    # add a legend
-    legend(x = c(54, 62), y = c(yy2 + 0.05, yy2 - 0.55),   # position
-           col = color,                          # apply viridis color palette
-           lwd = rep(c(2, 1), 4),                # apply line thicknesses
-           lty = rep(1:5, each = 2),             # apply line patterns
-           title = 'CR',                         # add legend title and labels
-           c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8"),
-           seg.len = 3.5,                        # adjust length of lines
-           cex = 0.9)                            # text size
+    ##### Plot relative yield over time after reserve implementation #############
+  
+    # y-axis limits
+    yy1 <- 0
+    yy2 <- 3 
+    yy_by <- (yy2 - yy1)/2
+    
+    # x-axis limits
+    xx1 <- 0
+    xx2 <- time2
+    xx_by <- xx2/2
+    
+    for (a in 1:A) {
+      title <- sprintf("Relative Yield per Control Rule: Area %i", a)
+      
+      # plot the relative yield
+      plot(1, type = 'l',                          # make an empty line graph
+           main = title,                           # title of plot
+           ylab = 'Relative Yield',                # axis labels
+           xlab = 'Years since marine reserve implementation',
+           xaxt = 'n', 
+           yaxt = 'n',                             # get rid of y-axis
+           xlim = c(xx1, xx2),                     # set x-axis limits
+           ylim = c(yy1, yy2)
+      )
+      
+      
+      # set specific y-axis
+      yytick <- seq(yy1, yy2, by = yy_by)          # set yaxis tick marks
+      axis(side = 2,                               # specify y axis
+           at = yytick,                            # apply tick marks
+           labels = T,                             # apply appropriate labels
+           las = 1)                                # set text horizontal
+      
+      # set specific x-axis
+      xxtick <- seq(xx1, xx2, by = xx_by)          # set x axis tick marks
+      axis(side = 1,                               # specify x axis
+           at = xxtick,                            # apply tick marks
+           labels = T,                             # apply appropriate labels
+           las = 1)                                # set text horizontal    
+      
+      for (cr in 1:CR) {                           # add one line per control rule
+        lines(rel_yield[a, , cr],
+              col = color[cr],                     # use pre-defined color palette
+              lwd = cr%%2 + 1,                     # set line width
+              lty = ceiling(cr/2)                  # set line type
+        )
+      }
+      
+      # add a legend
+      legend(x = c(22, 28), y = c(yy2 + 0.05, yy2 - 0.55),   # position
+             col = color,                          # apply viridis color palette
+             lwd = rep(c(2, 1), 4),                # apply line thicknesses
+             lty = rep(1:5, each = 2),             # apply line patterns
+             title = 'CR',                         # add legend title and labels
+             c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8"),
+             seg.len = 3.5,                        # adjust length of lines
+             cex = 0.9)                            # text size
+    }
+    
   }
   
   output <- list(rel_yield, rel_biomass)
