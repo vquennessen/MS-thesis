@@ -1,4 +1,4 @@
-transient_DR <- function(M, time1, time2, final_DR, estimate, t) {
+transient_DR <- function(M, t, time1, time2, final_DR, estimate) {
   
   # calculate target_DR based on transient timescales
   
@@ -6,7 +6,7 @@ transient_DR <- function(M, time1, time2, final_DR, estimate, t) {
   years <- 0:time2
   
   # set difference in M
-  difference <- 0.02
+  difference <- 0.05
   
   # low M
   if (estimate == 'low') {
