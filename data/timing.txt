@@ -1,0 +1,6 @@
+sims:			time:
+10           		0    min  9.7   sec
+100			1    min  38.85 sec
+1000			18   min  13.0  sec
+10000			139  min  57.86 sec
+100000			1092 min  6.72  sec
