@@ -19,7 +19,7 @@ adult_movement <- T
 plotting <- F
 
 # set numbers of simulations
-num_sims <- 1e+06
+num_sims <- 1e+05
 
 # initialize yield and biomass arrays
 sims_yield <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
@@ -39,5 +39,7 @@ for (i in 1:num_sims) {
   
 }
 
-save(sims_yield, file = "../../data/1e6_sims_yield.Rda")
-save(sims_biomass, file = "../../data/1e6_sims_biomass.Rda")
+save(sims_yield, file = "../../data/1e5_sims_yield.Rda")
+save(sims_biomass, file = "../../data/1e5_sims_biomass.Rda")
+
+save(as.data.frame.array(sims_field), file = "../../data/testing_yield.")
