@@ -13,7 +13,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   source("./length_at_age.R")
   source("./weight_at_age.R")
   source("./fraction_mature_at_age.R")
-  source("./old_selectivity_at_age.R")
+  source("./selectivity_at_age.R")
   source("./fishing_mortality.R")
   source("./epsilon.R")
   source("./spawning_stock_biomass.R")
@@ -27,7 +27,6 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   source("./Leslie_SAD.R")
   source("./catch_at_age.R")
   source("./effort_allocation.R")
-  source("./vulnerability_to_gear.R")
   source("./equilibrium_SAD.R")
   source("./movement.R")
   source("./transient_DR.R")
@@ -64,19 +63,11 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   fleets                 <- par[[26]]       # fishery fleet names
   alpha                  <- par[[27]]       # slope for upcurve
   beta                   <- par[[28]]       # slope for downcurve
-  start                  <- par[[29]]       # length at initial vulnerability
-  F_fin                  <- par[[30]]       # F_fin for fishery, 0 if asymptotic
-  L50_up                 <- par[[31]]       # L50 for upcurve
-  L50_down               <- par[[32]]       # L50 for downcurve
-  cf                     <- par[[33]]       # fraction of fishery caught / fleet
-  switch                 <- par[[34]]       # length where selectivity switches 
-                                            #       from upcurve to 1
-  full                   <- par[[35]]       # length at which downcurve starts
-  catch_form             <- par[[36]]       # discrete or continuous catch
-  season                 <- par[[37]]       # if catch_formulation = discrete, 
-                                            #       time at which fishing occurs:
-                                            #       0 at start, 1 at end of year
-
+  F_fin                  <- par[[29]]       # F_fin for fishery, 0 if asymptotic
+  L50_up                 <- par[[30]]       # L50 for upcurve
+  L50_down               <- par[[31]]       # L50 for downcurve
+  cf                     <- par[[32]]       # fraction of fishery caught / fleet
+  
   ##### Population Dynamics - Non-Time Varying #################################
   
   # Initialize arrays for time-varying dynamics
@@ -115,9 +106,6 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     
     for (t in 3:time1) {
       
-      # effort allocation
-      E <- effort_allocation(t, cr, allocation, A, E, yield, time1)
-      
       # If there is adult movement, add movement
       if (adult_movement == T) { N <- movement(t, cr, N, A, AMP) }
       
@@ -129,7 +117,6 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
                            abundance_all, abundance_mature, biomass)
         
         SSB                <- PD[[1]]
-        FM                 <- PD[[2]]
         N                  <- PD[[3]]
         abundance_all      <- PD[[4]]
         abundance_mature   <- PD[[5]]
@@ -146,8 +133,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
         
         # fishing
         if (fishing == T) {
-          catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch,
-                                            catch_form, season)
+          catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch)
           N[, a, t, cr] <- N[, a, t, cr] - catch[, a, t, cr]
           yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
         }
@@ -157,9 +143,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     }
     
   }
-  
-  
-  
+
   ##### Implement Reserve, and apply control rules #############################
   
   for (cr in 1:CR) {
@@ -195,8 +179,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
         
         # fishing
         if (fishing == T) {
-          catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch, 
-                                            catch_form, season)
+          catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch)
           N[, a, t, cr] <- N[, a, t, cr] - catch[, a, t, cr]
           yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
         }
@@ -244,7 +227,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   
   if (plotting == T) {
     
-    ##### Plot relative biomass over time after reserve implementation ###########
+    ##### Plot relative biomass over time after reserve implementation #########
     
     # use colorblind color palette, viridis
     color <- viridis(CR)
@@ -292,34 +275,28 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
       
       for (cr in 1:CR) {
         lines(rel_biomass[a, , cr],
-              col = color[cr],                     # use pre-defined color palette
-              lwd = cr%%2 + 1,                     # set line width
-              lty = ceiling(cr/2)                  # set line type
-        )
+              col = color[cr],                  # use pre-defined color palette
+              lwd = 2,                     # set line width
+              lty = cr)                  # set line type
       }
       
       # add a legend
       legend(x = c(22, 28), y = c(y2 + 0.04, y2 - 0.45),   # position
              col = color,                          # apply viridis color palette
-             lwd = rep(c(2, 1), 4),                # apply line thicknesses
-             lty = rep(1:5, each = 2),             # apply line patterns
+             lwd = 2,                # apply line thicknesses
+             lty = 1:CR,             # apply line patterns
              title = 'CR',                         # add legend title and labels
-             c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8"),
+             c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5"),
              seg.len = 3.5,                        # adjust length of lines
              cex = 0.9)                            # text size
     }
     
-    ##### Plot relative yield over time after reserve implementation #############
+    ##### Plot relative yield over time after reserve implementation ###########
   
     # y-axis limits
     yy1 <- 0
     yy2 <- 3 
     yy_by <- (yy2 - yy1)/2
-    
-    # x-axis limits
-    xx1 <- 0
-    xx2 <- time2
-    xx_by <- xx2/2
     
     for (a in 1:A) {
       title <- sprintf("Relative Yield per Control Rule: Area %i", a)
@@ -331,7 +308,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            xlab = 'Years since marine reserve implementation',
            xaxt = 'n', 
            yaxt = 'n',                             # get rid of y-axis
-           xlim = c(xx1, xx2),                     # set x-axis limits
+           xlim = c(x1, x2),                     # set x-axis limits
            ylim = c(yy1, yy2)
       )
       
@@ -344,27 +321,26 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                                # set text horizontal
       
       # set specific x-axis
-      xxtick <- seq(xx1, xx2, by = xx_by)          # set x axis tick marks
+      xtick <- seq(x1, x2, by = x_by)          # set x axis tick marks
       axis(side = 1,                               # specify x axis
-           at = xxtick,                            # apply tick marks
+           at = xtick,                            # apply tick marks
            labels = T,                             # apply appropriate labels
            las = 1)                                # set text horizontal    
       
-      for (cr in 1:CR) {                           # add one line per control rule
+      for (cr in 1:CR) {                        # add one line per control rule
         lines(rel_yield[a, , cr],
-              col = color[cr],                     # use pre-defined color palette
-              lwd = cr%%2 + 1,                     # set line width
-              lty = ceiling(cr/2)                  # set line type
-        )
+              col = color[cr],                  # use pre-defined color palette
+              lwd = 2,                     # set line width
+              lty = cr)                  # set line type
       }
       
       # add a legend
       legend(x = c(22, 28), y = c(yy2 + 0.05, yy2 - 0.55),   # position
              col = color,                          # apply viridis color palette
-             lwd = rep(c(2, 1), 4),                # apply line thicknesses
-             lty = rep(1:5, each = 2),             # apply line patterns
+             lwd = 2,                # apply line thicknesses
+             lty = 1:CR,             # apply line patterns
              title = 'CR',                         # add legend title and labels
-             c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8"),
+             c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5"),
              seg.len = 3.5,                        # adjust length of lines
              cex = 0.9)                            # text size
     }
