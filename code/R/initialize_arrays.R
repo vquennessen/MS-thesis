@@ -36,20 +36,10 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   # Cutoff for maturity
   m <- age[min(which(Mat > 0.5))]
   
-  # Selectivity at age
+  # Selectivity at age (updated)
   # Dimensions = 1 * age
-  S <- old_selectivity_at_age(L, fleets, alpha, beta, start, F_fin, L50_up, 
-                              L50_down, cf, switch, full)
-  
-  # # Selectivity at age (updated)
-  # # Dimensions = 1 * age
-  # S <- selectivity_at_age(fleets, L, max_age, rec_age, alpha, L50_up, L50_down, 
-  #                         F_fin, beta, n, cf, age)
-  
-  # Fishing mortality
-  # Initialize array
-  # Dimensions = age * area * time * CR
-  FM <- array(rep(0, n*A*timeT*CR), c(n, A, timeT, CR))
+  S <- selectivity_at_age(fleets, L, max_age, rec_age, alpha, L50_up, L50_down,
+                          F_fin, beta, n, cf, age)
   
   # Initialize age-structured population size matrix
   # Dimensions = age * area * time * CR
@@ -106,33 +96,25 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   # Initialize yield matrix
   # Dimensions = area * time * CR
   yield <- array(rep(0, A*timeT*CR), c(A, timeT, CR))
-  
-  # # Length at age for stable age distribution
-  # # Dimensions = 1 * age (0 to max_age)
-  # L0 <- length_at_age(0:max_age, L1f, L2f, Kf, a1f, a2f)
-  # 
-  # # Weight at age for stable age distribution
-  # # Dimensions = 1 * age (0 to max_age)
-  # W0 <- weight_at_age(L0, af, bf)
-  # 
-  # # Stable age distribution, derived from Leslie matrix
-  # # Dimensions = 1 * age (0 to max_age)
-  # SAD <- Leslie_SAD(b, c, max_age, m, L0, W0, rec_age, M, Fb, h, R0, W)
 
   # Stable age distribution, derived from equilibrium conditions with Fb
-  SAD <- equilibrium_SAD(a = 1, cr = 1, A, rec_age, max_age, n, W, 
-                         R0, Mat, h, B0, Eps, sigma_R, Fb, S, M, season, 
-                         catch_form, eq_time = 150, m, stochasticity, rho_R)
+  SAD <- equilibrium_SAD(a = 1, cr = 1, A, rec_age, max_age, n, W, R0, Mat, h, 
+                         B0, Eps, sigma_R, Fb, S, M, season, catch_form, 
+                         eq_time = 150, m, stochasticity == F, rho_R)
   
-  # # Initial size of whole population at time = 1, 2
-  # Init_size <- initial_size(SAD)
+  # Initialize fishing mortality rate
+  # Dimensions = age * area * time * CR
+  FM <- array(rep(NA, n*A*timeT*CR), c(n, A, timeT, CR))
+  
+  # Set constant fishing mortality rate for first 50 years
+  fm <- fishing_mortality(a = 1, t, cr = 1, FM, A, Fb, E, S)
+  FM[, , 1:time1, ] <- rep(fm, A*time1*CR)
 
-  # Enter FM, N, abundance, and biomasses for time = 1 to rec_age
+  # Enter N, abundance, and biomasses for time = 1 to rec_age
   # Dimensions = age * area * time * CR
   for (a in 1:A) {
     for (t in 1:rec_age) {
       for (cr in 1:CR) {
-        FM[, a, t, cr] <- fishing_mortality(a, t, cr, FM, A, Fb, E, S)
         N[, a, t, cr] <- SAD
         abundance_all[a, t, cr] <- sum(N[, a, t, cr])
         abundance_mature[a, t, cr] <- sum(N[m:(max_age-rec_age + 1), a, t, cr])
