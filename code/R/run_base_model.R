@@ -9,7 +9,7 @@ source('./plot_stuff.R')
 
 species <- 'black rockfish 2003'
 A <- 5
-time1 <- 20
+time1 <- 50
 time2 <- 20
 CR <- 5
 allocation <- 'IFD'
@@ -20,7 +20,7 @@ transects <- 24
 fishery_management <- T
 fishing <- T
 adult_movement <- T
-plotting <- F
+plotting <- T
 
 # set numbers of simulations
 num_sims <- 50
