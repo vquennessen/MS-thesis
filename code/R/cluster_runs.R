@@ -10,7 +10,7 @@ time2 <- 20
 CR <- 5
 allocation <- 'IFD'
 R0 <- 1e+5
-stochasticity <- T
+stochasticity <- F
 surveys <- T
 transects <- 24
 fishery_management <- T
@@ -19,11 +19,12 @@ adult_movement <- T
 plotting <- F
 
 # set numbers of simulations
-num_sims <- 1e+05
+num_sims <- 1e+02
 
 # initialize yield and biomass arrays
 sims_yield <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
 sims_biomass <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
+sims_SSB <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
 
 # run the model for each simulation
 for (i in 1:num_sims) {
@@ -36,10 +37,10 @@ for (i in 1:num_sims) {
   # implementation, and control rules
   sims_yield[, , , i] <- output[[1]]
   sims_biomass[, , , i] <- output[[2]]
+  sims_SSB[, , , i] <- output[[3]]
   
 }
 
-save(sims_yield, file = "../../data/1e5_sims_yield.Rda")
-save(sims_biomass, file = "../../data/1e5_sims_biomass.Rda")
-
-save(as.data.frame.array(sims_field), file = "../../data/testing_yield.")
+save(sims_yield, file = "../../data/1e3_sims_yield_noStochasticity.Rda")
+save(sims_biomass, file = "../../data/1e3_sims_biomass_noStochasticity.Rda")
+save(sims_SSB, file = "../../data/1e3_sims_SSB_noStochasticity.Rda")
