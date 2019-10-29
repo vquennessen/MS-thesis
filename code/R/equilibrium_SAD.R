@@ -31,7 +31,7 @@ equilibrium_SAD <- function(a, cr, A, rec_age, max_age, n, W, R0,
   # Dimensions = age * area * time * CR
   for (t in 1:(rec_age + 1)) {
     FM2[, 1, t, 1] <- fishing_mortality(1, t, 1, FM2, A, Fb, E2, S)
-    N2[, 1, t, 1] <- rep(10, n)
+    N2[, 1, t, 1] <- rep(100, n)
     biomass2[1, t, 1] <- sum(N2[, 1, t, 1] * W)
     SSB2[1, t, 1] <- spawning_stock_biomass(1, t, 1, rec_age, N2, W, Mat)
     catch2[, 1, t, 1] <- catch_at_age(1, t, 1, FM2, M, N2, A, Fb, E2, catch2, 
