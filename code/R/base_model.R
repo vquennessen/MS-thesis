@@ -5,7 +5,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
                        fishing, adult_movement, plotting) {
   
   # load necessary librarys
-  library(viridis)
+  if (plotting == T) {library(viridis)}
   
   ##### Source functions #######################################################
   
@@ -40,44 +40,40 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   M                      <- par[[2]]        # natural mortality
   rec_age                <- par[[3]]        # age at recruitment
   af  <- par[[4]];   bf  <- par[[5]]        # weight at length parameters (f)
-  am  <- par[[6]];   bm  <- par[[7]]        # weight at length parameters (m)
-  a1f <- par[[8]];  L1f  <- par[[9]]        # growth parameters (f)
-  a2f <- par[[10]]; L2f  <- par[[11]] 
-  Kf  <- par[[12]]  
-  a1m <- par[[13]]; L1m  <- par[[14]]       # growth parameters (m)
-  a2m <- par[[15]]; L2m  <- par[[16]]  
-  Km                     <- par[[17]]  
-  L50                    <- par[[18]]       # length at 50% maturity
-  k_mat                  <- par[[19]]       # slope of maturity curve
-  ldp                    <- par[[20]]       # larval drift proportion
-  h                      <- par[[21]]       # steepness
-  phi                    <- par[[22]]       # unfished recruits per spawner
-  sigma_R                <- par[[23]]       # recruitment standard deviation
-  rho_R                  <- par[[24]]       # recruitment autocorrelation
-  AMP                    <- par[[25]]       # adult movement proportion
-  D                      <- par[[26]]       # depletion
-  Fb                     <- par[[27]]       # fishing mortality to cause D
-  r                      <- par[[28]]       # proportion of positive transects 
+  a1f <- par[[6]];  L1f  <- par[[7]]        # growth parameters (f)
+  a2f <- par[[8]];  L2f  <- par[[9]] 
+  Kf  <- par[[10]]  
+  L50                    <- par[[11]]       # length at 50% maturity
+  k_mat                  <- par[[12]]       # slope of maturity curve
+  ldp                    <- par[[13]]       # larval drift proportion
+  h                      <- par[[14]]       # steepness
+  phi                    <- par[[15]]       # unfished recruits per spawner
+  sigma_R                <- par[[16]]       # recruitment standard deviation
+  rho_R                  <- par[[17]]       # recruitment autocorrelation
+  AMP                    <- par[[18]]       # adult movement proportion
+  D                      <- par[[19]]       # depletion
+  Fb                     <- par[[20]]       # fishing mortality to cause D
+  r                      <- par[[21]]       # proportion of positive transects 
                                             #       in PISCO monitoring data
-  x                      <- par[[29]]       # mean of positive transects
-  sp                     <- par[[30]]       # std of positive transects
-  c                      <- par[[31]]       # eggs produced per g, intercept
-  b                      <- par[[32]]       # eggs produced per g, slope
+  x                      <- par[[22]]       # mean of positive transects
+  sp                     <- par[[23]]       # std of positive transects
+  c                      <- par[[24]]       # eggs produced per g, intercept
+  b                      <- par[[25]]       # eggs produced per g, slope
   
   ####### selectivity parameters #######
-  fleets                 <- par[[33]]       # fishery fleet names
-  alpha                  <- par[[34]]       # slope for upcurve
-  beta                   <- par[[35]]       # slope for downcurve
-  start                  <- par[[36]]       # length at initial vulnerability
-  F_fin                  <- par[[37]]       # F_fin for fishery, 0 if asymptotic
-  L50_up                 <- par[[38]]       # L50 for upcurve
-  L50_down               <- par[[39]]       # L50 for downcurve
-  cf                     <- par[[40]]       # fraction of fishery caught / fleet
-  switch                 <- par[[41]]       # length where selectivity switches 
+  fleets                 <- par[[26]]       # fishery fleet names
+  alpha                  <- par[[27]]       # slope for upcurve
+  beta                   <- par[[28]]       # slope for downcurve
+  start                  <- par[[29]]       # length at initial vulnerability
+  F_fin                  <- par[[30]]       # F_fin for fishery, 0 if asymptotic
+  L50_up                 <- par[[31]]       # L50 for upcurve
+  L50_down               <- par[[32]]       # L50 for downcurve
+  cf                     <- par[[33]]       # fraction of fishery caught / fleet
+  switch                 <- par[[34]]       # length where selectivity switches 
                                             #       from upcurve to 1
-  full                   <- par[[42]]       # length at which downcurve starts
-  catch_form             <- par[[43]]       # discrete or continuous catch
-  season                 <- par[[44]]       # if catch_formulation = discrete, 
+  full                   <- par[[35]]       # length at which downcurve starts
+  catch_form             <- par[[36]]       # discrete or continuous catch
+  season                 <- par[[37]]       # if catch_formulation = discrete, 
                                             #       time at which fishing occurs:
                                             #       0 at start, 1 at end of year
 
@@ -236,6 +232,16 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     }
   }
   
+  # initialize relative spawning stock biomass matrix
+  rel_SSB <- array(rep(0, A*time2*CR), c(A, time2, CR))
+  
+  # calculate relative biomass since reserve implementation
+  for (a in 1:A) {
+    for (cr in 1:CR) {
+      rel_SSB[a, , cr] <- SSB[a, (time1 + 1):timeT, cr]/SSB[a, time1, cr]
+    }
+  }
+  
   if (plotting == T) {
     
     ##### Plot relative biomass over time after reserve implementation ###########
@@ -365,7 +371,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     
   }
   
-  output <- list(rel_yield, rel_biomass)
+  output <- list(rel_yield, rel_biomass, rel_SSB)
   
   return(output)
   
