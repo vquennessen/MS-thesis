@@ -1,19 +1,3 @@
-#' Recruitment
-#'
-#' @param SSB spawning stock biomass, a number ( > 0)
-#' @param A number of areas, a number ( > 0)
-#' @param R0 unfished recruitment, a number ( > 0)
-#' @param h steepness, a number ( > 0)
-#' @param B0 unfished spawning stock biomass, a number ( > 0)
-#' @param epsilon an error term, a number 
-#' @param sigma_R the standard deviation of a normally distributed random 
-#' variable, a number
-#'
-#' @return R recruitment
-#' @export
-#'
-#' @examples
-
 recruitment = function(a, t, cr, SSB, A, R0, h, B0, Eps, sigma_R) {
   
   # Recruitment
@@ -21,8 +5,10 @@ recruitment = function(a, t, cr, SSB, A, R0, h, B0, Eps, sigma_R) {
   # Dimensions = 1 * 1
   
   adjR0 <- R0 / A
+  adjB0 <- B0 / A
   
-  R1 <- (0.8 * adjR0 * h * SSB[a, t-1, cr]) / (0.2 * B0 * (1 - h) + (h - 0.2) * SSB[a, t-1, cr]) 
+  R1 <- (0.8 * adjR0 * h * SSB[a, t - rec_age, cr]) / (0.2 * adjB0 * (1 - h) + 
+                                              (h - 0.2) * SSB[a, t - rec_age, cr]) 
   R <- R1 * (exp(Eps[a, t, cr] - sigma_R^2 / 2))
 
   return(R)
