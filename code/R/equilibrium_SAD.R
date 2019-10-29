@@ -1,6 +1,6 @@
 equilibrium_SAD <- function(a, cr, A, rec_age, max_age, n, W, R0,
-                            Mat, h, B0, Eps, sigma_R, Fb, S, M, season,
-                            catch_form, eq_time, m, stochasticity, rho_R) {
+                            Mat, h, B0, Eps, sigma_R, Fb, S, M, eq_time, m, 
+                            stochasticity, rho_R) {
   
   # Initialize population size and catch arrays
   # Dimensions = age * 1 * time * 1
@@ -34,8 +34,7 @@ equilibrium_SAD <- function(a, cr, A, rec_age, max_age, n, W, R0,
     N2[, 1, t, 1] <- rep(100, n)
     biomass2[1, t, 1] <- sum(N2[, 1, t, 1] * W)
     SSB2[1, t, 1] <- spawning_stock_biomass(1, t, 1, rec_age, N2, W, Mat)
-    catch2[, 1, t, 1] <- catch_at_age(1, t, 1, FM2, M, N2, A, Fb, E2, catch2, 
-                                      catch_form, season)
+    catch2[, 1, t, 1] <- catch_at_age(1, t, 1, FM2, M, N2, A, Fb, E2, catch2)
     yield2[1, t, 1] <- sum(catch2[, a, t, cr]*W)
   }
 
@@ -53,8 +52,7 @@ equilibrium_SAD <- function(a, cr, A, rec_age, max_age, n, W, R0,
     biomass2            <- PD[[6]]
     
     # fishing
-    catch2[, 1, t, 1] <- catch_at_age(1, t, 1, FM2, M, N2, A, Fb, E2, catch2, 
-                                     catch_form, season)
+    catch2[, 1, t, 1] <- catch_at_age(1, t, 1, FM2, M, N2, A, Fb, E2, catch2)
     N2[, 1, t, 1] <- N2[, 1, t, 1] - catch2[, 1, t, 1]
     yield2[1, t, 1] <- sum(catch2[, 1, t, 1]*W)
     
