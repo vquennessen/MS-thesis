@@ -94,7 +94,7 @@ parameters = function(species) {
   
   output = list(max_age, M, rec_age, af, bf, a1f, L1f, a2f, L2f, Kf, L50, k_mat, 
                 ldp, h, phi, sigma_R, rho_R, AMP, D, Fb, r, x, sp, c, b, fleets, 
-                alpha, beta, F_fin, L50_up, L50_down, cf, catch_form, season)
+                alpha, beta, F_fin, L50_up, L50_down, cf)
   
   return(output)
   
