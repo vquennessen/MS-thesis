@@ -2,8 +2,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
                               Kf, a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, 
                               rho_R, fleets, alpha, beta, start, F_fin, 
                               L50_up, L50_down, cf, switch, full, x, sp, M, CR, 
-                              phi, catch_form, season, stochasticity, r, D, 
-                              transects, h) {
+                              phi, stochasticity, r, D, transects, h) {
   
   # total amount of timesteps (years)
   timeT <- time1 + time2            
@@ -99,15 +98,15 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
 
   # Stable age distribution, derived from equilibrium conditions with Fb
   SAD <- equilibrium_SAD(a = 1, cr = 1, A, rec_age, max_age, n, W, R0, Mat, h, 
-                         B0, Eps, sigma_R, Fb, S, M, season, catch_form, 
-                         eq_time = 150, m, stochasticity == F, rho_R)
+                         B0, Eps, sigma_R, Fb, S, M, eq_time = 150, m, 
+                         stochasticity == F, rho_R)
   
   # Initialize fishing mortality rate
   # Dimensions = age * area * time * CR
   FM <- array(rep(NA, n*A*timeT*CR), c(n, A, timeT, CR))
   
   # Set constant fishing mortality rate for first 50 years
-  fm <- fishing_mortality(a = 1, t, cr = 1, FM, A, Fb, E, S)
+  fm <- fishing_mortality(a = 1, t = 1, cr = 1, FM, A, Fb, E, S)
   FM[, , 1:time1, ] <- rep(fm, A*time1*CR)
 
   # Enter N, abundance, and biomasses for time = 1 to rec_age
@@ -119,8 +118,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
         abundance_all[a, t, cr] <- sum(N[, a, t, cr])
         abundance_mature[a, t, cr] <- sum(N[m:(max_age-rec_age + 1), a, t, cr])
         biomass[a, t, cr] <- sum(N[, a, t, cr] * W)
-        catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch, 
-                                          catch_form, season)
+        catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch)
         yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
         SSB[a, t, cr] <- spawning_stock_biomass(a, t, cr, rec_age, N, W, Mat)
       }
