@@ -124,9 +124,9 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   
   # Stable age distributions, derived from equilibrium conditions with Fb
   # Dimensions age * M values (3)
-  SADs <- equilibrium_SAD(a = 1, cr = 1, A, rec_age, max_age, n, W, R0, Mat, 
+  SAD <- equilibrium_SAD(a = 1, cr = 1, A, rec_age, max_age, n, W, R0, Mat, 
                          h, B0, Eps, sigma_R, Fb, S, M, eq_time = 150, m, 
-                         stochasticity = F, rho_R, NM, nat_mortality)
+                         stochasticity = F, rho_R, nat_mortality)
   
   # Enter N, abundance, and biomasses for time = 1 to rec_age
   # Dimensions = age * area * time * CR
@@ -134,7 +134,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
     for (t in 1:rec_age) {
       for (cr in 1:CR) {
         for (nm in 1:NM) {
-        N[, a, t, cr, nm] <- SAD[, nm]
+        N[, a, t, cr, nm] <- SAD
         abundance_all[a, t, cr, nm] <- sum(N[, a, t, cr, nm])
         abundance_mature[a, t, cr, nm] <- sum(N[m:(max_age-rec_age + 1), a, t, cr, nm])
         biomass[a, t, cr, nm] <- sum(N[, a, t, cr, nm] * W)
