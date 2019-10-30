@@ -124,8 +124,8 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   
   # Stable age distributions, derived from equilibrium conditions with Fb
   # Dimensions age * M values (3)
-  SAD <- equilibrium_SAD(a = 1, cr = 1, A, rec_age, max_age, n, W, R0, Mat, 
-                         h, B0, Eps, sigma_R, Fb, S, M, eq_time = 150, m, 
+  SAD <- equilibrium_SAD(a = 1, cr = 1, nm = 1, A, rec_age, max_age, n, W, R0, 
+                         Mat, h, B0, Eps, sigma_R, Fb, S, M, eq_time = 150, m, 
                          stochasticity = F, rho_R, nat_mortality)
   
   # Enter N, abundance, and biomasses for time = 1 to rec_age
@@ -159,7 +159,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   output <- list(timeT, E, n, L, W, Mat, m, S, FM, N, SSB, 
                  abundance_all, abundance_mature, biomass, Count, nuS, 
                  Eps, catch, yield, B0, Delta, Gamma, rel_biomass, rel_yield,
-                 rel_SSB, nat_mortality)
+                 rel_SSB, nat_mortality, NM)
   
   return(output)
   
