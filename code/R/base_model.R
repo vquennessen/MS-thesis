@@ -142,6 +142,11 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
         
       }
       
+      if (t == time1) {
+        # effort allocation
+        E <- effort_allocation(t, cr, allocation, A, E, yield, time1)
+      }
+      
     }
     
   }
@@ -196,11 +201,12 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     
   }
   
-  plot(1:timeT, N[1, 1, 1:timeT, 1], type = 'l', col = 'green', ylim = c(0, 2e4))
-  for (x in 2:(n - 1)) {
-    lines(1:timeT, N[x, 1, 1:timeT, 1], col = 'red')
-  }
-  lines(1:timeT, N[n, 1, 1:timeT, 1], col = 'blue')
+  # Troubleshooting plots
+  # plot(1:timeT, N[1, 1, 1:timeT, 1], type = 'l', col = 'green', ylim = c(0, 2e4))
+  # for (x in 2:(n - 1)) {
+  #   lines(1:timeT, N[x, 1, 1:timeT, 1], col = 'red')
+  # }
+  # lines(1:timeT, N[n, 1, 1:timeT, 1], col = 'blue')
   
 ####### Calculate relative biomass, yield, and SSB ############################
   
@@ -236,8 +242,8 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     par(mar = c(5.1, 4.1, 4.1, 8.7), xpd = T)
     
     # y-axis limits
-    y1 <- -5
-    y2 <- 5
+    y1 <- 0
+    y2 <- 2
     y_by <- (y2 - y1)/2
     
     # x-axis limits
@@ -294,8 +300,8 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     ##### Plot relative yield over time after reserve implementation ###########
   
     # y-axis limits
-    yy1 <- -5
-    yy2 <- 5 
+    yy1 <- 0
+    yy2 <- 2 
     yy_by <- (yy2 - yy1)/2
     
     for (a in 1:A) {
