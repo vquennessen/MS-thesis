@@ -3,13 +3,13 @@ rm(list = ls())
 setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")
 
 source('./base_model.R')
-source('./plot_stuff.R')
+# source('./plot_stuff.R')
 
 species <- 'black rockfish 2003'
 A <- 5
 time1 <- 50
 time2 <- 20
-CR <- 5
+CR <- 6
 allocation <- 'IFD'
 R0 <- 1e+5
 stochasticity <- T
