@@ -102,7 +102,8 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   rel_biomass      <- IA[[23]]    # Relative biomass after reserve implementation
   rel_yield        <- IA[[24]]    # Relative yield after reserve implementation
   rel_SSB          <- IA[[25]]    # Relative SSB after reserve implementation
-  nat_mortality    <- IA[[26]]    # Range of potential natural morality values
+  nat_mortality    <- IA[[26]]    # Range of potential natural mortality values
+  NM               <- IA[[27]]    # Number of potential natural mortality values
   
   ##### Population Dynamics - Time Varying #####################################
   
@@ -123,12 +124,13 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
                              abundance_all, abundance_mature, biomass, fishing, 
                              nat_mortality)
           
-          SSB                <- PD[[1]]
-          N                  <- PD[[3]]
-          abundance_all      <- PD[[4]]
-          abundance_mature   <- PD[[5]]
-          biomass            <- PD[[6]]
-          
+          FM[, a, t, cr, nm]               <- PD[[1]]
+          N[, a, t, cr, nm]                <- PD[[2]]
+          abundance_all[a, t, cr, nm]      <- PD[[3]]
+          abundance_mature[a, t, cr, nm]   <- PD[[4]]
+          biomass[a, t, cr, nm]            <- PD[[5]]
+          SSB[a, t, cr, nm]                <- PD[[6]]
+
           # sampling
           if (surveys == T) {
             if (t > (time1 - 3)) {
@@ -147,11 +149,12 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
           
         }
         
-        if (t == time1) {
-          # effort allocation
-          E <- effort_allocation(t, cr, nm, allocation, A, E, yield, time1)
-          
-        }
+      }
+      
+      if (t == time1) {
+        # effort allocation
+        E <- effort_allocation(t, cr, nm, allocation, A, E, yield, time1)
+        
       }
       
     }
