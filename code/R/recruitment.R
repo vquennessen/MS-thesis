@@ -1,4 +1,4 @@
-recruitment = function(a, t, cr, SSB, A, R0, h, B0, Eps, sigma_R) {
+recruitment = function(a, t, cr, SSB, A, R0, h, B0, Eps, sigma_R, rec_age) {
   
   # Recruitment
   # Based on Babcock & MacCall (2011): Eq. (3)
