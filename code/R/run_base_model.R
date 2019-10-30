@@ -1,6 +1,4 @@
 rm(list = ls())
-cat("\014")
-dev.off()
 
 setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")
 
@@ -14,10 +12,10 @@ time2 <- 20
 CR <- 5
 allocation <- 'IFD'
 R0 <- 1e+5
-stochasticity <- T
-surveys <- T
+stochasticity <- F
+surveys <- F
 transects <- 24
-fishery_management <- T
+fishery_management <- F
 fishing <- T
 adult_movement <- T
 plotting <- T
