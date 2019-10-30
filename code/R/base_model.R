@@ -74,8 +74,8 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   IA <- initialize_arrays(A, time1, time2, R0, rec_age, max_age, L1f, L2f, Kf, 
                           a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, rho_R, 
                           fleets, alpha, beta, start, F_fin, L50_up, L50_down, 
-                          cf, switch, full, x, sp, M, CR, phi, stochasticity, r, 
-                          D, transects, h)
+                          cf, switch, full, x, sp, M, CR, phi, stochasticity, 
+                          r, D, transects, h, surveys, fishing)
   
   timeT            <- IA[[1]]     # total amount of timesteps (years)
   E                <- IA[[2]]     # nominal fishing effort in each area 
@@ -99,6 +99,9 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   B0               <- IA[[20]]    # Unfished spawning stock biomass
   Delta            <- IA[[21]]    # Constant of proportionality
   Gamma            <- IA[[22]]    # Gamma
+  rel_biomass      <- IA[[23]]    # Relative biomass after reserve implementation
+  rel_yield        <- IA[[24]]    # Relative yield after reserve implementation
+  rel_SSB          <- IA[[25]]    # Relative SSB after reserve implementation
   
   ##### Population Dynamics - Time Varying #####################################
   
@@ -114,7 +117,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
         # biology
         PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
                            h, B0, Eps, sigma_R, Fb, E, S, M, FM, m, 
-                           abundance_all, abundance_mature, biomass)
+                           abundance_all, abundance_mature, biomass, fishing)
         
         SSB                <- PD[[1]]
         N                  <- PD[[3]]
@@ -134,7 +137,6 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
         # fishing
         if (fishing == T) {
           catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch)
-          N[, a, t, cr] <- N[, a, t, cr] - catch[, a, t, cr]
           yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
         }
         
@@ -161,7 +163,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
         # biology
         PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat,
                            A, R0, h, B0, Eps, sigma_R, Fb, E, S, M, FM, m, 
-                           abundance_all, abundance_mature, biomass)
+                           abundance_all, abundance_mature, biomass, fishing)
         
         SSB                <- PD[[1]]
         FM                 <- PD[[2]]
@@ -180,7 +182,6 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
         # fishing
         if (fishing == T) {
           catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch)
-          N[, a, t, cr] <- N[, a, t, cr] - catch[, a, t, cr]
           yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
         }
         
@@ -195,8 +196,13 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     
   }
   
-  # initialize relative biomass matrix
-  rel_biomass <- array(rep(0, A*time2*CR), c(A, time2, CR))
+  plot(1:timeT, N[1, 1, 1:timeT, 1], type = 'l', col = 'green', ylim = c(0, 2e4))
+  for (x in 2:(n - 1)) {
+    lines(1:timeT, N[x, 1, 1:timeT, 1], col = 'red')
+  }
+  lines(1:timeT, N[n, 1, 1:timeT, 1], col = 'blue')
+  
+####### Calculate relative biomass, yield, and SSB ############################
   
   # calculate relative biomass since reserve implementation
   for (a in 1:A) {
@@ -205,18 +211,12 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     }
   }
   
-  # initialize relative yield matrix
-  rel_yield <- array(rep(0, A*time2*CR), c(A, time2, CR))
-  
   # calculate relative biomass since reserve implementation
   for (a in 1:A) {
     for (cr in 1:CR) {
       rel_yield[a, , cr] <- yield[a, (time1 + 1):timeT, cr]/yield[a, time1, cr]
     }
   }
-  
-  # initialize relative spawning stock biomass matrix
-  rel_SSB <- array(rep(0, A*time2*CR), c(A, time2, CR))
   
   # calculate relative biomass since reserve implementation
   for (a in 1:A) {
@@ -227,7 +227,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   
   if (plotting == T) {
     
-    ##### Plot relative biomass over time after reserve implementation #########
+##### Plot relative biomass over time after reserve implementation #############
     
     # use colorblind color palette, viridis
     color <- viridis(CR)
@@ -236,8 +236,8 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     par(mar = c(5.1, 4.1, 4.1, 8.7), xpd = T)
     
     # y-axis limits
-    y1 <- 0.5
-    y2 <- 2
+    y1 <- -5
+    y2 <- 5
     y_by <- (y2 - y1)/2
     
     # x-axis limits
@@ -294,8 +294,8 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     ##### Plot relative yield over time after reserve implementation ###########
   
     # y-axis limits
-    yy1 <- 0
-    yy2 <- 3 
+    yy1 <- -5
+    yy2 <- 5 
     yy_by <- (yy2 - yy1)/2
     
     for (a in 1:A) {
