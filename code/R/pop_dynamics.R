@@ -1,5 +1,5 @@
 pop_dynamics <- function(a, t, cr, nm, rec_age, max_age, n, SSB, N, W, Mat, A, 
-                         R0, h, B0, Eps, sigma_R, Fb, E, S, M, NM, FM, m, 
+                         R0, h, B0, Eps, sigma_R, Fb, E, S, NM, FM, m, 
                          abundance_all, abundance_mature, biomass, fishing, 
                          nat_mortality) {
   
@@ -16,7 +16,7 @@ pop_dynamics <- function(a, t, cr, nm, rec_age, max_age, n, SSB, N, W, Mat, A,
   
   # Ages rec_age + 1 to max_age - 1
   for (i in 2:(n - 1)) {
-    N[i, a, t, cr, nm] <- N[i - 1, a, t - 1, cr] * exp(-1 * (FM[i - 1, a, t - 1, cr] + nat_mortality[nm]))
+    N[i, a, t, cr, nm] <- N[i - 1, a, t - 1, cr, nm] * exp(-1 * (FM[i - 1, a, t - 1, cr, nm] + nat_mortality[nm]))
   }
   
   # Final age bin
@@ -35,7 +35,9 @@ pop_dynamics <- function(a, t, cr, nm, rec_age, max_age, n, SSB, N, W, Mat, A,
   # Calculate spawning stock biomass
   SSB[a, t, cr, nm] <- sum(N[, a, t, cr, nm]*W*Mat)
   
-  output <- list(SSB, FM, N, abundance_all, abundance_mature, biomass)
+  output <- list(FM[, a, t, cr, nm], N[, a, t, cr, nm], 
+                 abundance_all[a, t, cr, nm], abundance_mature[a, t, cr, nm], 
+                 biomass[a, t, cr, nm], SSB[a, t, cr, nm])
   
   return(output)
   
