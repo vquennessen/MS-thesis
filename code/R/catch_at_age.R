@@ -8,7 +8,7 @@ catch_at_age <- function(a, t, cr, nm, FM, nat_mortality, N, A, Fb, E, catch) {
     coeff <- FM[ , a, t, cr, nm]/(nat_mortality[nm] + FM[ , a, t, cr, nm])
     
     catch[ , a, t, cr, nm] <- coeff * N[ , a, t, cr, nm] * exp(-1*nat_mortality[nm] 
-                                                               - FM[ , a, t, cr])
+                                                               - FM[ , a, t, cr, nm])
   
   return(catch[, a, t, cr, nm])
   
