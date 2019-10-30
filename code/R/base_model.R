@@ -2,7 +2,7 @@
 
 base_model <- function(species, A, time1, time2, CR, allocation, R0, 
                        stochasticity, surveys, transects, fishery_management, 
-                       fishing, adult_movement, plotting) {
+                       fishing, adult_movement, plotting, error) {
   
   # load necessary librarys
   if (plotting == T) {library(viridis)}
@@ -75,7 +75,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
                           a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, rho_R, 
                           fleets, alpha, beta, start, F_fin, L50_up, L50_down, 
                           cf, switch, full, x, sp, M, CR, phi, stochasticity, 
-                          r, D, transects, h, surveys, fishing)
+                          r, D, transects, h, surveys, fishing, error)
   
   timeT            <- IA[[1]]     # total amount of timesteps (years)
   E                <- IA[[2]]     # nominal fishing effort in each area 
@@ -102,6 +102,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   rel_biomass      <- IA[[23]]    # Relative biomass after reserve implementation
   rel_yield        <- IA[[24]]    # Relative yield after reserve implementation
   rel_SSB          <- IA[[25]]    # Relative SSB after reserve implementation
+  nat_mortality    <- IA[[26]]    # Range of potential natural morality values
   
   ##### Population Dynamics - Time Varying #####################################
   
@@ -109,92 +110,105 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     
     for (t in 3:time1) {
       
-      # If there is adult movement, add movement
-      if (adult_movement == T) { N <- movement(t, cr, N, A, AMP) }
-      
-      for (a in 1:A) {
+      for (nm in 1:NM) {
         
-        # biology
-        PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0, 
-                           h, B0, Eps, sigma_R, Fb, E, S, M, FM, m, 
-                           abundance_all, abundance_mature, biomass, fishing)
+        # If there is adult movement, add movement
+        if (adult_movement == T) { N <- movement(t, cr, nm, N, A, AMP) }
         
-        SSB                <- PD[[1]]
-        N                  <- PD[[3]]
-        abundance_all      <- PD[[4]]
-        abundance_mature   <- PD[[5]]
-        biomass            <- PD[[6]]
-        
-        # sampling
-        if (surveys == T) {
-          if (t > (time1 - 3)) {
-            Count[a, t, , , cr] <- sampling(a, t, cr, Delta, Gamma, 
-                                            abundance_all, abundance_mature, 
-                                            transects, x, Count, nuS)
+        for (a in 1:A) {
+          
+          # biology
+          PD <- pop_dynamics(a, t, cr, nm, rec_age, max_age, n, SSB, N, W, Mat, 
+                             A, R0, h, B0, Eps, sigma_R, Fb, E, S, NM, FM, m, 
+                             abundance_all, abundance_mature, biomass, fishing, 
+                             nat_mortality)
+          
+          SSB                <- PD[[1]]
+          N                  <- PD[[3]]
+          abundance_all      <- PD[[4]]
+          abundance_mature   <- PD[[5]]
+          biomass            <- PD[[6]]
+          
+          # sampling
+          if (surveys == T) {
+            if (t > (time1 - 3)) {
+              Count[a, t, , , cr, nm] <- sampling(a, t, cr, nm, Delta, Gamma, 
+                                                  abundance_all, abundance_mature, 
+                                                  transects, x, Count, nuS)
+            }
           }
+          
+          # fishing
+          if (fishing == T) {
+            catch[, a, t, cr, nm] <- catch_at_age(a, t, nm, cr, FM, nat_mortality, 
+                                                  N, A, Fb, E, catch)
+            yield[a, t, cr, nm] <- sum(catch[, a, t, cr, nm]*W)
+          }
+          
         }
         
-        # fishing
-        if (fishing == T) {
-          catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch)
-          yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
+        if (t == time1) {
+          # effort allocation
+          E <- effort_allocation(t, cr, nm, allocation, A, E, yield, time1)
+          
         }
-        
-      }
-      
-      if (t == time1) {
-        # effort allocation
-        E <- effort_allocation(t, cr, allocation, A, E, yield, time1)
       }
       
     }
     
   }
-
+  
   ##### Implement Reserve, and apply control rules #############################
   
   for (cr in 1:CR) {
     
     for (t in (time1 + 1):timeT) {
       
-      # effort allocation
-      E <- effort_allocation(t, cr, allocation, A, E, yield, time1)
-      
-      # If there is adult movement, add movement
-      if (adult_movement == T) { N <- movement(t, cr, N, A, AMP) }
-      
-      for (a in 1:A) {
+      for (nm in 1:NM) {
         
-        # biology
-        PD <- pop_dynamics(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat,
-                           A, R0, h, B0, Eps, sigma_R, Fb, E, S, M, FM, m, 
-                           abundance_all, abundance_mature, biomass, fishing)
+        # effort allocation
+        E <- effort_allocation(t, cr, nm, allocation, A, E, yield, time1)
         
-        SSB                <- PD[[1]]
-        FM                 <- PD[[2]]
-        N                  <- PD[[3]]
-        abundance_all      <- PD[[4]]
-        abundance_mature   <- PD[[5]]
-        biomass            <- PD[[6]]
+        # If there is adult movement, add movement
+        if (adult_movement == T) { N <- movement(t, cr, nm, N, A, AMP) }
         
-        # sampling
-        if (surveys == T) {
-          Count[a, t, , , cr] <- sampling(a, t, cr, Delta, Gamma, abundance_all, 
-                                          abundance_mature, transects, x, Count, 
-                                          nuS)
+        for (a in 1:A) {
+          
+          # biology
+          PD <- pop_dynamics(a, t, cr, nm, rec_age, max_age, n, SSB, N, W, Mat,
+                             A, R0, h, B0, Eps, sigma_R, Fb, E, S, NM, FM, m, 
+                             abundance_all, abundance_mature, biomass, fishing, 
+                             nat_mortality)
+          
+          SSB                <- PD[[1]]
+          FM                 <- PD[[2]]
+          N                  <- PD[[3]]
+          abundance_all      <- PD[[4]]
+          abundance_mature   <- PD[[5]]
+          biomass            <- PD[[6]]
+          
+          # sampling
+          if (surveys == T) {
+            Count[a, t, , , cr, nm] <- sampling(a, t, nm, cr, Delta, Gamma, 
+                                            abundance_all, abundance_mature, 
+                                            transects, x, Count, nuS)
+          }
+          
+          # fishing
+          if (fishing == T) {
+            catch[, a, t, cr, nm] <- catch_at_age(a, t, cr, nm, FM, nat_mortality, 
+                                              N, A, Fb, E, catch)
+            yield[a, t, cr, nm] <- sum(catch[, a, t, cr, nm]*W)
+          }
+          
         }
         
-        # fishing
-        if (fishing == T) {
-          catch[, a, t, cr] <- catch_at_age(a, t, cr, FM, M, N, A, Fb, E, catch)
-          yield[a, t, cr] <- sum(catch[, a, t, cr]*W)
+        # management
+        if (fishery_management == T) {
+          E <- control_rule(t, cr, nm, E, Count, time1, time2, transects,
+                            nat_mortality)
         }
         
-      }
-      
-      # management
-      if (fishery_management == T) {
-        E <- control_rule(t, cr, E, Count, time1, time2, transects, M)
       }
       
     }
