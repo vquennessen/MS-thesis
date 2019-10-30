@@ -16,7 +16,7 @@ control_rule <- function(t, cr, E, Count, time1, time2, transects, M) {
   if (cr == 3) {
     DR <- density_ratio(t, cr, Count, years_sampled = 1, 
                         fished_areas_sampled = 'all', 
-                        fish_sampled = 'all', transects)
+                        fish_sampled = 'mature', transects)
     target_DR <- transient_DR(M, t, time1, time2, final_DR = 0.6, 
                               estimate = 'low')
     E <- management(t, cr, E, DR, CR_type = 'DR', target_DR, 
@@ -26,7 +26,7 @@ control_rule <- function(t, cr, E, Count, time1, time2, transects, M) {
   if (cr == 4) {
     DR <- density_ratio(t, cr, Count, years_sampled = 1, 
                         fished_areas_sampled = 'all', 
-                        fish_sampled = 'all', transects)
+                        fish_sampled = 'mature', transects)
     target_DR <- transient_DR(M, t, time1, time2, final_DR = 0.6, 
                               estimate = 'correct')
     E <- management(t, cr, E, DR, CR_type = 'DR', target_DR, 
@@ -36,7 +36,7 @@ control_rule <- function(t, cr, E, Count, time1, time2, transects, M) {
   if (cr == 5) {
     DR <- density_ratio(t, cr, Count, years_sampled = 1, 
                         fished_areas_sampled = 'all', 
-                        fish_sampled = 'all', transects)
+                        fish_sampled = 'mature', transects)
     target_DR <- transient_DR(M, t, time1, time2, final_DR = 0.6, 
                               estimate = 'high')
     E <- management(t, cr, E, DR, CR_type = 'DR', target_DR, 
