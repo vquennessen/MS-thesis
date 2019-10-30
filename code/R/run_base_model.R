@@ -12,20 +12,21 @@ time2 <- 20
 CR <- 5
 allocation <- 'IFD'
 R0 <- 1e+5
-stochasticity <- F
-surveys <- F
+stochasticity <- T
+surveys <- T
 transects <- 24
-fishery_management <- F
+fishery_management <- T
 fishing <- T
 adult_movement <- T
-plotting <- T
+plotting <- F
 
 # set numbers of simulations
-num_sims <- 50
+num_sims <- 20
 
 # initialize yield and biomass arrays
 sims_yield <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
 sims_biomass <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
+sims_SSB <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
 
 # run the model for each simulation
 for (i in 1:num_sims) {
@@ -38,11 +39,17 @@ for (i in 1:num_sims) {
   # implementation, and control rules
   sims_yield[, , , i] <- output[[1]]
   sims_biomass[, , , i] <- output[[2]]
+  sims_SSB[, , , i] <- output[[3]]
   
 }
 
-save(sims_yield, file = "../../data/sims_yield.Rda")
-save(sims_biomass, file = "../../data/sims_biomass.Rda")
+filepath1 = "../../data/testing_sims_yield.Rda"
+filepath2 = "../../data/testing_sims_biomass.Rda"
+filepath3 = "../../data/testing_sims_SSB.Rda"
 
-plot_stuff(filepath1 = "../../data/sims_yield.Rda", 
-           filepath2 = "../../data/sims_biomass.Rda", A, time2, CR)
+save(sims_yield, file = filepath1)
+save(sims_biomass, file = filepath2)
+save(sims_SSB, file = filepath3)
+
+plot_stuff(filepath1, filepath2, filepath3, A, time2, CR, num_sims, 
+           sample_size = num_sims, PD = 0.25)
