@@ -1,5 +1,5 @@
-plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims, 
-                       sample_size, PD) {
+# plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims, 
+#                        sample_size, PD) {
   
   setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")  
   
@@ -8,6 +8,13 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
   load(filepath1)
   load(filepath2)
   load(filepath3)
+  
+  A <- 5
+  CR <- 5
+  time2 <- 20
+  num_sims <- 1e4
+  sample_size <- 5e2
+  PD <- 0.2
   
   indices <- sample(1:num_sims, sample_size)
   Y_sample_runs <- sims_yield[, , , indices]
@@ -55,7 +62,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
   
   # y-axis limits
   y1 <- 0
-  y2 <- 2
+  y2 <- 1.4
   y_by <- (y2 - y1)/2
   
   # x-axis limits
@@ -78,6 +85,9 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
          xlim = c(x1, x2),                       # set x-axis limits
          ylim = c(y1, y2)
     )
+    
+    # add a gray dotted line at y = 1
+    lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3)
     
     # set specific y-axis
     ytick <- seq(y1, y2, by = y_by)              # set y axis tick marks
@@ -105,12 +115,12 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
     }
     
     # add a legend
-    legend(x = c(x2 + 1.5, x2 + 9), y = c(y2, y2 - (y2-y1)/0.5),   # position
+    legend(x = c(x2 + 1.5, x2 + 11), y = c(y2, y2 - (y2-y1)/2),   # position
            col = color,                          # apply viridis color palette
            lwd = 2,                # apply line thicknesses
            lty = 1:CR,             # apply line patterns
            title = 'CR',                         # add legend title and labels
-           c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5"),
+           c("B&M Best", "B&M Worst", "Low M", "Correct M", "High M"),
            seg.len = 3.5,                        # adjust length of lines
            cex = 0.9)                            # text size
   }
@@ -119,7 +129,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
 
   # y-axis limits
   yy1 <- 0
-  yy2 <- 5
+  yy2 <- 4
   yy_by <- (yy2 - yy1)/2
 
   # x-axis limits
@@ -170,12 +180,12 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
     }
 
     # add a legend
-    legend(x = c(x2 + 1.5, x2 + 9), y = c(yy2 + 0.04, yy2 - (yy2-yy1)/2.5),   # position
+    legend(x = c(x2 + 1.5, x2 + 11), y = c(yy2 + 0.04, yy2 - (yy2-yy1)/2.1),   # position
            col = color,                          # apply viridis color palette
            lwd = 2,                              # apply line thicknesses
            lty = 1:CR,                            # apply line patterns
            title = 'CR',                         # add legend title and labels
-           c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5"),
+           c("B&M Best", "B&M Worst", "Low M", "Correct M", "High M"),
            seg.len = 3.5,                        # adjust length of lines
            cex = 0.9)                            # text size
   }
@@ -183,8 +193,8 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
   ##### Plot relative SSB + range over time after reserve implementation #####
 
   # y-axis limits
-  yyy1 <- 0.5
-  yyy2 <- 1.5
+  yyy1 <- 0
+  yyy2 <- 7
   yyy_by <- (yyy2 - yyy1)/2
 
   # x-axis limits
@@ -235,14 +245,14 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
     }
 
     # add a legend
-    legend(x = c(x2 + 1.5, x2 + 9), y = c(yyy2 + 0.04, yyy2 - (yyy2-yyy1)/2.5),   # position
+    legend(x = c(x2 + 1.5, x2 + 11), y = c(yyy2 + 0.04, yyy2 - (yyy2-yyy1)/2.1),   # position
            col = color,                          # apply viridis color palette
            lwd = 2,                              # apply line thicknesses
            lty = 1:CR,                            # apply line patterns
            title = 'CR',                         # add legend title and labels
-           c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5"),
-           seg.len = 3.5,                        # adjust length of lines
+           c("B&M Best", "B&M Worst", "Low M", "Correct M", "High M"),
+           seg.len = 3,                        # adjust length of lines
            cex = 0.9)                            # text size
   }
-  
-}
+
+# }
