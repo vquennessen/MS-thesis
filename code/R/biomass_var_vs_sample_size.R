@@ -2,9 +2,12 @@ library(viridis)
 
 setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")
 
-load("../../data/1e5_sims_biomass.Rda")
+load("../../data/1e4_sims_biomass.Rda")
 
 num_sims <- 1e4
+
+y1 <- 0.4
+y2 <- 0.8
 
 # create empty plot
 par(mar=c(4.5,5,3,1))
@@ -15,12 +18,12 @@ plot(1, type = 'l',                          # make an empty line graph
      xaxt = 'n', 
      yaxt = 'n',
      xlim = c(0, num_sims),
-     ylim = c(0, 0.05), 
+     ylim = c(y1, y2), 
      cex.main = 2, 
      cex.lab = 2)
 
 # set specific y-axis
-ytick <- seq(0, 0.05, by = 0.025)            # set y axis tick marks
+ytick <- seq(y1, y2, by = (y2 - y1)/2)            # set y axis tick marks
 axis(side = 2,                               # specify y axis
      at = ytick,                             # apply tick marks
      labels = T,                             # apply appropriate labels
@@ -40,7 +43,7 @@ time2 <- 20
 color <- viridis(num_runs)
 
 # set different sample sizes
-sample_size <- seq(1e3, num_sims, by = 1e2)
+sample_size <- seq(1e2, num_sims, by = 1e2)
 
 # initialize variance arrays 
 B_vars <- rep(NA, length(sample_size))

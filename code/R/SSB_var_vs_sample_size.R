@@ -2,17 +2,17 @@ library(viridis)
 
 setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")
 
-load("../../data/1e4_sims_yield.Rda")
+load("../../data/1e4_sims_SSB.Rda")
 
 num_sims <- 1e4
 
-y1 <- 0.25
-y2 <- 0.45
+y1 <- 1.5
+y2 <- 2.5
 
 # create empty plot
 par(mar=c(4.5,5,3,1))
 plot(1, type = 'l',                          # make an empty line graph
-     main = 'Variance of Yield',             # title of plot
+     main = 'Variance of SSB',             # title of plot
      ylab = 'Sample Variance',               # axis labels
      xlab = 'Sample Size', 
      xaxt = 'n', 
@@ -46,20 +46,20 @@ color <- viridis(num_runs)
 sample_size <- seq(1e2, num_sims, by = 1e2)
 
 # initialize variance arrays 
-Y_vars <- rep(NA, length(sample_size))
+SSB_vars <- rep(NA, length(sample_size))
 
 for (j in 1:num_runs) {
   
   for (i in 1:length(sample_size)) {
     
     indices <- sample(1:num_sims, sample_size[i])
-    sampled_yield <- sims_yield[, , , indices]
-
+    sampled_SSB <- sims_SSB[, , , indices]
+    
     # calculate medians 
-    Y_vars[i] <- var(sampled_yield[1, time2, 1, ])
-
+    SSB_vars[i] <- var(sampled_SSB[1, time2, 1, ])
+    
   }
   
   # plot one run through various sample sizes
-  lines(sample_size, Y_vars, type = 'l', col = color[j])
+  lines(sample_size, SSB_vars, type = 'l', col = color[j])
 }
