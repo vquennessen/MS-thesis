@@ -19,6 +19,7 @@ fishery_management <- T
 fishing <- T
 adult_movement <- T
 plotting <- F
+error <- 0.05
 
 # set numbers of simulations
 num_sims <- 20
@@ -33,7 +34,7 @@ for (i in 1:num_sims) {
   
   output <- base_model(species, A, time1, time2, CR, allocation, R0, 
              stochasticity, surveys, transects, fishery_management, 
-             fishing, adult_movement, plotting)
+             fishing, adult_movement, plotting, error)
   
   # save the relative yield and biomasses for all areas, times after reserve
   # implementation, and control rules
