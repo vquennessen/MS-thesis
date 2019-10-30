@@ -1,15 +1,5 @@
-plot_stuff <- function(filepath1, filepath2, A, time2, CR, sample_size) {
-  
-  num_sims <- 1e3
-  filepath1 <- "../../data/1e3_sims_yield_noStochasticity.Rda"
-  filepath2 <- "../../data/1e3_sims_biomass_noStochasticity.Rda"
-  filepath3 <- "../../data/1e3_sims_SSB_noStochasticity.Rda"
-  
-  A <- 5
-  time2 <- 20
-  CR <- 5
-  sample_size <- num_sims
-  PD <- 0.05
+plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims, 
+                       sample_size, PD) {
   
   setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")  
   
@@ -64,8 +54,8 @@ plot_stuff <- function(filepath1, filepath2, A, time2, CR, sample_size) {
   par(mar = c(5.1, 4.1, 4.1, 8.7), xpd = T)
   
   # y-axis limits
-  y1 <- 0.9
-  y2 <- 1
+  y1 <- 0
+  y2 <- 2
   y_by <- (y2 - y1)/2
   
   # x-axis limits
@@ -128,8 +118,8 @@ plot_stuff <- function(filepath1, filepath2, A, time2, CR, sample_size) {
   ##### Plot relative biomass + range over time after reserve implementation #####
 
   # y-axis limits
-  yy1 <- 0.5
-  yy2 <- 1.5
+  yy1 <- 0
+  yy2 <- 5
   yy_by <- (yy2 - yy1)/2
 
   # x-axis limits
@@ -191,22 +181,22 @@ plot_stuff <- function(filepath1, filepath2, A, time2, CR, sample_size) {
   }
   
   ##### Plot relative SSB + range over time after reserve implementation #####
-  
+
   # y-axis limits
   yyy1 <- 0.5
   yyy2 <- 1.5
   yyy_by <- (yyy2 - yyy1)/2
-  
+
   # x-axis limits
   x1 <- 0
   x2 <- time2
   x_by <- x2/2
-  
+
   for (a in 1:3) {
-    
+
     area <- ifelse(a < 2, 'far from', ifelse(a == 3, 'in', 'near'))
     title <- sprintf("Relative SSB range: %s reserve", area)
-    
+
     # plot the relative yield
     plot(1, type = 'l',                          # make an empty line graph
          main = title,                           # title of plot
@@ -217,33 +207,33 @@ plot_stuff <- function(filepath1, filepath2, A, time2, CR, sample_size) {
          xlim = c(x1, x2),                     # set x-axis limits
          ylim = c(yyy1, yyy2)
     )
-    
-    
+
+
     # set specific y-axis
     yyytick <- seq(yyy1, yyy2, by = yyy_by)          # set yaxis tick marks
     axis(side = 2,                               # specify y axis
          at = yyytick,                            # apply tick marks
          labels = T,                             # apply appropriate labels
          las = 1)                                # set text horizontal
-    
+
     # set specific x-axis
     xtick <- seq(x1, x2, by = x_by)          # set x axis tick marks
     axis(side = 1,                               # specify x axis
          at = xtick,                            # apply tick marks
          labels = T,                             # apply appropriate labels
          las = 1)                                # set text horizontal
-    
+
     for (cr in 1:CR) {                           # add one line per control rule
       lines(SSB_medians[a, , cr],
             col = color[cr],                     # use pre-defined color palette
             lwd = 2,                     # set line width
             lty = cr)                 # set line type
-      
+
       polygon(x = c(1:time2, rev(1:time2)),
               y = c(SSB_lower[a, , cr], rev(SSB_upper[a, , cr])),
               col = adjustcolor(color[cr], alpha.f = 0.10), border = NA)
     }
-    
+
     # add a legend
     legend(x = c(x2 + 1.5, x2 + 9), y = c(yyy2 + 0.04, yyy2 - (yyy2-yyy1)/2.5),   # position
            col = color,                          # apply viridis color palette
