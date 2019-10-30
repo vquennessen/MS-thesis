@@ -10,7 +10,8 @@ pop_dynamics <- function(a, t, cr, rec_age, max_age, n, SSB, N, W, Mat, A, R0,
   ##### Step population foward in time
   
   # Calculate recruitment and add recruits to population
-  N[1, a, t, cr] <- recruitment(a, t, cr, SSB, A, R0, h, B0, Eps, sigma_R)
+  N[1, a, t, cr] <- recruitment(a, t, cr, SSB, A, R0, h, B0, Eps, sigma_R, 
+                                rec_age)
   
   # Ages rec_age + 1 to max_age - 1
   for (i in 2:(n - 1)) {
