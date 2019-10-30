@@ -46,6 +46,3 @@ filepath3 = "../../data/1e4_sims_SSB.Rda"
 save(sims_yield, file = filepath1)
 save(sims_biomass, file = filepath2)
 save(sims_SSB, file = filepath3)
-
-plot_stuff(filepath1, filepath2, filepath3, A, time2, CR, num_sims, 
-           sample_size = num_sims, PD = 0.25)
