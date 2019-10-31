@@ -1,9 +1,9 @@
 rm(list = ls())
 
-setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")
+# setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")
 
 source('./base_model.R')
-# source('./plot_stuff.R')
+source('./plot_stuff.R')
 
 species <- 'black rockfish 2003'
 A <- 5
@@ -18,16 +18,17 @@ transects <- 24
 fishery_management <- T
 fishing <- T
 adult_movement <- T
-plotting <- F
+plotting <- T
 error <- 0.05
+NM <- 3
 
 # set numbers of simulations
-num_sims <- 20
+num_sims <- 10
 
 # initialize yield and biomass arrays
-sims_yield <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
-sims_biomass <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
-sims_SSB <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
+sims_yield <- array(rep(0, A*time2*CR*NM*num_sims), c(A, time2, CR, NM, num_sims))
+sims_biomass <- array(rep(0, A*time2*CR*NM*num_sims), c(A, time2, CR, NM, num_sims))
+sims_SSB <- array(rep(0, A*time2*CR*NM*num_sims), c(A, time2, CR, NM, num_sims))
 
 # run the model for each simulation
 for (i in 1:num_sims) {
@@ -38,9 +39,9 @@ for (i in 1:num_sims) {
   
   # save the relative yield and biomasses for all areas, times after reserve
   # implementation, and control rules
-  sims_yield[, , , i] <- output[[1]]
-  sims_biomass[, , , i] <- output[[2]]
-  sims_SSB[, , , i] <- output[[3]]
+  sims_yield[, , , , i] <- output[[1]]
+  sims_biomass[, , , , i] <- output[[2]]
+  sims_SSB[, , , , i] <- output[[3]]
   
 }
 
