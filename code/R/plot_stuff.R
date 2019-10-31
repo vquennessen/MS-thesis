@@ -1,7 +1,7 @@
-# plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims, 
-#                        sample_size, PD) {
+plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims, 
+                       sample_size, PD) {
   
-  setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")  
+  # setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")  
   
   library(viridis)
   
@@ -9,45 +9,40 @@
   load(filepath2)
   load(filepath3)
   
-  A <- 5
-  CR <- 5
-  time2 <- 20
-  num_sims <- 1e4
-  sample_size <- 5e2
-  PD <- 0.2
-  
   indices <- sample(1:num_sims, sample_size)
-  Y_sample_runs <- sims_yield[, , , indices]
-  B_sample_runs <- sims_biomass[, , , indices]
-  SSB_sample_runs <- sims_SSB[, , , indices]
+  Y_sample_runs <- sims_yield[, , , , indices]
+  B_sample_runs <- sims_biomass[, , , , indices]
+  SSB_sample_runs <- sims_SSB[, , , , indices]
   
   # replace NA's in sims_yield with 0s
   Y_sample_runs[is.na(Y_sample_runs)] <- 0
   
   # initialize median, lowerIQR, and upperIQR arrays
-  Y_medians <- Y_lower <- Y_upper <- array(rep(NA, A*time2*CR), c(A, time2, CR))
+  Y_medians <- Y_lower <- Y_upper <- array(rep(NA, A*time2*CR*NM), c(A, time2, CR, NM))
   
-  B_medians <- B_lower <- B_upper <- array(rep(NA, A*time2*CR), c(A, time2, CR))
+  B_medians <- B_lower <- B_upper <- array(rep(NA, A*time2*CR*NM), c(A, time2, CR, NM))
   
-  SSB_medians <- SSB_lower <- SSB_upper <- array(rep(NA, A*time2*CR), c(A, time2, CR))
+  SSB_medians <- SSB_lower <- SSB_upper <- array(rep(NA, A*time2*CR*NM), c(A, time2, CR, NM))
   
   # extract data from files and plot medians + interquartile ranges
-  for (i in 1:A) {
-    for (j in 1:time2) {
-      for (k in 1:CR) {
+  for (a in 1:A) {
+    for (t in 1:time2) {
+      for (cr in 1:CR) {
+        for (nm in 1:NM) {
+          
+        Y_medians[a, t, cr, nm] <- median(Y_sample_runs[a, t, cr, nm, ])
+        B_medians[a, t, cr, nm] <- median(B_sample_runs[a, t, cr, nm, ])
+        SSB_medians[a, t, cr, nm] <- median(SSB_sample_runs[a, t, cr, nm, ])
         
-        Y_medians[i, j, k] <- median(Y_sample_runs[i, j, k, ])
-        B_medians[i, j, k] <- median(B_sample_runs[i, j, k, ])
-        SSB_medians[i, j, k] <- median(SSB_sample_runs[i, j, k, ])
-        
-        Y_lower[i, j, k] <- quantile(Y_sample_runs[i, j, k, ], 0.5 - PD)
-        B_lower[i, j, k] <- quantile(B_sample_runs[i, j, k, ], 0.5 - PD)
-        SSB_lower[i, j, k] <- quantile(SSB_sample_runs[i, j, k, ], 0.5 - PD)
+        Y_lower[a, t, cr, nm] <- quantile(Y_sample_runs[a, t, cr, nm, ], 0.5 - PD)
+        B_lower[a, t, cr, nm] <- quantile(B_sample_runs[a, t, cr, nm, ], 0.5 - PD)
+        SSB_lower[a, t, cr, nm] <- quantile(SSB_sample_runs[a, t, cr, nm, ], 0.5 - PD)
          
-        Y_upper[i, j, k] <- quantile(Y_sample_runs[i, j, k, ], 0.5 + PD)
-        B_upper[i, j, k] <- quantile(B_sample_runs[i, j, k, ], 0.5 + PD)
-        SSB_upper[i, j, k] <- quantile(SSB_sample_runs[i, j, k, ], 0.5 + PD)
+        Y_upper[a, t, cr, nm] <- quantile(Y_sample_runs[a, t, cr, nm, ], 0.5 + PD)
+        B_upper[a, t, cr, nm] <- quantile(B_sample_runs[a, t, cr, nm, ], 0.5 + PD)
+        SSB_upper[a, t, cr, nm] <- quantile(SSB_sample_runs[a, t, cr, nm, ], 0.5 + PD)
         
+        }
       }
     }
   } 
@@ -55,7 +50,7 @@
   ###### Plot relative yield + IQR over time after reserve implementation ######  
   
   # use colorblind color palette, viridis
-  color <- viridis(CR)
+  color <- viridis(CR*NM)
   
   # set plot margins to leave room for legend
   par(mar = c(5.1, 4.1, 4.1, 8.7), xpd = T)
@@ -104,24 +99,26 @@
          las = 1)                                # set text horizontal    
     
     for (cr in 1:CR) {
-      lines(Y_medians[a, , cr],
-            col = color[cr],                     # use pre-defined color palette
-            lwd = 2,                     # set line width
-            lty = cr)                  # set line type
-      
+      for (nm in 1:NM) {
+        lines(Y_medians[a, , cr, nm],
+              col = color[nm],                  # use pre-defined color palette
+              lwd = 2,                     # set line width
+              lty = cr)                  # set line type
+
       polygon(x = c(1:time2, rev(1:time2)), 
-              y = c(Y_lower[a, , cr], rev(Y_upper[a, , cr])), 
-              col = adjustcolor(color[cr], alpha.f = 0.10), border = NA)
+              y = c(Y_lower[a, , cr, nm], rev(Y_upper[a, , cr, nm])), 
+              col = adjustcolor(color[nm], alpha.f = 0.10), border = NA)
+      }
     }
     
     # add a legend
-    legend(x = c(x2 + 1.5, x2 + 11), y = c(y2, y2 - (y2-y1)/2),   # position
-           col = color,                          # apply viridis color palette
+    legend(x = c(x2 + 1.5, x2 + 5), y = c(y2 - (y2-y1)/2, y2),   # position
+           col = rep(color[1:3], 2),                           # apply viridis color palette
            lwd = 2,                # apply line thicknesses
-           lty = 1:CR,             # apply line patterns
+           lty = rep(1:2, each = 3),             # apply line patterns
            title = 'CR',                         # add legend title and labels
-           c("B&M Best", "B&M Worst", "Low M", "Correct M", "High M"),
-           seg.len = 3.5,                        # adjust length of lines
+           c("B&M Low M", "B&M Correct M", "B&M High M", 
+             "Transient Low M", "Transient Correct M", "Transient High M"),           seg.len = 3.5,                        # adjust length of lines
            cex = 0.9)                            # text size
   }
   
@@ -150,10 +147,11 @@
          xaxt = 'n',
          yaxt = 'n',                             # get rid of y-axis
          xlim = c(x1, x2),                     # set x-axis limits
-         ylim = c(yy1, yy2)
-    )
+         ylim = c(yy1, yy2))
 
-
+    # add a gray dotted line at y = 1
+    lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3)
+    
     # set specific y-axis
     yytick <- seq(yy1, yy2, by = yy_by)          # set yaxis tick marks
     axis(side = 2,                               # specify y axis
@@ -168,25 +166,27 @@
          labels = T,                             # apply appropriate labels
          las = 1)                                # set text horizontal
 
-    for (cr in 1:CR) {                           # add one line per control rule
-      lines(B_medians[a, , cr],
-            col = color[cr],                     # use pre-defined color palette
-            lwd = 2,                     # set line width
-            lty = cr)                 # set line type
-
-      polygon(x = c(1:time2, rev(1:time2)),
-              y = c(B_lower[a, , cr], rev(B_upper[a, , cr])),
-              col = adjustcolor(color[cr], alpha.f = 0.10), border = NA)
+    for (cr in 1:CR) {
+      for (nm in 1:NM) {
+        lines(B_medians[a, , cr, nm],
+              col = color[nm],                  # use pre-defined color palette
+              lwd = 2,                     # set line width
+              lty = cr)                  # set line type
+        
+        polygon(x = c(1:time2, rev(1:time2)), 
+                y = c(B_lower[a, , cr, nm], rev(B_upper[a, , cr, nm])), 
+                col = adjustcolor(color[nm], alpha.f = 0.10), border = NA)
+      }
     }
-
+    
     # add a legend
-    legend(x = c(x2 + 1.5, x2 + 11), y = c(yy2 + 0.04, yy2 - (yy2-yy1)/2.1),   # position
-           col = color,                          # apply viridis color palette
-           lwd = 2,                              # apply line thicknesses
-           lty = 1:CR,                            # apply line patterns
+    legend(x = c(x2 + 1.5, x2 + 5), y = c(yy2 - (yy2-yy1)/2, yy2),  # position
+           col = rep(color[1:3], 2),                           # apply viridis color palette
+           lwd = 2,                # apply line thicknesses
+           lty = rep(1:2, each = 3),             # apply line patterns
            title = 'CR',                         # add legend title and labels
-           c("B&M Best", "B&M Worst", "Low M", "Correct M", "High M"),
-           seg.len = 3.5,                        # adjust length of lines
+           c("B&M Low M", "B&M Correct M", "B&M High M", 
+             "Transient Low M", "Transient Correct M", "Transient High M"),           seg.len = 3.5,                        # adjust length of lines
            cex = 0.9)                            # text size
   }
   
@@ -215,9 +215,10 @@
          xaxt = 'n',
          yaxt = 'n',                             # get rid of y-axis
          xlim = c(x1, x2),                     # set x-axis limits
-         ylim = c(yyy1, yyy2)
-    )
+         ylim = c(yyy1, yyy2))
 
+    # add a gray dotted line at y = 1
+    lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3)
 
     # set specific y-axis
     yyytick <- seq(yyy1, yyy2, by = yyy_by)          # set yaxis tick marks
@@ -233,26 +234,28 @@
          labels = T,                             # apply appropriate labels
          las = 1)                                # set text horizontal
 
-    for (cr in 1:CR) {                           # add one line per control rule
-      lines(SSB_medians[a, , cr],
-            col = color[cr],                     # use pre-defined color palette
-            lwd = 2,                     # set line width
-            lty = cr)                 # set line type
-
-      polygon(x = c(1:time2, rev(1:time2)),
-              y = c(SSB_lower[a, , cr], rev(SSB_upper[a, , cr])),
-              col = adjustcolor(color[cr], alpha.f = 0.10), border = NA)
+    for (cr in 1:CR) {
+      for (nm in 1:NM) {
+        lines(SSB_medians[a, , cr, nm],
+              col = color[nm],                  # use pre-defined color palette
+              lwd = 2,                     # set line width
+              lty = cr)                  # set line type
+        
+        polygon(x = c(1:time2, rev(1:time2)), 
+                y = c(SSB_lower[a, , cr, nm], rev(SSB_upper[a, , cr, nm])), 
+                col = adjustcolor(color[nm], alpha.f = 0.10), border = NA)
+      }
     }
-
+    
     # add a legend
-    legend(x = c(x2 + 1.5, x2 + 11), y = c(yyy2 + 0.04, yyy2 - (yyy2-yyy1)/2.1),   # position
-           col = color,                          # apply viridis color palette
-           lwd = 2,                              # apply line thicknesses
-           lty = 1:CR,                            # apply line patterns
+    legend(x = c(x2 + 1.5, x2 + 5), y = c(yyy2 - (yyy2-yyy1)/2, yyy2),   # position
+           col = rep(color[1:3], 2),                           # apply viridis color palette
+           lwd = 2,                # apply line thicknesses
+           lty = rep(1:2, each = 3),             # apply line patterns
            title = 'CR',                         # add legend title and labels
-           c("B&M Best", "B&M Worst", "Low M", "Correct M", "High M"),
-           seg.len = 3,                        # adjust length of lines
+           c("B&M Low M", "B&M Correct M", "B&M High M", 
+             "Transient Low M", "Transient Correct M", "Transient High M"),           seg.len = 3.5,                        # adjust length of lines
            cex = 0.9)                            # text size
   }
 
-# }
+}
