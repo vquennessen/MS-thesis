@@ -145,16 +145,16 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   }
   
   # initialize relative biomass matrix
-  # Dimensions = area * time2 * CR * M values (3)
-  rel_biomass <- array(rep(0, A*time2*CR*NM), c(A, time2, CR, NM))
+  # Dimensions = area * time2 * CR 
+  rel_biomass <- array(rep(0, A*time2*CR), c(A, time2, CR))
   
   # initialize relative yield matrix
-  # Dimensions = area * time2 * CR * M values (3)
-  rel_yield <- array(rep(0, A*time2*CR*NM), c(A, time2, CR, NM))
+  # Dimensions = area * time2 * CR 
+  rel_yield <- array(rep(0, A*time2*CR), c(A, time2, CR))
   
   # initialize relative spawning stock biomass matrix
-  # Dimensions = area * time2 * CR * M values (3)
-  rel_SSB <- array(rep(0, A*time2*CR*NM), c(A, time2, CR, NM))
+  # Dimensions = area * time2 * CR
+  rel_SSB <- array(rep(0, A*time2*CR), c(A, time2, CR))
   
   output <- list(timeT, E, n, L, W, Mat, m, S, FM, N, SSB, 
                  abundance_all, abundance_mature, biomass, Count, nuS, 
