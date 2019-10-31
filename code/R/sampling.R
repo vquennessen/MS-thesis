@@ -3,7 +3,7 @@ sampling <- function(a, t, cr, nm, Delta, Gamma, abundance_all,
   
   # Total population size across all areas
   total_all <- sum(abundance_all[, t, cr, nm])
-  total_mature <- sum(abundance_mature[, t, c, nm])
+  total_mature <- sum(abundance_mature[, t, cr, nm])
   
   # Calculate odds ratio of seeing a fish
   # Based on Babcock & MacCall (2011): Eq. (12)
