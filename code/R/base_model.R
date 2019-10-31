@@ -107,9 +107,14 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   
   ##### Population Dynamics - Time Varying #####################################
   
-  for (cr in 1:CR) {
+  for (t in 3:time1) {
     
-    for (t in 3:time1) {
+    if (t == time1) {
+      # effort allocation
+      E <- effort_allocation(t, cr, nm, allocation, A, E, yield, time1)
+    }
+    
+    for (cr in 1:CR) {
       
       for (nm in 1:NM) {
         
@@ -130,7 +135,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
           abundance_mature[a, t, cr, nm]   <- PD[[4]]
           biomass[a, t, cr, nm]            <- PD[[5]]
           SSB[a, t, cr, nm]                <- PD[[6]]
-
+          
           # sampling
           if (surveys == T) {
             if (t > (time1 - 3)) {
@@ -142,30 +147,21 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
           
           # fishing
           if (fishing == T) {
-            catch[, a, t, cr, nm] <- catch_at_age(a, t, nm, cr, FM, nat_mortality, 
+            catch[, a, t, cr, nm] <- catch_at_age(a, t, cr, nm, FM, nat_mortality, 
                                                   N, A, Fb, E, catch)
             yield[a, t, cr, nm] <- sum(catch[, a, t, cr, nm]*W)
           }
           
         }
-        
       }
-      
-      if (t == time1) {
-        # effort allocation
-        E <- effort_allocation(t, cr, nm, allocation, A, E, yield, time1)
-        
-      }
-      
     }
-    
   }
   
   ##### Implement Reserve, and apply control rules #############################
   
-  for (cr in 1:CR) {
+  for (t in (time1 + 1):timeT) {
     
-    for (t in (time1 + 1):timeT) {
+    for (cr in 1:CR) {
       
       for (nm in 1:NM) {
         
@@ -178,21 +174,21 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
         for (a in 1:A) {
           
           # biology
-          PD <- pop_dynamics(a, t, cr, nm, rec_age, max_age, n, SSB, N, W, Mat,
+          PD <- pop_dynamics(a, t, cr, nm, rec_age, max_age, n, SSB, N, W, Mat, 
                              A, R0, h, B0, Eps, sigma_R, Fb, E, S, NM, FM, m, 
                              abundance_all, abundance_mature, biomass, fishing, 
                              nat_mortality)
           
-          SSB                <- PD[[1]]
-          FM                 <- PD[[2]]
-          N                  <- PD[[3]]
-          abundance_all      <- PD[[4]]
-          abundance_mature   <- PD[[5]]
-          biomass            <- PD[[6]]
+          FM[, a, t, cr, nm]               <- PD[[1]]
+          N[, a, t, cr, nm]                <- PD[[2]]
+          abundance_all[a, t, cr, nm]      <- PD[[3]]
+          abundance_mature[a, t, cr, nm]   <- PD[[4]]
+          biomass[a, t, cr, nm]            <- PD[[5]]
+          SSB[a, t, cr, nm]                <- PD[[6]]
           
           # sampling
           if (surveys == T) {
-            Count[a, t, , , cr, nm] <- sampling(a, t, nm, cr, Delta, Gamma, 
+            Count[a, t, , , cr, nm] <- sampling(a, t, cr, nm, Delta, Gamma, 
                                             abundance_all, abundance_mature, 
                                             transects, x, Count, nuS)
           }
@@ -230,21 +226,27 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   # calculate relative biomass since reserve implementation
   for (a in 1:A) {
     for (cr in 1:CR) {
-      rel_biomass[a, , cr] <- biomass[a, (time1 + 1):timeT, cr]/biomass[a, time1, cr]
+      for (nm in 1:NM) {
+      rel_biomass[a, , cr, nm] <- biomass[a, (time1 + 1):timeT, cr, nm]/biomass[a, time1, cr, nm]
+      }
     }
   }
   
   # calculate relative biomass since reserve implementation
   for (a in 1:A) {
     for (cr in 1:CR) {
-      rel_yield[a, , cr] <- yield[a, (time1 + 1):timeT, cr]/yield[a, time1, cr]
+      for (nm in 1:NM) {
+      rel_yield[a, , cr, nm] <- yield[a, (time1 + 1):timeT, cr, nm]/yield[a, time1, cr, nm]
+      }
     }
   }
   
   # calculate relative biomass since reserve implementation
   for (a in 1:A) {
     for (cr in 1:CR) {
-      rel_SSB[a, , cr] <- SSB[a, (time1 + 1):timeT, cr]/SSB[a, time1, cr]
+      for (nm in 1:NM) {
+      rel_SSB[a, , cr, nm] <- SSB[a, (time1 + 1):timeT, cr, nm]/SSB[a, time1, cr, nm]
+      }
     }
   }
   
@@ -253,7 +255,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
 ##### Plot relative biomass over time after reserve implementation #############
     
     # use colorblind color palette, viridis
-    color <- viridis(CR)
+    color <- viridis(NM)
     
     # set plot margins to leave room for legend
     par(mar = c(5.1, 4.1, 4.1, 8.7), xpd = T)
@@ -297,24 +299,27 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                                # set text horizontal    
       
       for (cr in 1:CR) {
-        lines(rel_biomass[a, , cr],
-              col = color[cr],                  # use pre-defined color palette
+        for (nm in 1:NM) {
+        lines(rel_biomass[a, , cr, nm],
+              col = color[nm],                  # use pre-defined color palette
               lwd = 2,                     # set line width
               lty = cr)                  # set line type
+        }
       }
       
       # add a legend
       legend(x = c(22, 28), y = c(y2 + 0.04, y2 - 0.45),   # position
-             col = color,                          # apply viridis color palette
+             col = rep(color[1:3], 2),                           # apply viridis color palette
              lwd = 2,                # apply line thicknesses
-             lty = 1:CR,             # apply line patterns
-             title = 'CR',                         # add legend title and labels
-             c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5"),
-             seg.len = 3.5,                        # adjust length of lines
+             lty = rep(1:2, each = 3),             # apply line patterns
+             title = 'Control Rule', # add legend title and labels
+             c("B&M Low M", "B&M Correct M", "B&M High M", 
+               "Transient Low M", "Transient Correct M", "Transient High M"),
+             seg.len = 3,                        # adjust length of lines
              cex = 0.9)                            # text size
     }
     
-    ##### Plot relative yield over time after reserve implementation ###########
+##### Plot relative yield over time after reserve implementation ###########
   
     # y-axis limits
     yy1 <- 0
@@ -350,21 +355,81 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            labels = T,                             # apply appropriate labels
            las = 1)                                # set text horizontal    
       
-      for (cr in 1:CR) {                        # add one line per control rule
-        lines(rel_yield[a, , cr],
-              col = color[cr],                  # use pre-defined color palette
-              lwd = 2,                     # set line width
-              lty = cr)                  # set line type
+      for (cr in 1:CR) {
+        for (nm in 1:NM) {
+          lines(rel_yield[a, , cr, nm],
+                col = color[nm],                  # use pre-defined color palette
+                lwd = 2,                     # set line width
+                lty = cr)                  # set line type
+        }
       }
       
       # add a legend
-      legend(x = c(22, 28), y = c(yy2 + 0.05, yy2 - 0.55),   # position
-             col = color,                          # apply viridis color palette
+      legend(x = c(22, 28), y = c(y2 + 0.04, y2 - 0.45),   # position
+             col = rep(color[1:3], 2),                           # apply viridis color palette
              lwd = 2,                # apply line thicknesses
-             lty = 1:CR,             # apply line patterns
-             title = 'CR',                         # add legend title and labels
-             c("CR 1", "CR 2", "CR 3", "CR 4", "CR 5"),
-             seg.len = 3.5,                        # adjust length of lines
+             lty = rep(1:2, each = 3),             # apply line patterns
+             title = 'Control Rule', # add legend title and labels
+             c("B&M Low M", "B&M Correct M", "B&M High M", 
+               "Transient Low M", "Transient Correct M", "Transient High M"),
+             seg.len = 3,                        # adjust length of lines
+             cex = 0.9)                            # text size
+    }
+    
+###### Plot relative SSB over time after reserve implementation ##############
+    
+    # y-axis limits
+    yy1 <- 0
+    yy2 <- 2 
+    yy_by <- (yy2 - yy1)/2
+    
+    for (a in 1:A) {
+      title <- sprintf("Relative SSB per Control Rule: Area %i", a)
+      
+      # plot the relative yield
+      plot(1, type = 'l',                          # make an empty line graph
+           main = title,                           # title of plot
+           ylab = 'Relative SSB',                # axis labels
+           xlab = 'Years since marine reserve implementation',
+           xaxt = 'n', 
+           yaxt = 'n',                             # get rid of y-axis
+           xlim = c(x1, x2),                     # set x-axis limits
+           ylim = c(yy1, yy2)
+      )
+      
+      
+      # set specific y-axis
+      yytick <- seq(yy1, yy2, by = yy_by)          # set yaxis tick marks
+      axis(side = 2,                               # specify y axis
+           at = yytick,                            # apply tick marks
+           labels = T,                             # apply appropriate labels
+           las = 1)                                # set text horizontal
+      
+      # set specific x-axis
+      xtick <- seq(x1, x2, by = x_by)          # set x axis tick marks
+      axis(side = 1,                               # specify x axis
+           at = xtick,                            # apply tick marks
+           labels = T,                             # apply appropriate labels
+           las = 1)                                # set text horizontal    
+      
+      for (cr in 1:CR) {
+        for (nm in 1:NM) {
+          lines(rel_SSB[a, , cr, nm],
+                col = color[nm],                  # use pre-defined color palette
+                lwd = 2,                     # set line width
+                lty = cr)                  # set line type
+        }
+      }
+      
+      # add a legend
+      legend(x = c(22, 28), y = c(y2 + 0.04, y2 - 0.45),   # position
+             col = rep(color[1:3], 2),                           # apply viridis color palette
+             lwd = 2,                # apply line thicknesses
+             lty = rep(1:2, each = 3),             # apply line patterns
+             title = 'Control Rule', # add legend title and labels
+             c("B&M Low M", "B&M Correct M", "B&M High M", 
+               "Transient Low M", "Transient Correct M", "Transient High M"),
+             seg.len = 3,                        # adjust length of lines
              cex = 0.9)                            # text size
     }
     
