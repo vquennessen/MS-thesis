@@ -109,11 +109,6 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   
   for (t in 3:time1) {
     
-    if (t == time1) {
-      # effort allocation
-      E <- effort_allocation(t, cr, nm, allocation, A, E, yield, time1)
-    }
-    
     for (cr in 1:CR) {
       
       for (nm in 1:NM) {
@@ -138,11 +133,9 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
           
           # sampling
           if (surveys == T) {
-            if (t > (time1 - 3)) {
               Count[a, t, , , cr, nm] <- sampling(a, t, cr, nm, Delta, Gamma, 
                                                   abundance_all, abundance_mature, 
                                                   transects, x, Count, nuS)
-            }
           }
           
           # fishing
@@ -204,7 +197,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
         
         # management
         if (fishery_management == T) {
-          E <- control_rule(t, cr, nm, E, Count, time1, time2, transects,
+          E <- control_rule(t, cr, nm, A, E, Count, time1, time2, transects,
                             nat_mortality)
         }
         
@@ -221,32 +214,26 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   # }
   # lines(1:timeT, N[n, 1, 1:timeT, 1], col = 'blue')
   
-####### Calculate relative biomass, yield, and SSB ############################
+  ##### Calculate relative biomass, yield, and SSB ############################
   
   # calculate relative biomass since reserve implementation
   for (a in 1:A) {
     for (cr in 1:CR) {
-      for (nm in 1:NM) {
-      rel_biomass[a, , cr, nm] <- biomass[a, (time1 + 1):timeT, cr, nm]/biomass[a, time1, cr, nm]
-      }
+      rel_biomass[a, , cr] <- biomass[a, (time1 + 1):timeT, cr, 2]/biomass[a, time1, cr, 2]
     }
   }
   
   # calculate relative biomass since reserve implementation
   for (a in 1:A) {
     for (cr in 1:CR) {
-      for (nm in 1:NM) {
-      rel_yield[a, , cr, nm] <- yield[a, (time1 + 1):timeT, cr, nm]/yield[a, time1, cr, nm]
-      }
+      rel_yield[a, , cr] <- yield[a, (time1 + 1):timeT, cr, 2]/yield[a, time1, cr, 2]
     }
   }
   
   # calculate relative biomass since reserve implementation
   for (a in 1:A) {
     for (cr in 1:CR) {
-      for (nm in 1:NM) {
-      rel_SSB[a, , cr, nm] <- SSB[a, (time1 + 1):timeT, cr, nm]/SSB[a, time1, cr, nm]
-      }
+      rel_SSB[a, , cr] <- SSB[a, (time1 + 1):timeT, cr, 2]/SSB[a, time1, cr, 2]
     }
   }
   
@@ -255,7 +242,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
 ##### Plot relative biomass over time after reserve implementation #############
     
     # use colorblind color palette, viridis
-    color <- viridis(NM)
+    color <- viridis(CR)
     
     # set plot margins to leave room for legend
     par(mar = c(5.1, 4.1, 4.1, 8.7), xpd = T)
@@ -299,19 +286,17 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                                # set text horizontal    
       
       for (cr in 1:CR) {
-        for (nm in 1:NM) {
-        lines(rel_biomass[a, , cr, nm],
-              col = color[nm],                  # use pre-defined color palette
+        lines(rel_biomass[a, , cr],
+              col = color[cr],                  # use pre-defined color palette
               lwd = 2,                     # set line width
-              lty = cr)                  # set line type
-        }
+              lty = rep(1:3, times = 2))                  # set line type
       }
       
       # add a legend
       legend(x = c(22, 28), y = c(y2 + 0.04, y2 - 0.45),   # position
-             col = rep(color[1:3], 2),                           # apply viridis color palette
+             col = color,                           # apply viridis color palette
              lwd = 2,                # apply line thicknesses
-             lty = rep(1:2, each = 3),             # apply line patterns
+             lty = rep(1:3, times = 2),             # apply line patterns
              title = 'Control Rule', # add legend title and labels
              c("B&M Low M", "B&M Correct M", "B&M High M", 
                "Transient Low M", "Transient Correct M", "Transient High M"),
@@ -356,19 +341,17 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                                # set text horizontal    
       
       for (cr in 1:CR) {
-        for (nm in 1:NM) {
-          lines(rel_yield[a, , cr, nm],
-                col = color[nm],                  # use pre-defined color palette
+          lines(rel_yield[a, , cr],
+                col = color[cr],                  # use pre-defined color palette
                 lwd = 2,                     # set line width
-                lty = cr)                  # set line type
-        }
+                lty = rep(1:3, times = 2))                  # set line type
       }
       
       # add a legend
       legend(x = c(22, 28), y = c(y2 + 0.04, y2 - 0.45),   # position
-             col = rep(color[1:3], 2),                           # apply viridis color palette
+             col = color,                           # apply viridis color palette
              lwd = 2,                # apply line thicknesses
-             lty = rep(1:2, each = 3),             # apply line patterns
+             lty = rep(1:3, each = 2),             # apply line patterns
              title = 'Control Rule', # add legend title and labels
              c("B&M Low M", "B&M Correct M", "B&M High M", 
                "Transient Low M", "Transient Correct M", "Transient High M"),
@@ -413,19 +396,17 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                                # set text horizontal    
       
       for (cr in 1:CR) {
-        for (nm in 1:NM) {
-          lines(rel_SSB[a, , cr, nm],
-                col = color[nm],                  # use pre-defined color palette
+          lines(rel_SSB[a, , cr],
+                col = color[cr],                  # use pre-defined color palette
                 lwd = 2,                     # set line width
-                lty = cr)                  # set line type
-        }
+                lty = rep(1:3, times = 2))                  # set line type
       }
       
       # add a legend
       legend(x = c(22, 28), y = c(y2 + 0.04, y2 - 0.45),   # position
-             col = rep(color[1:3], 2),                           # apply viridis color palette
+             col = color,                           # apply viridis color palette
              lwd = 2,                # apply line thicknesses
-             lty = rep(1:2, each = 3),             # apply line patterns
+             lty = rep(1:3, times = 2),             # apply line patterns
              title = 'Control Rule', # add legend title and labels
              c("B&M Low M", "B&M Correct M", "B&M High M", 
                "Transient Low M", "Transient Correct M", "Transient High M"),
