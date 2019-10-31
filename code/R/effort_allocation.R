@@ -24,9 +24,9 @@ effort_allocation <- function(t, cr, nm, allocation, A, E, yield, time1) {
       
     } else if (t >= time1) {
     
-    E[reserve, t, cr, nm] <- 0
     E[outside, t, cr, nm] <- rep(sum(E[, t - 1, cr, nm])/(A - 1), A - 1)
-    
+    E[reserve, t, cr, nm] <- 0
+
     }
     
   }
