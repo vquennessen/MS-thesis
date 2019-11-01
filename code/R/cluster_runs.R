@@ -5,7 +5,7 @@ species <- 'black rockfish 2003'
 A <- 5
 time1 <- 50
 time2 <- 20
-CR <- 5
+CR <- 6
 allocation <- 'IFD'
 R0 <- 1e+5
 stochasticity <- T
@@ -15,6 +15,7 @@ fishery_management <- T
 fishing <- T
 adult_movement <- T
 plotting <- F
+error <- 0.05
 
 # set numbers of simulations
 num_sims <- 1e4
@@ -29,7 +30,7 @@ for (i in 1:num_sims) {
   
   output <- base_model(species, A, time1, time2, CR, allocation, R0, 
                        stochasticity, surveys, transects, fishery_management, 
-                       fishing, adult_movement, plotting)
+                       fishing, adult_movement, plotting, error)
   
   # save the relative yield and biomasses for all areas, times after reserve
   # implementation, and control rules
@@ -39,10 +40,10 @@ for (i in 1:num_sims) {
   
 }
 
-filepath1 = "../../data/1e4_sims_yield.Rda"
-filepath2 = "../../data/1e4_sims_biomass.Rda"
-filepath3 = "../../data/1e4_sims_SSB.Rda"
+filepath1 = "../../data/1e4_NM_sims_yield.Rda"
+filepath2 = "../../data/1e4_NM_sims_biomass.Rda"
+filepath3 = "../../data/1e4_NM_sims_SSB.Rda"
 
-save(sims_yield, file = filepath1)
-save(sims_biomass, file = filepath2)
-save(sims_SSB, file = filepath3)
+save(NM_sims_yield_1e4, file = filepath1)
+save(NM_sims_biomass_1e4, file = filepath2)
+save(NM_sims_SSB_1e4, file = filepath3)
