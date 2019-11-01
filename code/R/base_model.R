@@ -289,14 +289,14 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
         lines(rel_biomass[a, , cr],
               col = color[cr],                  # use pre-defined color palette
               lwd = 2,                     # set line width
-              lty = rep(1:3, times = 2))                  # set line type
+              lty = (cr %% 3) + 1)                  # set line type
       }
       
       # add a legend
       legend(x = c(22, 28), y = c(y2 + 0.04, y2 - 0.45),   # position
              col = color,                           # apply viridis color palette
              lwd = 2,                # apply line thicknesses
-             lty = rep(1:3, times = 2),             # apply line patterns
+             lty = c(2, 3, 1, 2, 3, 1),             # apply line patterns
              title = 'Control Rule', # add legend title and labels
              c("B&M Low M", "B&M Correct M", "B&M High M", 
                "Transient Low M", "Transient Correct M", "Transient High M"),
@@ -344,14 +344,14 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
           lines(rel_yield[a, , cr],
                 col = color[cr],                  # use pre-defined color palette
                 lwd = 2,                     # set line width
-                lty = rep(1:3, times = 2))                  # set line type
+                lty = (cr %% 3) + 1)                  # set line type
       }
       
       # add a legend
       legend(x = c(22, 28), y = c(y2 + 0.04, y2 - 0.45),   # position
              col = color,                           # apply viridis color palette
              lwd = 2,                # apply line thicknesses
-             lty = rep(1:3, each = 2),             # apply line patterns
+             lty = c(2, 3, 1, 2, 3, 1),             # apply line patterns
              title = 'Control Rule', # add legend title and labels
              c("B&M Low M", "B&M Correct M", "B&M High M", 
                "Transient Low M", "Transient Correct M", "Transient High M"),
@@ -399,14 +399,14 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
           lines(rel_SSB[a, , cr],
                 col = color[cr],                  # use pre-defined color palette
                 lwd = 2,                     # set line width
-                lty = rep(1:3, times = 2))                  # set line type
+                lty = (cr %% 3) + 1)                  # set line type
       }
       
       # add a legend
       legend(x = c(22, 28), y = c(y2 + 0.04, y2 - 0.45),   # position
              col = color,                           # apply viridis color palette
              lwd = 2,                # apply line thicknesses
-             lty = rep(1:3, times = 2),             # apply line patterns
+             lty = c(2, 3, 1, 2, 3, 1),             # apply line patterns
              title = 'Control Rule', # add legend title and labels
              c("B&M Low M", "B&M Correct M", "B&M High M", 
                "Transient Low M", "Transient Correct M", "Transient High M"),
