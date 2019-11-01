@@ -22,7 +22,7 @@ plotting <- T
 error <- 0.05
 
 # set numbers of simulations
-num_sims <- 10
+num_sims <- 20
 
 # initialize yield and biomass arrays
 sims_yield <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
@@ -52,5 +52,4 @@ save(sims_yield, file = filepath1)
 save(sims_biomass, file = filepath2)
 save(sims_SSB, file = filepath3)
 
-plot_stuff(filepath1, filepath2, filepath3, A, time2, CR, num_sims, 
-           sample_size = num_sims, PD = 0.25)
+plot_stuff(filepath1, filepath2, filepath3, A, time2, CR, num_sims, sample_size = num_sims, PD = 0.25)
