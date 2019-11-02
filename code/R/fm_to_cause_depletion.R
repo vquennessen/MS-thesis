@@ -10,28 +10,26 @@ R0 <- 1e+5
 stochasticity <- T
 
 # source required functions
-source("./code/R/parameters.R")
-source("./code/R/length_at_age.R")
-source("./code/R/weight_at_age.R")
-source("./code/R/fraction_mature_at_age.R")
-source("./code/R/old_selectivity_at_age.R")
-source("./code/R/fishing_mortality.R")
-source("./code/R/epsilon.R")
-source("./code/R/spawning_stock_biomass.R")
-source("./code/R/recruitment.R")
-source("./code/R/pop_dynamics.R")
-source("./code/R/initialize_arrays.R")
-source("./code/R/sampling.R")
-source("./code/R/density_ratio.R")
-source("./code/R/management.R")
-source("./code/R/control_rule.R")
-source("./code/R/Leslie_SAD.R")
-source("./code/R/catch_at_age.R")
-source("./code/R/effort_allocation.R")
-source("./code/R/initial_size.R")
-source("./code/R/vulnerability_to_gear.R")
-source("./code/R/equilibrium_SAD.R")
-source("./code/R/movement.R")
+source("./parameters.R")
+source("./length_at_age.R")
+source("./weight_at_age.R")
+source("./fraction_mature_at_age.R")
+source("./fishing_mortality.R")
+source("./epsilon.R")
+source("./selectivity_at_age.R")
+source("./spawning_stock_biomass.R")
+source("./recruitment.R")
+source("./pop_dynamics.R")
+source("./initialize_arrays.R")
+source("./sampling.R")
+source("./density_ratio.R")
+source("./management.R")
+source("./control_rule.R")
+source("./Leslie_SAD.R")
+source("./catch_at_age.R")
+source("./effort_allocation.R")
+source("./equilibrium_SAD.R")
+source("./movement.R")
 
 # load species parameters
 par <- parameters(species)
@@ -40,45 +38,34 @@ max_age                <- par[[1]]        # maximum age
 M                      <- par[[2]]        # natural mortality
 rec_age                <- par[[3]]        # age at recruitment
 af  <- par[[4]];   bf  <- par[[5]]        # weight at length parameters (f)
-am  <- par[[6]];   bm  <- par[[7]]        # weight at length parameters (m)
-a1f <- par[[8]];  L1f  <- par[[9]]        # growth parameters (f)
-a2f <- par[[10]]; L2f  <- par[[11]] 
-Kf  <- par[[12]]  
-a1m <- par[[13]]; L1m  <- par[[14]]       # growth parameters (m)
-a2m <- par[[15]]; L2m  <- par[[16]]  
-Km                     <- par[[17]]  
-L50                    <- par[[18]]       # length at 50% maturity
-k_mat                  <- par[[19]]       # slope of maturity curve
-ldp                    <- par[[20]]       # larval drift proportion
-h                      <- par[[21]]       # steepness
-phi                    <- par[[22]]       # unfished recruits per spawner
-sigma_R                <- par[[23]]       # recruitment standard deviation
-rho_R                  <- par[[24]]       # recruitment autocorrelation
-AMP                    <- par[[25]]       # adult movement proportion
-D                      <- par[[26]]       # depletion
-r                      <- par[[28]]       # proportion of positive transects 
+a1f <- par[[6]];  L1f  <- par[[7]]        # growth parameters (f)
+a2f <- par[[8]];  L2f  <- par[[9]] 
+Kf  <- par[[10]]  
+L50                    <- par[[11]]       # length at 50% maturity
+k_mat                  <- par[[12]]       # slope of maturity curve
+ldp                    <- par[[13]]       # larval drift proportion
+h                      <- par[[14]]       # steepness
+phi                    <- par[[15]]       # unfished recruits per spawner
+sigma_R                <- par[[16]]       # recruitment standard deviation
+rho_R                  <- par[[17]]       # recruitment autocorrelation
+AMP                    <- par[[18]]       # adult movement proportion
+D                      <- par[[19]]       # depletion
+Fb                     <- par[[20]]       # fishing mortality to cause D
+r                      <- par[[21]]       # proportion of positive transects 
 #       in PISCO monitoring data
-x                      <- par[[29]]       # mean of positive transects
-sp                     <- par[[30]]       # std of positive transects
-c                      <- par[[31]]       # eggs produced per g, intercept
-b                      <- par[[32]]       # eggs produced per g, slope
+x                      <- par[[22]]       # mean of positive transects
+sp                     <- par[[23]]       # std of positive transects
+c                      <- par[[24]]       # eggs produced per g, intercept
+b                      <- par[[25]]       # eggs produced per g, slope
 
 ####### selectivity parameters #######
-fleets                 <- par[[33]]       # fishery fleet names
-alpha                  <- par[[34]]       # slope for upcurve
-beta                   <- par[[35]]       # slope for downcurve
-start                  <- par[[36]]       # length at initial vulnerability
-F_fin                  <- par[[37]]       # F_fin for fishery, 0 if asymptotic
-L50_up                 <- par[[38]]       # L50 for upcurve
-L50_down               <- par[[39]]       # L50 for downcurve
-cf                     <- par[[40]]       # fraction of fishery caught / fleet
-switch                 <- par[[41]]       # length where selectivity switches 
-#       from upcurve to 1
-full                   <- par[[42]]       # length at which downcurve starts
-catch_form             <- par[[43]]       # discrete or continuous catch
-season                 <- par[[44]]       # if catch_formulation = discrete, 
-#       time at which fishing occurs:
-#       0 at start, 1 at end of year
+fleets                 <- par[[26]]       # fishery fleet names
+alpha                  <- par[[27]]       # slope for upcurve
+beta                   <- par[[28]]       # slope for downcurve
+F_fin                  <- par[[29]]       # F_fin for fishery, 0 if asymptotic
+L50_up                 <- par[[30]]       # L50 for upcurve
+L50_down               <- par[[31]]       # L50 for downcurve
+cf                     <- par[[32]]       # fraction of fishery caught / fleet
 
 # Calculated values
 age <- rec_age:max_age                          # applicable ages
@@ -88,8 +75,8 @@ W <- weight_at_age(L, af, bf)                   # weight at age
 Mat <- fraction_mature_at_age(n, k_mat, L, L50) # maturity at age
 m <- age[min(which(Mat > 0.5))]                 # age at 50% mature
 B0 <- R0/phi                                    # unfished spawning stock biomass
-S <- old_selectivity_at_age(L, fleets, alpha, beta, # selectivity at age
-                            start, F_fin, L50_up, L50_down, cf, switch, full)
+S <- selectivity_at_age(fleets, L, max_age, rec_age, alpha, L50_up, 
+                        L50_down, F_fin, beta, n, cf, age)
 Fb <- 0
 
 # Initialize population size and catch arrays
@@ -120,7 +107,7 @@ for (t in 2:eq_time) {
 E2 <- array(rep(1, eq_time), c(1, eq_time))
 
 # Initialize FM and depletion levels
-FM_values <- seq(from = 0, to = 1, by = 0.001)
+FM_values <- seq(from = 0, to = 1, by = 0.01)
 fn <- length(FM_values)
 dep <- rep(0, fn)
 
@@ -164,8 +151,6 @@ for (i in 1:fn) {
     # fishing
     coeff <- FM2/(M + FM2)
     catch2[ , t] <- coeff * N2[ , t] * exp(-1*(M + FM2))
-    
-    N2[, t] <- N2[, t] - catch2[, t]
     biomass2[i, t] <- sum(N2[, t] * W)
     
   }
