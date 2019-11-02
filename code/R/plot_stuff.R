@@ -51,11 +51,11 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
   color <- viridis(CR)
   
   # set plot margins to leave room for legend
-  par(mar = c(5.1, 4.1, 4.1, 8.7), xpd = T)
+  par(mar = c(5.1, 4.1, 4.1, 10.5), xpd = T)
   
   # y-axis limits
-  y1 <- 0
-  y2 <- 1.4
+  y1 <- 0.2
+  y2 <- 1.6
   y_by <- (y2 - y1)/2
   
   # x-axis limits
@@ -108,21 +108,21 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
     }
     
     # add a legend
-    legend(x = c(x2 + 1.5, x2 + 5), y = c(y2 - (y2-y1)/2, y2),   # position
+    legend(x = c(21.25, 28.75), y = c(0.95, 1.65),   # position
            col = color,                           # apply viridis color palette
            lwd = 2,                # apply line thicknesses
            lty = c(2, 3, 1, 2, 3, 1),             # apply line patterns
            title = 'CR',                         # add legend title and labels
            c("B&M Low M", "B&M Correct M", "B&M High M", 
              "Transient Low M", "Transient Correct M", "Transient High M"),           seg.len = 3.5,                        # adjust length of lines
-           cex = 0.9)                            # text size
+           cex = 0.75)                            # text size
   }
   
   ##### Plot relative biomass + range over time after reserve implementation #####
 
   # y-axis limits
-  yy1 <- 0
-  yy2 <- 4
+  yy1 <- 0.5
+  yy2 <- 3.8
   yy_by <- (yy2 - yy1)/2
 
   # x-axis limits
@@ -174,21 +174,21 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
     }
     
     # add a legend
-    legend(x = c(x2 + 1.5, x2 + 5), y = c(yy2 - (yy2-yy1)/2, yy2),  # position
+    legend(x = c(21.25, 28.75), y = c(2.35, 3.93),  # position
            col = color,                           # apply viridis color palette
            lwd = 2,                # apply line thicknesses
            lty = c(2, 3, 1, 2, 3, 1),             # apply line patterns
            title = 'CR',                         # add legend title and labels
            c("B&M Low M", "B&M Correct M", "B&M High M", 
              "Transient Low M", "Transient Correct M", "Transient High M"),           seg.len = 3.5,                        # adjust length of lines
-           cex = 0.9)                            # text size
+           cex = 0.75)                            # text size
   }
   
   ##### Plot relative SSB + range over time after reserve implementation #####
 
   # y-axis limits
-  yyy1 <- 0
-  yyy2 <- 7
+  yyy1 <- 0.5
+  yyy2 <- 6.5
   yyy_by <- (yyy2 - yyy1)/2
 
   # x-axis limits
@@ -240,14 +240,14 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
     }
     
     # add a legend
-    legend(x = c(x2 + 1.5, x2 + 5), y = c(yyy2 - (yyy2-yyy1)/2, yyy2),   # position
+    legend(x = c(21.25, 28.75), y = c(3.85, 6.7),   # position
            col = color,                           # apply viridis color palette
            lwd = 2,                # apply line thicknesses
            lty = c(2, 3, 1, 2, 3, 1),             # apply line patterns
            title = 'CR',                         # add legend title and labels
            c("B&M Low M", "B&M Correct M", "B&M High M", 
              "Transient Low M", "Transient Correct M", "Transient High M"),           seg.len = 3.5,                        # adjust length of lines
-           cex = 0.9)                            # text size
+           cex = 0.75)                            # text size
   }
 
 }
