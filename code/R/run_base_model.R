@@ -18,11 +18,11 @@ transects <- 24
 fishery_management <- T
 fishing <- T
 adult_movement <- T
-plotting <- T
+plotting <- F
 error <- 0.05
 
 # set numbers of simulations
-num_sims <- 20
+num_sims <- 100
 
 # initialize yield and biomass arrays
 sims_yield <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
@@ -44,9 +44,9 @@ for (i in 1:num_sims) {
   
 }
 
-filepath1 = "../../data/testing_sims_yield.Rda"
-filepath2 = "../../data/testing_sims_biomass.Rda"
-filepath3 = "../../data/testing_sims_SSB.Rda"
+filepath1 = "../../data/1e1_NM_sims_yield.Rda"
+filepath2 = "../../data/1e1_NM_sims_biomass.Rda"
+filepath3 = "../../data/1e1_NM_sims_SSB.Rda"
 
 save(sims_yield, file = filepath1)
 save(sims_biomass, file = filepath2)
