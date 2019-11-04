@@ -7,7 +7,7 @@ species <- 'black rockfish 2003'
 eq_time <- 150
 true_dep <- 0.488
 R0 <- 1e+5
-stochasticity <- T
+stochasticity <- F
 
 # source required functions
 source("./parameters.R")
@@ -81,30 +81,31 @@ Fb <- 0
 
 # Initialize population size and catch arrays
 # Dimensions = age * 1 * time * 1
-N2 <- catch2 <- array(rep(0, n*eq_time), c(n, eq_time))
+N2 <- catch2 <- array(rep(0, n*eq_time), c(n, eq_time, 1, 1))
 
 # Initialize biomass, SSB, and recruitment error
 # Dimensions = 1 * time * 1
-SSB2 <- Eps2 <- array(rep(0, eq_time), c(eq_time))
+SSB2 <- Eps2 <- array(rep(0, eq_time), c(1, eq_time, 1, 1))
 
 # Recruitment normal variable
 # Dimensions = area * timeT * CR
 if (stochasticity == T) {
-  nuR2 <- array(rnorm(eq_time, 0, sigma_R), c(eq_time))
+  nuR2 <- array(rnorm(eq_time, 0, sigma_R), c(1, eq_time, 1, 1))
 } else if (stochasticity == F) {
-  nuR2 <- array(rep(0, eq_time), c(eq_time))
+  nuR2 <- array(rep(0, eq_time), c(1, eq_time, 1, 1))
 }
 
 # eps[1]
-Eps2[1] <- nuR2[1]*sqrt(1 + rho_R^2)
+Eps2[1, 1, 1, 1] <- nuR2[1, 1, 1, 1]*sqrt(1 + rho_R^2)
 
 # fill in rest of epsilon vector
 for (t in 2:eq_time) {
-  Eps2[t] <- rho_R*Eps2[t-1] + nuR2[t]*sqrt(1 + rho_R^2)
+  Eps2[1, t, 1, 1] <- rho_R*Eps2[1, t-1, 1, 1] + 
+    nuR2[1, t, 1, 1]*sqrt(1 + rho_R^2)
 }
 
 # Fishing effort stays constant
-E2 <- array(rep(1, eq_time), c(1, eq_time))
+E2 <- array(rep(1, eq_time), c(1, eq_time, 1, 1))
 
 # Initialize FM and depletion levels
 FM_values <- seq(from = 0, to = 1, by = 0.01)
@@ -115,52 +116,33 @@ biomass2 <- array(rep(NA, fn*eq_time), c(fn, eq_time))
 
 # Enter FM, N, abundance, and biomasses for time = 1 to rec_age
 for (t in 1:rec_age) {
-  N2[, t] <- rep(10, n)
-  biomass2[, t] <- sum(N2[, t] * W)
-  catch2[, t] <- 0
-  SSB2[t] <- sum(N2[, t - rec_age]*W*Mat)
+  N2[, a, t, 1, 1] <- SAD
+  biomass2[a, t, 1, 1] <- sum(N2[, a, t, 1, 1] * W)
+  catch2[a, t, 1, 1] <- 0
+  SSB2[t, 1, 1] <- sum(N2[, a, t - rec_age, 1, 1]*W*Mat)
 }
 
 # Substitute in values for Fb to get depletion level
 for (i in 1:fn) { 
   
+  FM2 <- array(rep(FM_values[i], n*eq_time), c(n, 1, eq_time, 1, 1))
+  
   # Step population forward in time with set fishing level
   for (t in (rec_age + 1):eq_time) {
     
-    # set constant fishing mortality
-    FM2 <- FM_values[i]
+    PD <- pop_dynamics(a = 1, t, cr = 1, nm = 1, rec_age, max_age, n, SSB2, 
+                       N2, W, Mat, A, R0, h, B0, Eps2, sigma_R, Fb, E2, S, 
+                       NM, FM2, m, abundance_all2, abundance_mature2, 
+                       biomass2, fishing = F, nat_mortality)
     
-    # Calculate spawning stock biomass
-    SSB2[t] <- sum(N2[, t - rec_age]*W*Mat)
-    
-    ##### Step population foward in time
-    
-    # Calculate recruitment and add recruits to population
-    R1 <- (0.8 * R0 * h * SSB2[t-1]) / (0.2 * B0 * (1 - h) + (h - 0.2) * SSB2[t-1]) 
-    N2[1, t] <- R1 * (exp(Eps2[t] - sigma_R^2 / 2))
-    
-    # Ages rec_age + 1 to max_age - 1
-    for (j in 2:(n - 1)) {
-      N2[j, t] <- N2[j - 1, t - 1] * exp(-1 * (FM2 + M))
-    }
-    
-    # Final age bin
-    N2[n, t] <- N2[n - 1, t - 1] * exp(-1 * (FM2 + M)) + 
-      N2[n, t - 1] * exp(-1 * (FM2 + M)) 
-    
-    # fishing
-    coeff <- FM2/(M + FM2)
-    catch2[ , t] <- coeff * N2[ , t] * exp(-1*(M + FM2))
-    biomass2[i, t] <- sum(N2[, t] * W)
-    
+    N2[, a, t, cr, nm]                <- PD[[2]]
+    biomass2[a, t, cr, nm]            <- PD[[5]]
+
   }
-  
- # biomass3[i]<-biomass2[]
-  # plot(1:eq_time, biomass2, main = i)
   
 }
 
-dep <- 1 - (biomass2[, eq_time] / biomass2[1, eq_time])
+dep <- 1 - (biomass2[eq_time, 1, 1, 1] / biomass2[eq_time, 1, 1, 1])
 
 closest_FM <- FM_values[which.min(abs(dep - true_dep))] 
 
