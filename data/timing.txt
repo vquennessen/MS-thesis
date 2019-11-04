@@ -1,6 +1,17 @@
-sims:			time:
-10           		0    min  9.7   sec
-100			1    min  38.85 sec
-1000			18   min  13.0  sec
-10000			139  min  57.86 sec
-100000			1092 min  6.72  sec
+OG Base Model
+
+sims:		time:
+1e1           	0    min  9.7   sec
+1e2		1    min  38.85 sec
+1e3		18   min  13.0  sec
+1e4		139  min  57.86 sec
+1e5		1092 min  6.72  sec
+
+NM Base Model
+
+sims:		time:
+1e1           	4    min  31.25 sec
+1e2		45   min  30.09 sec
+1e3		370  min  36.25 sec
+1e4		
+1e5		
