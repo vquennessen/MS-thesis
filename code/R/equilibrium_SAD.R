@@ -44,7 +44,7 @@ equilibrium_SAD <- function(a, cr, nm, A, rec_age, max_age, n, W, R0,
     PD <- pop_dynamics(a = 1, t, cr = 1, nm = 1, rec_age, max_age, n, SSB2, 
                        N2, W, Mat, A, R0, h, B0, Eps2, sigma_R, Fb, E2, S, 
                        NM, FM2, m, abundance_all2, abundance_mature2, 
-                       biomass2, fishing = F, nat_mortality = M)
+                       biomass2, fishing = F, nat_mortality)
     
     FM2[, a, t, cr, nm]               <- PD[[1]]
     N2[, a, t, cr, nm]                <- PD[[2]]
