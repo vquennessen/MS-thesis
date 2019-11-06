@@ -51,11 +51,11 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
   color <- viridis(CR)
   
   # set plot margins to leave room for legend
-  par(mar = c(5.1, 4.1, 4.1, 10.5), xpd = T)
+  par(mar = c(5.1, 4.1, 4.1, 15), xpd = T)
   
   # y-axis limits
-  y1 <- 0.2
-  y2 <- 1.6
+  y1 <- 0.3
+  y2 <- 1.5
   y_by <- (y2 - y1)/2
   
   # x-axis limits
@@ -71,7 +71,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
     # plot the relative biomass
     plot(1, type = 'l',                          # make an empty line graph
          main = title,                           # title of plot
-         ylab = 'Yield (metric tons)',              # axis labels
+         ylab = 'Relative Yield',              # axis labels
          xlab = 'Years since marine reserve implementation',
          xaxt = 'n',
          yaxt = 'n',                             # get rid of y-axis
@@ -108,7 +108,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
     }
     
     # add a legend
-    legend(x = c(21.25, 28.75), y = c(0.95, 1.65),   # position
+    legend(x = c(21.25, 28.75), y = c(1.15, 1.55),   # position
            col = color,                           # apply viridis color palette
            lwd = 2,                # apply line thicknesses
            lty = c(2, 3, 1, 2, 3, 1),             # apply line patterns
@@ -121,8 +121,8 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
   ##### Plot relative biomass + range over time after reserve implementation #####
 
   # y-axis limits
-  yy1 <- 0.5
-  yy2 <- 3.8
+  yy1 <- 0.6
+  yy2 <- 3.6
   yy_by <- (yy2 - yy1)/2
 
   # x-axis limits
@@ -138,7 +138,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
     # plot the relative yield
     plot(1, type = 'l',                          # make an empty line graph
          main = title,                           # title of plot
-         ylab = 'Relative Biomass (metric tons)',                # axis labels
+         ylab = 'Relative Biomass',                # axis labels
          xlab = 'Years since marine reserve implementation',
          xaxt = 'n',
          yaxt = 'n',                             # get rid of y-axis
@@ -204,7 +204,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
     # plot the relative yield
     plot(1, type = 'l',                          # make an empty line graph
          main = title,                           # title of plot
-         ylab = 'Relative SSB (metric tons)',                # axis labels
+         ylab = 'Relative SSB',                # axis labels
          xlab = 'Years since marine reserve implementation',
          xaxt = 'n',
          yaxt = 'n',                             # get rid of y-axis
@@ -240,14 +240,14 @@ plot_stuff <- function(filepath1, filepath2, filepath3, A, time2, CR, num_sims,
     }
     
     # add a legend
-    legend(x = c(21.25, 28.75), y = c(3.85, 6.7),   # position
+    legend(x = c(21.25, 29), y = c(4, 6.7),   # position
            col = color,                           # apply viridis color palette
            lwd = 2,                # apply line thicknesses
            lty = c(2, 3, 1, 2, 3, 1),             # apply line patterns
-           title = 'CR',                         # add legend title and labels
-           c("B&M Low M", "B&M Correct M", "B&M High M", 
+           title = expression(bold('Control Rule')),                         # add legend title and labels
+           c("Static Low M", "Static Correct M", "Static High M", 
              "Transient Low M", "Transient Correct M", "Transient High M"),           seg.len = 3.5,                        # adjust length of lines
-           cex = 0.75)                            # text size
+           cex = 1)                            # text size
   }
 
 }
