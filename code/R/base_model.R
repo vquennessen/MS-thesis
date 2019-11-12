@@ -2,10 +2,9 @@
 
 base_model <- function(species, A, time1, time2, CR, allocation, R0, 
                        stochasticity, surveys, transects, fishery_management, 
-                       fishing, adult_movement, plotting, error) {
-  
-  # load necessary librarys
-  if (plotting == T) {library(viridis)}
+                       fishing, adult_movement, plotting, error, final_DR, 
+                       years_sampled, fish_sampled, areas_sampled, floor_DR, 
+                       effort_inc_allowed) {
   
   ##### Source functions #######################################################
   
@@ -197,8 +196,9 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
         
         # management
         if (fishery_management == T) {
-          E <- control_rule(t, cr, nm, A, E, Count, time1, time2, transects,
-                            nat_mortality)
+          E <- control_rule(t, cr, nm, A, E, Count, time1, time2, transects, 
+                            nat_mortality, final_DR, years_sampled, fish_sampled,
+                            areas_sampled, floor_DR, effort_inc_allowed)
         }
         
       }
@@ -239,17 +239,21 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   
   if (plotting == T) {
     
-##### Plot relative biomass over time after reserve implementation #############
+    # use red-blue color palette
+    palette <- colorRampPalette(c('red', 'blue'))
+    color <- palette(CR)
     
-    # use colorblind color palette, viridis
-    color <- viridis(CR)
+    # set line types - solid for correct M, dashed for high M, dotted for low M
+    line_type <- c(2, 1, 3, 2, 1, 3)
     
     # set plot margins to leave room for legend
-    par(mar = c(5.1, 4.1, 4.1, 8.7), xpd = T)
+    par(mar = c(5.1, 5.1, 4.1, 13.1), xpd = T) 
+    
+##### Plot relative biomass over time after reserve implementation #############
     
     # y-axis limits
     y1 <- 0
-    y2 <- 2
+    y2 <- 4
     y_by <- (y2 - y1)/2
     
     # x-axis limits
@@ -292,23 +296,25 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
               lty = (cr %% 3) + 1)                  # set line type
       }
       
+      # add a gray dotted line at y = 1
+      lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3)
+      
       # add a legend
-      legend(x = c(22, 28), y = c(y2 + 0.04, y2 - 0.45),   # position
-             col = color,                           # apply viridis color palette
+      legend(x = c(21.25, 29), y = c(y2/2, y2),  # position
+             col = color,                           # apply color palette
              lwd = 2,                # apply line thicknesses
-             lty = c(2, 3, 1, 2, 3, 1),             # apply line patterns
-             title = 'Control Rule', # add legend title and labels
-             c("B&M Low M", "B&M Correct M", "B&M High M", 
-               "Transient Low M", "Transient Correct M", "Transient High M"),
-             seg.len = 3,                        # adjust length of lines
-             cex = 0.9)                            # text size
+             lty = line_type,             # apply line patterns
+             title = expression(bold('Control Rule')),                         # add legend title and labels
+             c("Static Low M", "Static Correct M", "Static High M", 
+               "Transient Low M", "Transient Correct M", "Transient High M"),           seg.len = 3.5,                        # adjust length of lines
+             cex = 1)                            # text size
     }
     
 ##### Plot relative yield over time after reserve implementation ###########
   
     # y-axis limits
     yy1 <- 0
-    yy2 <- 2 
+    yy2 <- 3
     yy_by <- (yy2 - yy1)/2
     
     for (a in 1:A) {
@@ -348,23 +354,22 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
       }
       
       # add a legend
-      legend(x = c(22, 28), y = c(y2 + 0.04, y2 - 0.45),   # position
-             col = color,                           # apply viridis color palette
+      legend(x = c(21.25, 29), y = c(yy2/2, yy2),  # position
+             col = color,                           # apply color palette
              lwd = 2,                # apply line thicknesses
-             lty = c(2, 3, 1, 2, 3, 1),             # apply line patterns
-             title = 'Control Rule', # add legend title and labels
-             c("B&M Low M", "B&M Correct M", "B&M High M", 
-               "Transient Low M", "Transient Correct M", "Transient High M"),
-             seg.len = 3,                        # adjust length of lines
-             cex = 0.9)                            # text size
+             lty = line_type,             # apply line patterns
+             title = expression(bold('Control Rule')),                         # add legend title and labels
+             c("Static Low M", "Static Correct M", "Static High M", 
+               "Transient Low M", "Transient Correct M", "Transient High M"),           seg.len = 3.5,                        # adjust length of lines
+             cex = 1)                            # text size
     }
     
 ###### Plot relative SSB over time after reserve implementation ##############
     
     # y-axis limits
-    yy1 <- 0
-    yy2 <- 2 
-    yy_by <- (yy2 - yy1)/2
+    yyy1 <- 0
+    yyy2 <- 2 
+    yyy_by <- (yyy2 - yyy1)/2
     
     for (a in 1:A) {
       title <- sprintf("Relative SSB per Control Rule: Area %i", a)
@@ -377,14 +382,14 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            xaxt = 'n', 
            yaxt = 'n',                             # get rid of y-axis
            xlim = c(x1, x2),                     # set x-axis limits
-           ylim = c(yy1, yy2)
+           ylim = c(yyy1, yyy2)
       )
       
       
       # set specific y-axis
-      yytick <- seq(yy1, yy2, by = yy_by)          # set yaxis tick marks
+      yyytick <- seq(yyy1, yyy2, by = yyy_by)          # set yaxis tick marks
       axis(side = 2,                               # specify y axis
-           at = yytick,                            # apply tick marks
+           at = yyytick,                            # apply tick marks
            labels = T,                             # apply appropriate labels
            las = 1)                                # set text horizontal
       
@@ -403,15 +408,14 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
       }
       
       # add a legend
-      legend(x = c(22, 28), y = c(y2 + 0.04, y2 - 0.45),   # position
-             col = color,                           # apply viridis color palette
+      legend(x = c(21.25, 29), y = c(yyy2/2, yyy2),  # position
+             col = color,                           # apply color palette
              lwd = 2,                # apply line thicknesses
-             lty = c(2, 3, 1, 2, 3, 1),             # apply line patterns
-             title = 'Control Rule', # add legend title and labels
-             c("B&M Low M", "B&M Correct M", "B&M High M", 
-               "Transient Low M", "Transient Correct M", "Transient High M"),
-             seg.len = 3,                        # adjust length of lines
-             cex = 0.9)                            # text size
+             lty = line_type,             # apply line patterns
+             title = expression(bold('Control Rule')),                         # add legend title and labels
+             c("Static Low M", "Static Correct M", "Static High M", 
+               "Transient Low M", "Transient Correct M", "Transient High M"),           seg.len = 3.5,                        # adjust length of lines
+             cex = 1)                          # text size
     }
     
   }
