@@ -1,6 +1,6 @@
 rm(list = ls())
 
-# setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")
+setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")
 
 source('./base_model.R')
 source('./plot_stuff.R')

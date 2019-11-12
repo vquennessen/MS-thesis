@@ -2,9 +2,7 @@
 
 base_model <- function(species, A, time1, time2, CR, allocation, R0, 
                        stochasticity, surveys, transects, fishery_management, 
-                       fishing, adult_movement, plotting, error, final_DR, 
-                       years_sampled, fish_sampled, areas_sampled, floor_DR, 
-                       effort_inc_allowed) {
+                       fishing, adult_movement, plotting, error) {
   
   ##### Source functions #######################################################
   
@@ -197,8 +195,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
         # management
         if (fishery_management == T) {
           E <- control_rule(t, cr, nm, A, E, Count, time1, time2, transects, 
-                            nat_mortality, final_DR, years_sampled, fish_sampled,
-                            areas_sampled, floor_DR, effort_inc_allowed)
+                            nat_mortality)
         }
         
       }
