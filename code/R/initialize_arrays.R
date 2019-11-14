@@ -156,10 +156,14 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   # Dimensions = area * time2 * CR
   rel_SSB <- array(rep(0, A*time2*CR), c(A, time2, CR))
   
+  # initialize density ratio matrix
+  # Dimensions = time2 * CR
+  Density_Ratios <- array(rep(0, time2*CR), c(time2, CR))
+  
   output <- list(timeT, E, n, L, W, Mat, m, S, FM, N, SSB, 
                  abundance_all, abundance_mature, biomass, Count, nuS, 
                  Eps, catch, yield, B0, Delta, Gamma, rel_biomass, rel_yield,
-                 rel_SSB, nat_mortality, NM)
+                 rel_SSB, nat_mortality, NM, Density_Ratios)
   
   return(output)
   
