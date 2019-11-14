@@ -47,10 +47,10 @@ for (i in 1:num_sims) {
   
 }
 
-filepath1 = "../../data/1e1_NM_sims_yield.Rda"
-filepath2 = "../../data/1e1_NM_sims_biomass.Rda"
-filepath3 = "../../data/1e1_NM_sims_SSB.Rda"
-filepath4 = "../../data/1e1_NM_sims_DR.Rda"
+filepath1 = "../../data/1e2_NM_sims_yield.Rda"
+filepath2 = "../../data/1e2_NM_sims_biomass.Rda"
+filepath3 = "../../data/1e2_NM_sims_SSB.Rda"
+filepath4 = "../../data/1e2_NM_sims_DR.Rda"
 
 save(sims_yield, file = filepath1)
 save(sims_biomass, file = filepath2)
