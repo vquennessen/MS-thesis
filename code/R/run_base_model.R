@@ -20,14 +20,16 @@ fishing <- T
 adult_movement <- T
 plotting <- F
 error <- 0.05
+plot_individual_runs <- F
 
 # set numbers of simulations
-num_sims <- 100
+num_sims <- 1e2
 
 # initialize yield and biomass arrays
 sims_yield <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
 sims_biomass <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
 sims_SSB <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
+sims_DR <- array(rep(0, time2*CR*num_sims), c(time2, CR, num_sims))
 
 # run the model for each simulation
 for (i in 1:num_sims) {
@@ -41,15 +43,19 @@ for (i in 1:num_sims) {
   sims_yield[, , , i] <- output[[1]]
   sims_biomass[, , , i] <- output[[2]]
   sims_SSB[, , , i] <- output[[3]]
+  sims_DR[, , i] <- output[[4]]
   
 }
 
 filepath1 = "../../data/1e1_NM_sims_yield.Rda"
 filepath2 = "../../data/1e1_NM_sims_biomass.Rda"
 filepath3 = "../../data/1e1_NM_sims_SSB.Rda"
+filepath4 = "../../data/1e1_NM_sims_DR.Rda"
 
 save(sims_yield, file = filepath1)
 save(sims_biomass, file = filepath2)
 save(sims_SSB, file = filepath3)
+save(sims_DR, file = filepath4)
 
-plot_stuff(filepath1, filepath2, filepath3, A, time2, CR, num_sims, sample_size = num_sims, PD = 0.25)
+plot_stuff(filepath1, filepath2, filepath3, filepath4, A, time2, CR, num_sims, 
+           sample_size = num_sims, PD = 0.25, plot_individual_runs)
