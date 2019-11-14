@@ -24,6 +24,7 @@ num_sims <- 1e4
 sims_yield <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
 sims_biomass <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
 sims_SSB <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
+sims_DR <- array(rep(0, time2*CR*num_sims), c(time2, CR, num_sims))
 
 # run the model for each simulation
 for (i in 1:num_sims) {
@@ -37,13 +38,16 @@ for (i in 1:num_sims) {
   sims_yield[, , , i] <- output[[1]]
   sims_biomass[, , , i] <- output[[2]]
   sims_SSB[, , , i] <- output[[3]]
+  sims_DR[, , i] <- output[[4]]
   
 }
 
 filepath1 = "../../data/1e4_NM_sims_yield.Rda"
 filepath2 = "../../data/1e4_NM_sims_biomass.Rda"
 filepath3 = "../../data/1e4_NM_sims_SSB.Rda"
+filepath4 = "../../data/1e4_NM_sims_DR.Rda"
 
-save(NM_sims_yield_1e4, file = filepath1)
-save(NM_sims_biomass_1e4, file = filepath2)
-save(NM_sims_SSB_1e4, file = filepath3)
+save(sims_yield, file = filepath1)
+save(sims_biomass, file = filepath2)
+save(sims_SSB, file = filepath3)
+save(sims_DR, file = filepath4)
