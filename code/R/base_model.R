@@ -101,6 +101,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   rel_SSB          <- IA[[25]]    # Relative SSB after reserve implementation
   nat_mortality    <- IA[[26]]    # Range of potential natural mortality values
   NM               <- IA[[27]]    # Number of potential natural mortality values
+  Density_Ratios   <- IA[[28]]    # Density ratios
   
   ##### Population Dynamics - Time Varying #####################################
   
@@ -194,8 +195,11 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
         
         # management
         if (fishery_management == T) {
-          E <- control_rule(t, cr, nm, A, E, Count, time1, time2, transects, 
-                            nat_mortality)
+          output <- control_rule(t, cr, nm, A, E, Count, time1, time2, transects, 
+                            nat_mortality, Density_Ratios)
+          E <- output[[1]]
+          Density_Ratios <- output[[2]]
+          
         }
         
       }
@@ -235,7 +239,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   }
   
   if (plotting == T) {
-    
+  
     # use red-blue color palette
     palette <- colorRampPalette(c('red', 'blue'))
     color <- palette(CR)
@@ -243,10 +247,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     # set line types - solid for correct M, dashed for high M, dotted for low M
     line_type <- c(2, 1, 3, 2, 1, 3)
     
-    # set plot margins to leave room for legend
-    par(mar = c(5.1, 5.1, 4.1, 13.1), xpd = T) 
-    
-##### Plot relative biomass over time after reserve implementation #############
+    ##### Plot relative biomass over time after reserve implementation #############
     
     # y-axis limits
     y1 <- 0
@@ -256,112 +257,189 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     # x-axis limits
     x1 <- 0
     x2 <- time2
-    x_by <- x2/2
+    x_by <- x2/4
+    
+    y1_dr <- 0
+    y2_dr <- 10
+    by_dr <- y2_dr/2
     
     for (a in 1:A) {
+
+      # set plotting layout
+      m <- matrix(c(1, 2, 3), nrow = 3, ncol = 1, byrow = T)
+      layout(mat = m,
+             widths = c(2),                      # Widths of the 3 columns
+             heights = c(4, 2, 1))               # Heights of the 2 rows
+
       title <- sprintf("Relative Biomass per Control Rule: Area %i", a)
-      
+
       # plot the relative biomass
-      plot(1, type = 'l',                          # make an empty line graph
-           main = title,                           # title of plot
-           ylab = 'Relative Biomass',              # axis labels
-           xlab = 'Years since marine reserve implementation',
+      par(mar = c(0.1, 4.5, 3.1, 0.1))
+      plot(1, type = 'l',                        # make an empty line graph
+           main = title,                         # title of plot
+           ylab = 'Relative Biomass',            # axis labels
            xaxt = 'n',
-           yaxt = 'n',                             # get rid of y-axis
-           xlim = c(x1, x2),                       # set x-axis limits
-           ylim = c(y1, y2)
-      )
-      
+           yaxt = 'n',                           # get rid of y-axis
+           xlim = c(x1, x2),                     # set x-axis limits
+           ylim = c(y1, y2), 
+           cex.lab = 1.5, cex.main = 1.5)
+
       # set specific y-axis
-      ytick <- seq(y1, y2, by = y_by)              # set y axis tick marks
-      axis(side = 2,                               # specify y axis
-           at = ytick,                             # apply tick marks
-           labels = T,                             # apply appropriate labels
-           las = 1)                                # set text horizontal
-      
-      # set specific x-axis
-      xtick <- seq(x1, x2, by = x_by)              # set x axis tick marks
-      axis(side = 1,                               # specify x axis
-           at = xtick,                             # apply tick marks
-           labels = T,                             # apply appropriate labels
-           las = 1)                                # set text horizontal    
-      
+      ytick <- seq(y1, y2, by = y_by)            # set y axis tick marks
+      axis(side = 2,                             # specify y axis
+           at = ytick,                           # apply tick marks
+           labels = T,                           # apply appropriate labels
+           las = 1)                              # set text horizontal
+
       for (cr in 1:CR) {
         lines(rel_biomass[a, , cr],
-              col = color[cr],                  # use pre-defined color palette
-              lwd = 2,                     # set line width
-              lty = (cr %% 3) + 1)                  # set line type
+              col = color[cr],                   # use pre-defined color palette
+              lwd = 2,                           # set line width
+              lty = (cr %% 3) + 1)               # set line type
       }
-      
+
       # add a gray dotted line at y = 1
       lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3)
+
+      # plot the density ratios over time
+      par(mar = c(4.1, 4.5, 3.1, 0.1))
+      plot(1, type = 'l',                        # make an empty line graph
+           main = 'Density Ratios Over Time',    # title of plot
+           ylab = 'Density Ratio',               # axis labels
+           xlab = 'Years since marine reserve implementation',
+           xaxt = 'n',
+           yaxt = 'n',                           # get rid of y-axis
+           xlim = c(0, time2),                   # set x-axis limits
+           ylim = c(0, y2_dr), 
+           cex.lab = 1.5, cex.main = 1.5)
+
+      # set specific y-axis
+      dr_ytick <- seq(y1_dr, y2_dr, by_dr)              # set y axis tick marks
+      axis(side = 2,                             # specify y axis
+           at = dr_ytick,                        # apply tick marks
+           labels = T,                           # apply appropriate labels
+           las = 1)                              # set text horizontal
+
+      # set specific x-axis
+      xtick <- seq(x1, x2, by = x_by)            # set x axis tick marks
+      axis(side = 1,                             # specify x axis
+           at = xtick,                           # apply tick marks
+           labels = T,                           # apply appropriate labels
+           las = 1)                              # set text horizontal
+      
+      for (cr in 1:CR) {
+        lines(Density_Ratios[, cr],
+              col = color[cr],                   # use pre-defined color palette
+              lwd = 2,                           # set line width
+              lty = (cr %% 3) + 1)}              # set line type
       
       # add a legend
-      legend(x = c(21.25, 29), y = c(y2/2, y2),  # position
-             col = color,                           # apply color palette
-             lwd = 2,                # apply line thicknesses
-             lty = line_type,             # apply line patterns
-             title = expression(bold('Control Rule')),                         # add legend title and labels
-             c("Static Low M", "Static Correct M", "Static High M", 
-               "Transient Low M", "Transient Correct M", "Transient High M"),           seg.len = 3.5,                        # adjust length of lines
-             cex = 1)                            # text size
+      par(mar = c(0.1, 0.1, 0.1, 0.1))
+      plot(1, type = 'n', axes = F, xlab = '', ylab = '')
+      legend(x = 'top', inset = 0, horiz = T,    # position
+             col = color,                              # apply color palette
+             lwd = 2,                                  # apply line thicknesses
+             lty = line_type,                          # apply line patterns
+             title = expression(bold('Control Rule')), # add legend title, labels
+             c("Static \n Low M", "Static \n Correct M", "Static \n High M",
+               "Transient \n Low M", "Transient \n Correct M", "Transient \n High M"),           
+             seg.len = 3,                        # adjust length of lines
+             cex = 1.1, 
+             bty = 'n') 
+      
     }
-    
-##### Plot relative yield over time after reserve implementation ###########
-  
+
+    ##### Plot relative yield over time after reserve implementation ###########
+
     # y-axis limits
     yy1 <- 0
     yy2 <- 3
     yy_by <- (yy2 - yy1)/2
-    
+
     for (a in 1:A) {
+
+      # set plotting layout
+      m <- matrix(c(1, 2, 3), nrow = 3, ncol = 1, byrow = T)
+      layout(mat = m,
+             widths = c(2),                      # Widths of the 3 columns
+             heights = c(4, 2, 1))               # Heights of the 2 rows
+      
       title <- sprintf("Relative Yield per Control Rule: Area %i", a)
-      
+
       # plot the relative yield
-      plot(1, type = 'l',                          # make an empty line graph
-           main = title,                           # title of plot
-           ylab = 'Relative Yield',                # axis labels
-           xlab = 'Years since marine reserve implementation',
-           xaxt = 'n', 
-           yaxt = 'n',                             # get rid of y-axis
+      par(mar = c(0.1, 4.5, 3.1, 0.1))
+      plot(1, type = 'l',                        # make an empty line graph
+           main = title,                         # title of plot
+           ylab = 'Relative Yield',              # axis labels
+           xaxt = 'n',
+           yaxt = 'n',                           # get rid of y-axis
            xlim = c(x1, x2),                     # set x-axis limits
-           ylim = c(yy1, yy2)
-      )
-      
-      
+           ylim = c(yy1, yy2), 
+           cex.lab = 1.5, cex.main = 1.5)
+
       # set specific y-axis
-      yytick <- seq(yy1, yy2, by = yy_by)          # set yaxis tick marks
-      axis(side = 2,                               # specify y axis
-           at = yytick,                            # apply tick marks
-           labels = T,                             # apply appropriate labels
-           las = 1)                                # set text horizontal
-      
+      yytick <- seq(yy1, yy2, by = yy_by)        # set yaxis tick marks
+      axis(side = 2,                             # specify y axis
+           at = yytick,                          # apply tick marks
+           labels = T,                           # apply appropriate labels
+           las = 1)                              # set text horizontal
+
+      for (cr in 1:CR) {
+        lines(rel_yield[a, , cr],
+              col = color[cr],                   # use pre-defined color palette
+              lwd = 2,                           # set line width
+              lty = (cr %% 3) + 1)               # set line type
+      }
+
+      # plot the density ratio over time
+      par(mar = c(4.1, 4.5, 3.1, 0.1))
+      plot(1, type = 'l',                        # make an empty line graph
+           main = 'Density Ratios Over Time',    # title of plot
+           ylab = 'Density Ratio',               # axis labels
+           xlab = 'Years since marine reserve implementation',
+           xaxt = 'n',
+           yaxt = 'n',                           # get rid of y-axis
+           xlim = c(0, time2),                   # set x-axis limits
+           ylim = c(0, y2_dr), 
+           cex.lab = 1.5, cex.main = 1.5)
+
+      # set specific y-axis
+      dr_ytick <- seq(y1_dr, y2_dr, by_dr)              # set y axis tick marks
+      axis(side = 2,                             # specify y axis
+           at = dr_ytick,                        # apply tick marks
+           labels = T,                           # apply appropriate labels
+           las = 1)                              # set text horizontal
+
       # set specific x-axis
-      xtick <- seq(x1, x2, by = x_by)          # set x axis tick marks
-      axis(side = 1,                               # specify x axis
-           at = xtick,                            # apply tick marks
-           labels = T,                             # apply appropriate labels
-           las = 1)                                # set text horizontal    
+      xtick <- seq(x1, x2, by = x_by)            # set x axis tick marks
+      axis(side = 1,                             # specify x axis
+           at = xtick,                           # apply tick marks
+           labels = T,                           # apply appropriate labels
+           las = 1)                              # set text horizontal
       
       for (cr in 1:CR) {
-          lines(rel_yield[a, , cr],
-                col = color[cr],                  # use pre-defined color palette
-                lwd = 2,                     # set line width
-                lty = (cr %% 3) + 1)                  # set line type
-      }
+        lines(Density_Ratios[, cr],
+              col = color[cr],                   # use pre-defined color palette
+              lwd = 2,                           # set line width
+              lty = (cr %% 3) + 1)}              # set line type
       
       # add a legend
-      legend(x = c(21.25, 29), y = c(yy2/2, yy2),  # position
-             col = color,                           # apply color palette
-             lwd = 2,                # apply line thicknesses
-             lty = line_type,             # apply line patterns
-             title = expression(bold('Control Rule')),                         # add legend title and labels
-             c("Static Low M", "Static Correct M", "Static High M", 
-               "Transient Low M", "Transient Correct M", "Transient High M"),           seg.len = 3.5,                        # adjust length of lines
-             cex = 1)                            # text size
+      par(mar = c(0.1, 0.1, 0.1, 0.1))
+      plot(1, type = 'n', axes = F, xlab = '', ylab = '')
+      legend(x = 'top', inset = 0, horiz = T,    # position
+             col = color,                              # apply color palette
+             lwd = 2,                                  # apply line thicknesses
+             lty = line_type,                          # apply line patterns
+             title = expression(bold('Control Rule')), # add legend title, labels
+             c("Static \n Low M", "Static \n Correct M", "Static \n High M",
+               "Transient \n Low M", "Transient \n Correct M", "Transient \n High M"),           
+             seg.len = 3,                        # adjust length of lines
+             cex = 1.1, 
+             bty = 'n') 
+      
     }
-    
-###### Plot relative SSB over time after reserve implementation ##############
+
+    ###### Plot relative SSB over time after reserve implementation ##############
     
     # y-axis limits
     yyy1 <- 0
@@ -369,55 +447,93 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     yyy_by <- (yyy2 - yyy1)/2
     
     for (a in 1:A) {
+      
+      # set plotting layout
+      m <- matrix(c(1, 2, 3), nrow = 3, ncol = 1, byrow = T)
+      layout(mat = m,
+             widths = c(2),                      # Widths of the 3 columns
+             heights = c(4, 2, 1))               # Heights of the 2 rows
+      
       title <- sprintf("Relative SSB per Control Rule: Area %i", a)
       
-      # plot the relative yield
-      plot(1, type = 'l',                          # make an empty line graph
-           main = title,                           # title of plot
+      # plot the relative SSB
+      par(mar = c(0.1, 4.5, 3.1, 0.1))
+      plot(1, type = 'l',                        # make an empty line graph
+           main = title,                         # title of plot
            ylab = 'Relative SSB',                # axis labels
-           xlab = 'Years since marine reserve implementation',
            xaxt = 'n', 
-           yaxt = 'n',                             # get rid of y-axis
+           yaxt = 'n',                           # get rid of y-axis
            xlim = c(x1, x2),                     # set x-axis limits
-           ylim = c(yyy1, yyy2)
-      )
-      
+           ylim = c(yyy1, yyy2), 
+           cex.lab = 1.5, cex.main = 1.5)
       
       # set specific y-axis
-      yyytick <- seq(yyy1, yyy2, by = yyy_by)          # set yaxis tick marks
-      axis(side = 2,                               # specify y axis
-           at = yyytick,                            # apply tick marks
-           labels = T,                             # apply appropriate labels
-           las = 1)                                # set text horizontal
-      
-      # set specific x-axis
-      xtick <- seq(x1, x2, by = x_by)          # set x axis tick marks
-      axis(side = 1,                               # specify x axis
-           at = xtick,                            # apply tick marks
-           labels = T,                             # apply appropriate labels
-           las = 1)                                # set text horizontal    
+      yyytick <- seq(yyy1, yyy2, by = yyy_by)    # set yaxis tick marks
+      axis(side = 2,                             # specify y axis
+           at = yyytick,                         # apply tick marks
+           labels = T,                           # apply appropriate labels
+           las = 1)                              # set text horizontal
       
       for (cr in 1:CR) {
-          lines(rel_SSB[a, , cr],
-                col = color[cr],                  # use pre-defined color palette
-                lwd = 2,                     # set line width
-                lty = (cr %% 3) + 1)                  # set line type
+        lines(rel_SSB[a, , cr],
+              col = color[cr],                   # use pre-defined color palette
+              lwd = 2,                           # set line width
+              lty = (cr %% 3) + 1)               # set line type
       }
       
+      # plot the density ratio over time
+      par(mar = c(4.1, 4.5, 3.1, 0.1))
+      plot(1, type = 'l',                        # make an empty line graph
+           main = 'Density Ratios Over Time',    # title of plot
+           ylab = 'Density Ratio',               # axis labels
+           xlab = 'Years since marine reserve implementation',
+           xaxt = 'n',
+           yaxt = 'n',                           # get rid of y-axis
+           xlim = c(0, time2),                   # set x-axis limits
+           ylim = c(0, y2_dr),
+           cex.lab = 1.5, cex.main = 1.5
+      )
+      
+      # set specific y-axis
+      dr_ytick <- seq(y1_dr, y2_dr, by_dr)       # set y axis tick marks
+      axis(side = 2,                             # specify y axis
+           at = dr_ytick,                        # apply tick marks
+           labels = T,                           # apply appropriate labels
+           las = 1)                              # set text horizontal
+      
+      # set specific x-axis
+      dr_xtick <- seq(0, time2, by = time2/4)    # set x axis tick marks
+      axis(side = 1,                             # specify x axis
+           at = dr_xtick,                        # apply tick marks
+           labels = T,                           # apply appropriate labels
+           las = 1)                              # set text horizontal    
+      
+      for (cr in 1:CR) {
+        lines(Density_Ratios[, cr],
+              col = color[cr],                   # use pre-defined color palette
+              lwd = 2,                           # set line width
+              lty = (cr %% 3) + 1)}              # set line type
+      
+      
       # add a legend
-      legend(x = c(21.25, 29), y = c(yyy2/2, yyy2),  # position
-             col = color,                           # apply color palette
-             lwd = 2,                # apply line thicknesses
-             lty = line_type,             # apply line patterns
-             title = expression(bold('Control Rule')),                         # add legend title and labels
-             c("Static Low M", "Static Correct M", "Static High M", 
-               "Transient Low M", "Transient Correct M", "Transient High M"),           seg.len = 3.5,                        # adjust length of lines
-             cex = 1)                          # text size
-    }
+      par(mar = c(0.1, 0.1, 0.1, 0.1))
+      plot(1, type = 'n', axes = F, xlab = '', ylab = '')
+      legend(x = 'top', inset = 0, horiz = T,    # position
+             col = color,                              # apply color palette
+             lwd = 2,                                  # apply line thicknesses
+             lty = line_type,                          # apply line patterns
+             title = expression(bold('Control Rule')), # add legend title, labels
+             c("Static \n Low M", "Static \n Correct M", "Static \n High M",
+               "Transient \n Low M", "Transient \n Correct M", "Transient \n High M"),           
+             seg.len = 3,                        # adjust length of lines
+             cex = 1.1, 
+             bty = 'n') 
+      
+      }
     
   }
   
-  output <- list(rel_yield, rel_biomass, rel_SSB)
+  output <- list(rel_yield, rel_biomass, rel_SSB, Density_Ratios)
   
   return(output)
   
