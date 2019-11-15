@@ -83,7 +83,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
     m <- matrix(c(1, 2, 3), nrow = 3, ncol = 1, byrow = T)
     layout(mat = m,
            widths = c(2),                      # Widths of the 3 columns
-           heights = c(4, 2, 1))               # Heights of the 2 rows
+           heights = c(3.75, 2, 1))               # Heights of the 2 rows
     
     # plot the relative biomass
     par(mar = c(0.1, 4.5, 3.1, 0.1))
@@ -182,7 +182,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
     m <- matrix(c(1, 2, 3), nrow = 3, ncol = 1, byrow = T)
     layout(mat = m,
            widths = c(2),                      # Widths of the 3 columns
-           heights = c(4, 2, 1))               # Heights of the 2 rows
+           heights = c(3.75, 2, 1))               # Heights of the 2 rows
     
     area <- ifelse(a < 2, 'far from', ifelse(a == 3, 'in', 'near'))
     title <- sprintf("Relative biomass: %s reserve", area)
