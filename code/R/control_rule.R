@@ -1,14 +1,14 @@
 control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects, 
-                         nat_mortality, Density_Ratios) {
+                         nat_mortality, final_DR, inside, outside) {
   
   if (cr == 1) {
     # calculate density ratio
     DR <- density_ratio(t, cr, nm = 1, A, Count,
                         years_sampled = 1, fished_areas_sampled = 'all', 
-                        fish_sampled = 'mature', transects)
+                        fish_sampled = 'mature', transects, inside, outside)
     
     # calculate effort
-    E <- management(t, cr, E, DR, CR_type = 'DR', target_DR = 0.8, 
+    E <- management(t, cr, E, DR, CR_type = 'DR', target_DR = final_DR, 
                     floor_DR = 0.2, effort_inc_allowed = 0.1, time1)
   }
   
@@ -16,10 +16,10 @@ control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects,
     # calculate density ratio
     DR <- density_ratio(t, cr, nm = 2, A, Count, 
                         years_sampled = 1, fished_areas_sampled = 'all', 
-                        fish_sampled = 'mature', transects)
+                        fish_sampled = 'mature', transects, inside, outside)
     
     # calculate effort
-    E <- management(t, cr, E, DR, CR_type = 'DR', target_DR = 0.8, 
+    E <- management(t, cr, E, DR, CR_type = 'DR', target_DR = final_DR, 
                     floor_DR = 0.2, effort_inc_allowed = 0.1, time1)
   }
   
@@ -27,10 +27,10 @@ control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects,
     # calculate density ratio
     DR <- density_ratio(t, cr, nm = 3, A, Count,
                         years_sampled = 1, fished_areas_sampled = 'all', 
-                        fish_sampled = 'mature', transects)
+                        fish_sampled = 'mature', transects, inside, outside)
     
     # calculate effort
-    E <- management(t, cr, E, DR, CR_type = 'DR', target_DR = 0.8, 
+    E <- management(t, cr, E, DR, CR_type = 'DR', target_DR = final_DR, 
                     floor_DR = 0.2, effort_inc_allowed = 0.1, time1)
   }
   
@@ -38,10 +38,10 @@ control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects,
     # calculate density ratio
     DR <- density_ratio(t, cr, nm = 1, A, Count,
                         years_sampled = 1, fished_areas_sampled = 'all', 
-                        fish_sampled = 'mature', transects)
+                        fish_sampled = 'mature', transects, inside, outside)
     
     # calculate effort
-    target_DR <- transient_DR(nat_mortality, t, time1, time2, final_DR = 0.8, nm)
+    target_DR <- transient_DR(nat_mortality, t, time1, time2, final_DR, nm)
     E <- management(t, cr, E, DR, CR_type = 'DR', target_DR, 
                     floor_DR = 0.2, effort_inc_allowed = 0.1, time1)
   }
@@ -50,10 +50,10 @@ control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects,
     # calculate density ratio
     DR <- density_ratio(t, cr, nm = 2, A, Count,
                         years_sampled = 1, fished_areas_sampled = 'all', 
-                        fish_sampled = 'mature', transects)
+                        fish_sampled = 'mature', transects, inside, outside)
     
     # calculate effort
-    target_DR <- transient_DR(nat_mortality, t, time1, time2, final_DR = 0.8, nm)
+    target_DR <- transient_DR(nat_mortality, t, time1, time2, final_DR, nm)
     E <- management(t, cr, E, DR, CR_type = 'DR', target_DR, 
                     floor_DR = 0.2, effort_inc_allowed = 0.1, time1)
   }
@@ -62,16 +62,14 @@ control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects,
     # calculate density ratio
     DR <- density_ratio(t, cr, nm = 3, A, Count,
                         years_sampled = 1, fished_areas_sampled = 'all', 
-                        fish_sampled = 'mature', transects)
+                        fish_sampled = 'mature', transects, inside, outside)
     
     # calculate effort
-    target_DR <- transient_DR(nat_mortality, t, time1, time2, final_DR = 0.8, nm)
+    target_DR <- transient_DR(nat_mortality, t, time1, time2, final_DR, nm)
     E <- management(t, cr, E, DR, CR_type = 'DR', target_DR, 
                     floor_DR = 0.2, effort_inc_allowed = 0.1, time1)
   }
   
-  output <- list(E, Density_Ratios)
-  
-  return(output)
+  return(E)
   
 }
