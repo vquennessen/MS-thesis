@@ -14,8 +14,9 @@ transects <- 24
 fishery_management <- T
 fishing <- T
 adult_movement <- T
-plotting <- F
+plotting <- T
 error <- 0.05
+plot_individual_runs <- F
 
 # set numbers of simulations
 num_sims <- 1e4
@@ -42,10 +43,10 @@ for (i in 1:num_sims) {
   
 }
 
-filepath1 = "../../data/1e4_NM_sims_yield.Rda"
-filepath2 = "../../data/1e4_NM_sims_biomass.Rda"
-filepath3 = "../../data/1e4_NM_sims_SSB.Rda"
-filepath4 = "../../data/1e4_NM_sims_DR.Rda"
+filepath1 = "../../data/1e4_BR2003_0.8_yield.Rda"
+filepath2 = "../../data/1e4_BR2003_0.8_biomass.Rda"
+filepath3 = "../../data/1e4_BR2003_0.8_SSB.Rda"
+filepath4 = "../../data/1e4_BR2003_0.8_DR.Rda"
 
 save(sims_yield, file = filepath1)
 save(sims_biomass, file = filepath2)
