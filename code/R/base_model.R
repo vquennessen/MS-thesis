@@ -233,21 +233,21 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   # calculate relative biomass since reserve implementation
   for (a in 1:A) {
     for (cr in 1:CR) {
-      rel_biomass[a, , cr] <- biomass[a, (time1 + 1):timeT, cr, 2]/biomass[a, time1, cr, 2]
+      rel_biomass[a, , cr] <- biomass[a, time1:timeT, cr, 2]/biomass[a, time1, cr, 2]
     }
   }
   
   # calculate relative biomass since reserve implementation
   for (a in 1:A) {
     for (cr in 1:CR) {
-      rel_yield[a, , cr] <- yield[a, (time1 + 1):timeT, cr, 2]/yield[a, time1, cr, 2]
+      rel_yield[a, , cr] <- yield[a, time1:timeT, cr, 2]/yield[a, time1, cr, 2]
     }
   }
   
   # calculate relative biomass since reserve implementation
   for (a in 1:A) {
     for (cr in 1:CR) {
-      rel_SSB[a, , cr] <- SSB[a, (time1 + 1):timeT, cr, 2]/SSB[a, time1, cr, 2]
+      rel_SSB[a, , cr] <- SSB[a, time1:timeT, cr, 2]/SSB[a, time1, cr, 2]
     }
   }
   
