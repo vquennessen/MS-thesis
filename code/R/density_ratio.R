@@ -1,10 +1,6 @@
 density_ratio <- function (t, cr, nm, A, Count, years_sampled, 
-                           fished_areas_sampled, fish_sampled, transects) {
-  
-  # set marine reserve area as middle area
-  areas <- 1:A
-  inside <- median(1:A)
-  outside <- areas[-inside]  
+                           fished_areas_sampled, fish_sampled, transects, 
+                           inside, outside) {
   
   # sample all fish or just mature fish
   if (fish_sampled == "all") {
