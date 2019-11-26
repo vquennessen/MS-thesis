@@ -271,10 +271,10 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     x_by <- x2/4
     
     y1_dr <- 0
-    y2_dr <- 10
+    y2_dr <- 3
     by_dr <- y2_dr/2
     
-    for (a in 1:A) {
+    for (a in 1:3) {
 
       # set plotting layout
       m <- matrix(c(1, 2, 3), nrow = 3, ncol = 1, byrow = T)
@@ -282,8 +282,9 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
              widths = c(2),                      # Widths of the 3 columns
              heights = c(4, 2, 1))               # Heights of the 2 rows
 
-      title <- sprintf("Relative Biomass per Control Rule: Area %i", a)
-
+      area <- ifelse(a < 2, 'far from', ifelse(a == 3, 'in', 'near'))
+      title <- sprintf("Relative biomass: %s reserve", area)
+      
       # plot the relative biomass
       par(mar = c(0.1, 4.5, 3.1, 0.1))
       plot(1, type = 'l',                        # make an empty line graph
@@ -339,7 +340,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                              # set text horizontal
       
       for (cr in 1:CR) {
-        lines(Density_Ratios[, cr],
+        lines(Density_Ratios[time1:timeT, cr],
               col = color[cr],                   # use pre-defined color palette
               lwd = 2,                           # set line width
               lty = (cr %% 3) + 1)}              # set line type
@@ -367,7 +368,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     yy2 <- 3
     yy_by <- (yy2 - yy1)/2
 
-    for (a in 1:A) {
+    for (a in 1:2) {
 
       # set plotting layout
       m <- matrix(c(1, 2, 3), nrow = 3, ncol = 1, byrow = T)
@@ -375,8 +376,9 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
              widths = c(2),                      # Widths of the 3 columns
              heights = c(4, 2, 1))               # Heights of the 2 rows
       
-      title <- sprintf("Relative Yield per Control Rule: Area %i", a)
-
+      area <- ifelse(a == 1, 'far from', 'near')
+      title <- sprintf("Relative yield: %s reserve", area)
+      
       # plot the relative yield
       par(mar = c(0.1, 4.5, 3.1, 0.1))
       plot(1, type = 'l',                        # make an empty line graph
@@ -429,7 +431,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                              # set text horizontal
       
       for (cr in 1:CR) {
-        lines(Density_Ratios[, cr],
+        lines(Density_Ratios[time1:timeT, cr],
               col = color[cr],                   # use pre-defined color palette
               lwd = 2,                           # set line width
               lty = (cr %% 3) + 1)}              # set line type
@@ -457,15 +459,16 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     yyy2 <- 2 
     yyy_by <- (yyy2 - yyy1)/2
     
-    for (a in 1:A) {
+    for (a in 1:3) {
       
       # set plotting layout
-      m <- matrix(c(1, 2, 3), nrow = 3, ncol = 1, byrow = T)
+      m <- matrix(c(1, 3, 2, 3), nrow = 2, ncol = 2, byrow = T)
       layout(mat = m,
-             widths = c(2),                      # Widths of the 3 columns
-             heights = c(4, 2, 1))               # Heights of the 2 rows
+             widths = c(2, 0.4),                 # Widths of the 2 columns
+             heights = c(4, 2))                  # Heights of the 2 rows
       
-      title <- sprintf("Relative SSB per Control Rule: Area %i", a)
+      area <- ifelse(a < 2, 'far from', ifelse(a == 3, 'in', 'near'))
+      title <- sprintf("Relative biomass: %s reserve", area)
       
       # plot the relative SSB
       par(mar = c(0.1, 4.5, 3.1, 0.1))
@@ -520,7 +523,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                              # set text horizontal    
       
       for (cr in 1:CR) {
-        lines(Density_Ratios[, cr],
+        lines(Density_Ratios[time1:timeT, cr],
               col = color[cr],                   # use pre-defined color palette
               lwd = 2,                           # set line width
               lty = (cr %% 3) + 1)}              # set line type
@@ -529,13 +532,14 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
       # add a legend
       par(mar = c(0.1, 0.1, 0.1, 0.1))
       plot(1, type = 'n', axes = F, xlab = '', ylab = '')
-      legend(x = 'top', inset = 0, horiz = T,    # position
-             col = color,                              # apply color palette
-             lwd = 2,                                  # apply line thicknesses
-             lty = line_type,                          # apply line patterns
+      legend(x = 'left', inset = 0, horiz = F,   # position
+             col = color,                        # apply color palette
+             lwd = 2,                            # apply line thicknesses
+             lty = line_type,                    # apply line patterns
              title = expression(bold('Control Rule')), # add legend title, labels
-             c("Static \n Low M", "Static \n Correct M", "Static \n High M",
-               "Transient \n Low M", "Transient \n Correct M", "Transient \n High M"),           
+             c("\n Static \n Low M", "\n Static \n Correct M", 
+               "\n Static \n High M", "\n Transient \n Low M", 
+               "\n Transient \n Correct M", "\n Transient \n High M"),           
              seg.len = 3,                        # adjust length of lines
              cex = 1.1, 
              bty = 'n') 
