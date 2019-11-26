@@ -7,9 +7,6 @@ control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects,
                         years_sampled = 1, fished_areas_sampled = 'all', 
                         fish_sampled = 'mature', transects)
     
-    # store density ratio
-    Density_Ratios[t - time1, cr] <- DR
-    
     # calculate effort
     E <- management(t, cr, E, DR, CR_type = 'DR', target_DR = 0.6, 
                     floor_DR = 0.2, effort_inc_allowed = 0.1, time1)
@@ -20,9 +17,6 @@ control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects,
     DR <- density_ratio(t, cr, nm = 2, A, Count, 
                         years_sampled = 1, fished_areas_sampled = 'all', 
                         fish_sampled = 'mature', transects)
-    
-    # store density ratio
-    Density_Ratios[t - time1, cr] <- DR
     
     # calculate effort
     E <- management(t, cr, E, DR, CR_type = 'DR', target_DR = 0.6, 
@@ -35,9 +29,6 @@ control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects,
                         years_sampled = 1, fished_areas_sampled = 'all', 
                         fish_sampled = 'mature', transects)
     
-    # store density ratio
-    Density_Ratios[t - time1, cr] <- DR
-    
     # calculate effort
     E <- management(t, cr, E, DR, CR_type = 'DR', target_DR = 0.6, 
                     floor_DR = 0.2, effort_inc_allowed = 0.1, time1)
@@ -48,9 +39,6 @@ control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects,
     DR <- density_ratio(t, cr, nm = 1, A, Count,
                         years_sampled = 1, fished_areas_sampled = 'all', 
                         fish_sampled = 'mature', transects)
-    
-    # store density ratio
-    Density_Ratios[t - time1, cr] <- DR
     
     # calculate effort
     target_DR <- transient_DR(nat_mortality, t, time1, time2, final_DR = 0.6, nm)
@@ -64,9 +52,6 @@ control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects,
                         years_sampled = 1, fished_areas_sampled = 'all', 
                         fish_sampled = 'mature', transects)
     
-    # store density ratio
-    Density_Ratios[t - time1, cr] <- DR
-    
     # calculate effort
     target_DR <- transient_DR(nat_mortality, t, time1, time2, final_DR = 0.6, nm)
     E <- management(t, cr, E, DR, CR_type = 'DR', target_DR, 
@@ -78,9 +63,6 @@ control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects,
     DR <- density_ratio(t, cr, nm = 3, A, Count,
                         years_sampled = 1, fished_areas_sampled = 'all', 
                         fish_sampled = 'mature', transects)
-    
-    # store density ratio
-    Density_Ratios[t - time1, cr] <- DR
     
     # calculate effort
     target_DR <- transient_DR(nat_mortality, t, time1, time2, final_DR = 0.6, nm)
