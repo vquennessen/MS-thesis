@@ -7,6 +7,7 @@ source('./plot_stuff.R')
 
 species <- 'black rockfish 2003'
 A <- 5
+MPAs <- c(3)
 time1 <- 50
 time2 <- 20
 CR <- 6
@@ -18,8 +19,9 @@ transects <- 24
 fishery_management <- T
 fishing <- T
 adult_movement <- T
-plotting <- T
 error <- 0.05
+final_DR <- 0.8
+plotting <- T
 plot_individual_runs <- F
 
 # set numbers of simulations
