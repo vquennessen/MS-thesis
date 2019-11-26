@@ -145,6 +145,12 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
           
         }
       }
+      
+      # calculate true density ratio
+      outside_density <- sum(abundance_mature[c(1, 2, 4, 5), t, cr, 2]) / 4
+      inside_density <- sum(abundance_mature[c(3), t, cr, 2]) / 1
+      Density_Ratios[t, cr] <- outside_density / inside_density
+      
     }
   }
   
@@ -203,6 +209,11 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
         }
         
       }
+      
+      # calculate true density ratio
+      outside_density <- sum(abundance_mature[c(1, 2, 4, 5), t, cr, 2]) / 4
+      inside_density <- sum(abundance_mature[c(3), t, cr, 2]) / 1
+      Density_Ratios[t, cr] <- outside_density / inside_density
       
     }
     
