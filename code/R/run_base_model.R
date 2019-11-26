@@ -18,7 +18,7 @@ transects <- 24
 fishery_management <- T
 fishing <- T
 adult_movement <- T
-plotting <- F
+plotting <- T
 error <- 0.05
 plot_individual_runs <- F
 
