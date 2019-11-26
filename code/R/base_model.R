@@ -251,6 +251,8 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     }
   }
   
+  ##### Plotting ######
+  
   if (plotting == T) {
   
     # use red-blue color palette
@@ -259,6 +261,20 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     
     # set line types - solid for correct M, dashed for high M, dotted for low M
     line_type <- c(2, 1, 3, 2, 1, 3)
+    
+    # set layout matrix for all plots
+    layout_m <- matrix(c(1, 3, 2, 3), nrow = 2, ncol = 2, byrow = T)
+    
+    # set legend title and text and position
+    legend_title <- expression(bold('Control Rule'))
+    legend_text  <- c("\n Static \n Low M", "\n Static \n Correct M", 
+                     "\n Static \n High M", "\n Transient \n Low M", 
+                     "\n Transient \n Correct M", "\n Transient \n High M")
+    position <- 'left'
+    
+    # transient DR for population with correct M
+    x_DR <- time2:timeT
+    y_DR <- transient_DR(nat_mortality, x_DR, time1, time2, final_DR, nm = 2)
     
     ##### Plot relative biomass over time after reserve implementation #############
     
@@ -273,16 +289,15 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     x_by <- x2/4
     
     y1_dr <- 0
-    y2_dr <- 3
+    y2_dr <- 2
     by_dr <- y2_dr/2
     
     for (a in 1:3) {
 
       # set plotting layout
-      m <- matrix(c(1, 2, 3), nrow = 3, ncol = 1, byrow = T)
-      layout(mat = m,
-             widths = c(2),                      # Widths of the 3 columns
-             heights = c(4, 2, 1))               # Heights of the 2 rows
+      layout(mat = layout_m,
+             widths = c(2, 0.4),                 # Widths of the 2 columns
+             heights = c(4, 2))                  # Heights of the 2 rows
 
       area <- ifelse(a < 2, 'far from', ifelse(a == 3, 'in', 'near'))
       title <- sprintf("Relative biomass: %s reserve", area)
@@ -328,7 +343,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            cex.lab = 1.5, cex.main = 1.5)
 
       # set specific y-axis
-      dr_ytick <- seq(y1_dr, y2_dr, by_dr)              # set y axis tick marks
+      dr_ytick <- seq(y1_dr, y2_dr, by_dr)       # set y axis tick marks
       axis(side = 2,                             # specify y axis
            at = dr_ytick,                        # apply tick marks
            labels = T,                           # apply appropriate labels
@@ -350,15 +365,14 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
       # add a legend
       par(mar = c(0.1, 0.1, 0.1, 0.1))
       plot(1, type = 'n', axes = F, xlab = '', ylab = '')
-      legend(x = 'top', inset = 0, horiz = T,    # position
-             col = color,                              # apply color palette
-             lwd = 2,                                  # apply line thicknesses
-             lty = line_type,                          # apply line patterns
-             title = expression(bold('Control Rule')), # add legend title, labels
-             c("Static \n Low M", "Static \n Correct M", "Static \n High M",
-               "Transient \n Low M", "Transient \n Correct M", "Transient \n High M"),           
+      legend(x = position, inset = 0, horiz = F, # position
+             col = color,                        # apply color palette
+             lwd = 2,                            # apply line thicknesses
+             lty = line_type,                    # apply line patterns
+             title = legend_title,               # add legend title
+             legend = legend_text,               # add legend labels
              seg.len = 3,                        # adjust length of lines
-             cex = 1.1, 
+             cex = 1.1,                          # adjust legend text size
              bty = 'n') 
       
     }
@@ -373,10 +387,9 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     for (a in 1:2) {
 
       # set plotting layout
-      m <- matrix(c(1, 2, 3), nrow = 3, ncol = 1, byrow = T)
-      layout(mat = m,
-             widths = c(2),                      # Widths of the 3 columns
-             heights = c(4, 2, 1))               # Heights of the 2 rows
+      layout(mat = layout_m,
+             widths = c(2, 0.4),                 # Widths of the 2 columns
+             heights = c(4, 2))                  # Heights of the 2 rows
       
       area <- ifelse(a == 1, 'far from', 'near')
       title <- sprintf("Relative yield: %s reserve", area)
@@ -405,6 +418,9 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
               lwd = 2,                           # set line width
               lty = (cr %% 3) + 1)               # set line type
       }
+      
+      # add a gray dotted line at y = 1
+      lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3)
 
       # plot the density ratio over time
       par(mar = c(4.1, 4.5, 3.1, 0.1))
@@ -419,7 +435,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            cex.lab = 1.5, cex.main = 1.5)
 
       # set specific y-axis
-      dr_ytick <- seq(y1_dr, y2_dr, by_dr)              # set y axis tick marks
+      dr_ytick <- seq(y1_dr, y2_dr, by_dr)       # set y axis tick marks
       axis(side = 2,                             # specify y axis
            at = dr_ytick,                        # apply tick marks
            labels = T,                           # apply appropriate labels
@@ -441,15 +457,14 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
       # add a legend
       par(mar = c(0.1, 0.1, 0.1, 0.1))
       plot(1, type = 'n', axes = F, xlab = '', ylab = '')
-      legend(x = 'top', inset = 0, horiz = T,    # position
-             col = color,                              # apply color palette
-             lwd = 2,                                  # apply line thicknesses
-             lty = line_type,                          # apply line patterns
-             title = expression(bold('Control Rule')), # add legend title, labels
-             c("Static \n Low M", "Static \n Correct M", "Static \n High M",
-               "Transient \n Low M", "Transient \n Correct M", "Transient \n High M"),           
+      legend(x = position, inset = 0, horiz = F, # position
+             col = color,                        # apply color palette
+             lwd = 2,                            # apply line thicknesses
+             lty = line_type,                    # apply line patterns
+             title = legend_title,               # add legend title
+             legend = legend_text,               # add legend labels
              seg.len = 3,                        # adjust length of lines
-             cex = 1.1, 
+             cex = 1.1,                          # adjust legend text size
              bty = 'n') 
       
     }
@@ -464,8 +479,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     for (a in 1:3) {
       
       # set plotting layout
-      m <- matrix(c(1, 3, 2, 3), nrow = 2, ncol = 2, byrow = T)
-      layout(mat = m,
+      layout(mat = layout_m,
              widths = c(2, 0.4),                 # Widths of the 2 columns
              heights = c(4, 2))                  # Heights of the 2 rows
       
@@ -496,6 +510,9 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
               lwd = 2,                           # set line width
               lty = (cr %% 3) + 1)               # set line type
       }
+      
+      # add a gray dotted line at y = 1
+      lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3)
       
       # plot the density ratio over time
       par(mar = c(4.1, 4.5, 3.1, 0.1))
@@ -534,16 +551,14 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
       # add a legend
       par(mar = c(0.1, 0.1, 0.1, 0.1))
       plot(1, type = 'n', axes = F, xlab = '', ylab = '')
-      legend(x = 'left', inset = 0, horiz = F,   # position
+      legend(x = position, inset = 0, horiz = F, # position
              col = color,                        # apply color palette
              lwd = 2,                            # apply line thicknesses
              lty = line_type,                    # apply line patterns
-             title = expression(bold('Control Rule')), # add legend title, labels
-             c("\n Static \n Low M", "\n Static \n Correct M", 
-               "\n Static \n High M", "\n Transient \n Low M", 
-               "\n Transient \n Correct M", "\n Transient \n High M"),           
+             title = legend_title,               # add legend title
+             legend = legend_text,               # add legend labels
              seg.len = 3,                        # adjust length of lines
-             cex = 1.1, 
+             cex = 1.1,                          # adjust legend text size
              bty = 'n') 
       
       }
