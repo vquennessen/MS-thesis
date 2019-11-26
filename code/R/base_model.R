@@ -2,7 +2,7 @@
 
 base_model <- function(species, A, time1, time2, CR, allocation, R0, 
                        stochasticity, surveys, transects, fishery_management, 
-                       fishing, adult_movement, plotting, error) {
+                       fishing, adult_movement, plotting, error, final_DR) {
   
   ##### Source functions #######################################################
   
@@ -56,7 +56,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   c                      <- par[[24]]       # eggs produced per g, intercept
   b                      <- par[[25]]       # eggs produced per g, slope
   
-  ####### selectivity parameters #######
+  # selectivity parameters
   fleets                 <- par[[26]]       # fishery fleet names
   alpha                  <- par[[27]]       # slope for upcurve
   beta                   <- par[[28]]       # slope for downcurve
@@ -66,6 +66,11 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   cf                     <- par[[32]]       # fraction of fishery caught / fleet
   
   ##### Population Dynamics - Non-Time Varying #################################
+  
+  # set areas in and out of marine reserves
+  areas <- 1:A
+  inside <- MPAs
+  outside <- areas[-MPAs] 
   
   # Initialize arrays for time-varying dynamics
   IA <- initialize_arrays(A, time1, time2, R0, rec_age, max_age, L1f, L2f, Kf, 
@@ -201,11 +206,8 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
         
         # management
         if (fishery_management == T) {
-          output <- control_rule(t, cr, nm, A, E, Count, time1, time2, transects, 
-                            nat_mortality, Density_Ratios)
-          E <- output[[1]]
-          Density_Ratios <- output[[2]]
-          
+          E <- control_rule(t, cr, nm, A, E, Count, time1, time2, transects, 
+                            nat_mortality, final_DR, inside, outside)
         }
         
       }
