@@ -1,8 +1,9 @@
 source('./base_model.R')
 source('./plot_stuff.R')
 
-species <- 'black rockfish 2003'
+species <- 'BR2003'
 A <- 5
+MPAs <- c(3)
 time1 <- 50
 time2 <- 20
 CR <- 6
@@ -14,8 +15,9 @@ transects <- 24
 fishery_management <- T
 fishing <- T
 adult_movement <- T
-plotting <- T
 error <- 0.05
+final_DR <- 0.5
+plotting <- T
 plot_individual_runs <- F
 
 # set numbers of simulations
@@ -32,7 +34,7 @@ for (i in 1:num_sims) {
   
   output <- base_model(species, A, time1, time2, CR, allocation, R0, 
                        stochasticity, surveys, transects, fishery_management, 
-                       fishing, adult_movement, plotting, error)
+                       fishing, adult_movement, plotting, error, final_DR)
   
   # save the relative yield and biomasses for all areas, times after reserve
   # implementation, and control rules
@@ -43,10 +45,14 @@ for (i in 1:num_sims) {
   
 }
 
-filepath1 = "../../data/1e4_BR2003_0.8_yield.Rda"
-filepath2 = "../../data/1e4_BR2003_0.8_biomass.Rda"
-filepath3 = "../../data/1e4_BR2003_0.8_SSB.Rda"
-filepath4 = "../../data/1e4_BR2003_0.8_DR.Rda"
+filepath1 = paste("../../data/1e", log10(num_sims), "_", species, "_", final_DR, 
+                  "_yield.Rda", sep = '')
+filepath2 = paste("../../data/1e", log10(num_sims), "_", species, "_", final_DR, 
+                  "_biomass.Rda", sep = '')
+filepath3 = paste("../../data/1e", log10(num_sims), "_", species, "_", final_DR, 
+                  "_SSB.Rda", sep = '')
+filepath4 = paste("../../data/1e", log10(num_sims), "_", species, "_", final_DR, 
+                  "_DR.Rda", sep = '')
 
 save(sims_yield, file = filepath1)
 save(sims_biomass, file = filepath2)
