@@ -158,7 +158,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   
   # initialize density ratio matrix
   # Dimensions = timeT * CR
-  Density_Ratios <- array(rep(0, timeT*CR), c(timeT, CR))
+  Density_Ratios <- array(rep(0, (time2 + 1)*CR), c(time2 + 1, CR))
   
   output <- list(timeT, E, n, L, W, Mat, m, S, FM, N, SSB, 
                  abundance_all, abundance_mature, biomass, Count, nuS, 

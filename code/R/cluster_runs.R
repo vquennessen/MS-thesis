@@ -17,11 +17,11 @@ fishing <- T
 adult_movement <- T
 error <- 0.05
 final_DR <- 0.8
-plotting <- T
+plotting <- F
 plot_individual_runs <- F
 
 # set numbers of simulations
-num_sims <- 2
+num_sims <- 1e4
 
 # initialize yield and biomass arrays
 sims_yield <- array(rep(0, A*(time2 + 1)*CR*num_sims), 

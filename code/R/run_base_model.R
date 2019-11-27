@@ -21,7 +21,7 @@ fishing <- T
 adult_movement <- T
 error <- 0.05
 final_DR <- 0.8
-plotting <- T
+plotting <- F
 plot_individual_runs <- F
 
 # set numbers of simulations
