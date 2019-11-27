@@ -53,13 +53,15 @@ for (i in 1:num_sims) {
   
 }
 
-filepath1 = paste("../../data/1e", log10(num_sims), "_", species, "_", final_DR, 
+q <- ifelse(num_sims < 101, num_sims, paste("1e", log10(num_sims)))
+
+filepath1 = paste("../../data/", q, "_", species, "_", final_DR, 
                   "_yield.Rda", sep = '')
-filepath2 = paste("../../data/1e", log10(num_sims), "_", species, "_", final_DR, 
+filepath2 = paste("../../data/", q, "_", species, "_", final_DR, 
                   "_biomass.Rda", sep = '')
-filepath3 = paste("../../data/1e", log10(num_sims), "_", species, "_", final_DR, 
+filepath3 = paste("../../data/", q, "_", species, "_", final_DR, 
                   "_SSB.Rda", sep = '')
-filepath4 = paste("../../data/1e", log10(num_sims), "_", species, "_", final_DR, 
+filepath4 = paste("../../data/", q, "_", species, "_", final_DR, 
                   "_DR.Rda", sep = '')
 
 save(sims_yield, file = filepath1)
