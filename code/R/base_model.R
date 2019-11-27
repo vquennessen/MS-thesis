@@ -273,8 +273,8 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     position <- 'left'
     
     # transient DR for population with correct M
-    x_DR <- time2:timeT
-    y_DR <- transient_DR(nat_mortality, x_DR, time1, time2, final_DR, nm = 2)
+    y_DR <- transient_DR(start_time = 0, end_time = time2, final_DR, 
+                         nat_mortality, nm = 2)
     
     ##### Plot relative biomass over time after reserve implementation #############
     
@@ -321,7 +321,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                              # set text horizontal
 
       for (cr in 1:CR) {
-        lines(rel_biomass[a, , cr],
+        lines(x1:x2, rel_biomass[a, , cr],
               col = color[cr],                   # use pre-defined color palette
               lwd = 2,                           # set line width
               lty = (cr %% 3) + 1)               # set line type
@@ -357,11 +357,14 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                              # set text horizontal
       
       for (cr in 1:CR) {
-        lines(Density_Ratios[time1:timeT, cr],
+        lines(x1:x2, Density_Ratios[time1:timeT, cr],
               col = color[cr],                   # use pre-defined color palette
               lwd = 2,                           # set line width
               lty = (cr %% 3) + 1)}              # set line type
       
+      # add a gray dotted line at target_DR over time
+      lines(0:time2, y_DR, col = 'gray', lty = 3)
+
       # add a legend
       par(mar = c(0.1, 0.1, 0.1, 0.1))
       plot(1, type = 'n', axes = F, xlab = '', ylab = '')
@@ -413,7 +416,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                              # set text horizontal
 
       for (cr in 1:CR) {
-        lines(rel_yield[a, , cr],
+        lines(x1:x2, rel_yield[a, , cr],
               col = color[cr],                   # use pre-defined color palette
               lwd = 2,                           # set line width
               lty = (cr %% 3) + 1)               # set line type
@@ -449,10 +452,13 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                              # set text horizontal
       
       for (cr in 1:CR) {
-        lines(Density_Ratios[time1:timeT, cr],
+        lines(x1:x2, Density_Ratios[time1:timeT, cr],
               col = color[cr],                   # use pre-defined color palette
               lwd = 2,                           # set line width
               lty = (cr %% 3) + 1)}              # set line type
+      
+      # add a gray dotted line at target_DR over time
+      lines(0:time2, y_DR, col = 'gray', lty = 3)
       
       # add a legend
       par(mar = c(0.1, 0.1, 0.1, 0.1))
@@ -505,7 +511,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                              # set text horizontal
       
       for (cr in 1:CR) {
-        lines(rel_SSB[a, , cr],
+        lines(x1:x2, rel_SSB[a, , cr],
               col = color[cr],                   # use pre-defined color palette
               lwd = 2,                           # set line width
               lty = (cr %% 3) + 1)               # set line type
@@ -542,11 +548,15 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                              # set text horizontal    
       
       for (cr in 1:CR) {
-        lines(Density_Ratios[time1:timeT, cr],
+        lines(x1:x2, Density_Ratios[time1:timeT, cr],
               col = color[cr],                   # use pre-defined color palette
               lwd = 2,                           # set line width
               lty = (cr %% 3) + 1)}              # set line type
       
+      # add a gray dotted line at target_DR over time
+      lines(0:time2, y_DR, col = 'gray', lty = 3)
+      
+      lines(0:time2, rep(0.8, length(0:time2)), col = 'red', lty = 3)
       
       # add a legend
       par(mar = c(0.1, 0.1, 0.1, 0.1))
