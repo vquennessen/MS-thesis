@@ -556,8 +556,6 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
       # add a gray dotted line at target_DR over time
       lines(0:time2, y_DR, col = 'gray', lty = 3)
       
-      lines(0:time2, rep(0.8, length(0:time2)), col = 'red', lty = 3)
-      
       # add a legend
       par(mar = c(0.1, 0.1, 0.1, 0.1))
       plot(1, type = 'n', axes = F, xlab = '', ylab = '')
