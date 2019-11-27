@@ -5,7 +5,7 @@ setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")
 source('./base_model.R')
 source('./plot_stuff.R')
 
-species <- 'black rockfish 2003'
+species <- 'BR2003'
 A <- 5
 MPAs <- c(3)
 time1 <- 50
@@ -25,13 +25,17 @@ plotting <- T
 plot_individual_runs <- F
 
 # set numbers of simulations
-num_sims <- 1e2
+num_sims <- 2
 
 # initialize yield and biomass arrays
-sims_yield <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
-sims_biomass <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
-sims_SSB <- array(rep(0, A*time2*CR*num_sims), c(A, time2, CR, num_sims))
-sims_DR <- array(rep(0, time2*CR*num_sims), c(time2, CR, num_sims))
+sims_yield <- array(rep(0, A*(time2 + 1)*CR*num_sims), 
+                    c(A, (time2 + 1), CR, num_sims))
+sims_biomass <- array(rep(0, A*(time2 + 1)*CR*num_sims), 
+                      c(A, (time2 + 1), CR, num_sims))
+sims_SSB <- array(rep(0, A*(time2 + 1)*CR*num_sims), 
+                  c(A, (time2 + 1), CR, num_sims))
+sims_DR <- array(rep(0, (time2 + 1)*CR*num_sims), 
+                 c((time2 + 1), CR, num_sims))
 
 # run the model for each simulation
 for (i in 1:num_sims) {
