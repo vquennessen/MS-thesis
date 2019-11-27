@@ -49,10 +49,14 @@ for (i in 1:num_sims) {
   
 }
 
-filepath1 = "../../data/1e2_NM_sims_yield.Rda"
-filepath2 = "../../data/1e2_NM_sims_biomass.Rda"
-filepath3 = "../../data/1e2_NM_sims_SSB.Rda"
-filepath4 = "../../data/1e2_NM_sims_DR.Rda"
+filepath1 = paste("../../data/1e", log10(num_sims), "_", species, "_", final_DR, 
+                  "_yield.Rda", sep = '')
+filepath2 = paste("../../data/1e", log10(num_sims), "_", species, "_", final_DR, 
+                  "_biomass.Rda", sep = '')
+filepath3 = paste("../../data/1e", log10(num_sims), "_", species, "_", final_DR, 
+                  "_SSB.Rda", sep = '')
+filepath4 = paste("../../data/1e", log10(num_sims), "_", species, "_", final_DR, 
+                  "_DR.Rda", sep = '')
 
 save(sims_yield, file = filepath1)
 save(sims_biomass, file = filepath2)
