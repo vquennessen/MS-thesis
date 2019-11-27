@@ -1,4 +1,4 @@
-control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects, 
+control_rule <- function(t, cr, nm, A, E, Count, time1, timeT, transects, 
                          nat_mortality, final_DR, inside, outside) {
   
   if (cr == 1) {
@@ -34,6 +34,9 @@ control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects,
                     floor_DR = 0.2, effort_inc_allowed = 0.1, time1)
   }
   
+  target_DR <- transient_DR(start_time = time1, end_time = timeT, final_DR, 
+                            nat_mortality, nm)
+  
   if (cr == 4) {
     # calculate density ratio
     DR <- density_ratio(t, cr, nm = 1, A, Count,
@@ -41,8 +44,7 @@ control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects,
                         fish_sampled = 'mature', transects, inside, outside)
     
     # calculate effort
-    target_DR <- transient_DR(nat_mortality, t, time1, time2, final_DR, nm)
-    E <- management(t, cr, E, DR, CR_type = 'DR', target_DR, 
+    E <- management(t, cr, E, DR, CR_type = 'DR', target_DR[t - time1 + 1], 
                     floor_DR = 0.2, effort_inc_allowed = 0.1, time1)
   }
   
@@ -53,8 +55,7 @@ control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects,
                         fish_sampled = 'mature', transects, inside, outside)
     
     # calculate effort
-    target_DR <- transient_DR(nat_mortality, t, time1, time2, final_DR, nm)
-    E <- management(t, cr, E, DR, CR_type = 'DR', target_DR, 
+    E <- management(t, cr, E, DR, CR_type = 'DR', target_DR[t - time1 + 1], 
                     floor_DR = 0.2, effort_inc_allowed = 0.1, time1)
   }
   
@@ -65,8 +66,7 @@ control_rule <- function(t, cr, nm, A, E, Count, time1, time2, transects,
                         fish_sampled = 'mature', transects, inside, outside)
     
     # calculate effort
-    target_DR <- transient_DR(nat_mortality, t, time1, time2, final_DR, nm)
-    E <- management(t, cr, E, DR, CR_type = 'DR', target_DR, 
+    E <- management(t, cr, E, DR, CR_type = 'DR', target_DR[t - time1 + 1], 
                     floor_DR = 0.2, effort_inc_allowed = 0.1, time1)
   }
   
