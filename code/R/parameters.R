@@ -13,8 +13,9 @@ parameters = function(species) {
     stop("Study species must be a character string.")
   }
   
-  if (species == 'black rockfish 2003') {
-    # source: Babcock & MacCall 2011
+  if (species == 'BR2003') {
+    # Black Rockfish 2003 assessment
+    # Source: Ralston & Dick 2003
     max_age <- 35                           # maximum age
     M <- 0.14                               # natural mortality
     rec_age <- 2                            # age at recruitment
