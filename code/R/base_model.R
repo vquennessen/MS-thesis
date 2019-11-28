@@ -110,7 +110,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   
   ##### Population Dynamics - Time Varying #####################################
   
-  for (t in 3:time1) {
+  for (t in 3:(time1 - 1)) {
     
     for (cr in 1:CR) {
       
@@ -154,7 +154,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
   
   ##### Implement Reserve, and apply control rules #############################
   
-  for (t in (time1 + 1):timeT) {
+  for (t in time1:timeT) {
     
     for (cr in 1:CR) {
       
@@ -281,6 +281,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     x2 <- time2
     x_by <- x2/4
     
+    # DR y-axis limits
     y1_dr <- 0
     y2_dr <- 2
     by_dr <- y2_dr/2
@@ -350,7 +351,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                              # set text horizontal
       
       for (cr in 1:CR) {
-        lines(x1:x2, Density_Ratios[time1:timeT, cr],
+        lines(x1:x2, Density_Ratios[x1:x2 + 1, cr],
               col = color[cr],                   # use pre-defined color palette
               lwd = 2,                           # set line width
               lty = (cr %% 3) + 1)}              # set line type
@@ -445,7 +446,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                              # set text horizontal
       
       for (cr in 1:CR) {
-        lines(x1:x2, Density_Ratios[time1:timeT, cr],
+        lines(x1:x2, Density_Ratios[x1:x2 + 1, cr],
               col = color[cr],                   # use pre-defined color palette
               lwd = 2,                           # set line width
               lty = (cr %% 3) + 1)}              # set line type
@@ -541,7 +542,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
            las = 1)                              # set text horizontal    
       
       for (cr in 1:CR) {
-        lines(x1:x2, Density_Ratios[time1:timeT, cr],
+        lines(x1:x2, Density_Ratios[x1:x2 + 1, cr],
               col = color[cr],                   # use pre-defined color palette
               lwd = 2,                           # set line width
               lty = (cr %% 3) + 1)}              # set line type
@@ -566,7 +567,7 @@ base_model <- function(species, A, time1, time2, CR, allocation, R0,
     
   }
   
-  output <- list(rel_yield, rel_biomass, rel_SSB, Density_Ratios)
+  output <- list(rel_yield, rel_biomass, rel_SSB, Density_Ratios, y_DR)
   
   return(output)
   
