@@ -1,18 +1,23 @@
-library(viridis)
-
 setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")
 
-load("../../data/1e4_sims_yield.Rda")
 
 num_sims <- 1e4
+species <- 'BR2003'
+final_DR <- 0.8
+factor <- 'yield'
 
-y1 <- 0.25
-y2 <- 0.45
+filepath <- paste('../../data/1e', log10(num_sims), '_', species, '_', final_DR, 
+                  '_', factor, '.Rda', sep = '')
+
+load(filepath)
+
+y1 <- 0
+y2 <- 5
 
 # create empty plot
 par(mar=c(4.5,5,3,1))
 plot(1, type = 'l',                          # make an empty line graph
-     main = 'Variance of Yield',             # title of plot
+     main = 'Variance vs. Sample Size',      # title of plot
      ylab = 'Sample Variance',               # axis labels
      xlab = 'Sample Size', 
      xaxt = 'n', 
@@ -40,26 +45,25 @@ axis(side = 1,                               # specify x axis
 
 num_runs <- 10
 time2 <- 20
-color <- viridis(num_runs)
 
 # set different sample sizes
-sample_size <- seq(1e2, num_sims, by = 1e2)
+sample_size <- seq(1e2, 1e4, 1e2)
 
 # initialize variance arrays 
-Y_vars <- rep(NA, length(sample_size))
+vars <- array(rep(NA, length(sample_size*num_runs)), c(sample_size, num_runs))
 
 for (j in 1:num_runs) {
   
   for (i in 1:length(sample_size)) {
     
     indices <- sample(1:num_sims, sample_size[i])
-    sampled_yield <- sims_yield[, , , indices]
-
-    # calculate medians 
-    Y_vars[i] <- var(sampled_yield[1, time2, 1, ])
-
+    sampled <- sims_yield[, , , indices]
+    
+    # calculate variance of yield at time2 across all simulations 
+    vars[i] <- var(sampled[1, time2, 1, indices])
+    
   }
   
   # plot one run through various sample sizes
-  lines(sample_size, Y_vars, type = 'l', col = color[j])
+  points(sample_size, vars[, j])
 }
