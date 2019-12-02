@@ -56,16 +56,16 @@ for (i in 1:num_sims) {
   
 }
 
-q <- ifelse(num_sims < 101, num_sims, paste("1e", log10(num_sims)))
+q <- ifelse(num_sims < 101, num_sims,  paste("1e", log10(num_sims), sep = ''))
 
-filepath1 = paste("../../data/", q, "_", species, "_", final_DR, 
-                  "_yield.Rda", sep = '')
-filepath2 = paste("../../data/", q, "_", species, "_", final_DR, 
-                  "_biomass.Rda", sep = '')
-filepath3 = paste("../../data/", q, "_", species, "_", final_DR, 
-                  "_SSB.Rda", sep = '')
-filepath4 = paste("../../data/", q, "_", species, "_", final_DR, 
-                  "_DR.Rda", sep = '')
+filepath1 = paste('../../data/', species, '/', q, "_", final_DR, "_yield.Rda", 
+                  sep = '')
+filepath2 = paste('../../data/', species, '/', q, "_", final_DR, "_biomass.Rda", 
+                  sep = '')
+filepath3 = paste('../../data/', species, '/', q, "_", final_DR, "_SSB.Rda", 
+                  sep = '')
+filepath4 = paste('../../data/', species, '/', q, "_", final_DR, "_DR.Rda", 
+                  sep = '')
 
 save(sims_yield, file = filepath1)
 save(sims_biomass, file = filepath2)
