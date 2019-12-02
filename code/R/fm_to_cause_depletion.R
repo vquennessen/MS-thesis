@@ -3,7 +3,7 @@
 # clear environment
 rm(list = ls())
 
-species <- 'black rockfish 2003'
+species <- 'BR2003'
 eq_time <- 150
 true_dep <- 0.488
 R0 <- 1e+5
@@ -14,22 +14,12 @@ source("./parameters.R")
 source("./length_at_age.R")
 source("./weight_at_age.R")
 source("./fraction_mature_at_age.R")
-source("./fishing_mortality.R")
-source("./epsilon.R")
 source("./selectivity_at_age.R")
-source("./spawning_stock_biomass.R")
-source("./recruitment.R")
 source("./pop_dynamics.R")
-source("./initialize_arrays.R")
-source("./sampling.R")
-source("./density_ratio.R")
-source("./management.R")
-source("./control_rule.R")
-source("./Leslie_SAD.R")
-source("./catch_at_age.R")
-source("./effort_allocation.R")
 source("./equilibrium_SAD.R")
-source("./movement.R")
+source("./epsilon.R")
+source("./recruitment.R")
+source("./fishing_mortality.R")
 
 # load species parameters
 par <- parameters(species)
@@ -43,20 +33,12 @@ a2f <- par[[8]];  L2f  <- par[[9]]
 Kf  <- par[[10]]  
 L50                    <- par[[11]]       # length at 50% maturity
 k_mat                  <- par[[12]]       # slope of maturity curve
-ldp                    <- par[[13]]       # larval drift proportion
 h                      <- par[[14]]       # steepness
 phi                    <- par[[15]]       # unfished recruits per spawner
 sigma_R                <- par[[16]]       # recruitment standard deviation
 rho_R                  <- par[[17]]       # recruitment autocorrelation
-AMP                    <- par[[18]]       # adult movement proportion
-D                      <- par[[19]]       # depletion
-Fb                     <- par[[20]]       # fishing mortality to cause D
-r                      <- par[[21]]       # proportion of positive transects 
-#       in PISCO monitoring data
-x                      <- par[[22]]       # mean of positive transects
+                                          #       in PISCO monitoring data
 sp                     <- par[[23]]       # std of positive transects
-c                      <- par[[24]]       # eggs produced per g, intercept
-b                      <- par[[25]]       # eggs produced per g, slope
 
 ####### selectivity parameters #######
 fleets                 <- par[[26]]       # fishery fleet names
@@ -79,14 +61,6 @@ S <- selectivity_at_age(fleets, L, max_age, rec_age, alpha, L50_up,
                         L50_down, F_fin, beta, n, cf, age)
 Fb <- 0
 
-# Initialize population size and catch arrays
-# Dimensions = age * 1 * time * 1
-N2 <- catch2 <- array(rep(0, n*eq_time), c(n, eq_time, 1, 1))
-
-# Initialize biomass, SSB, and recruitment error
-# Dimensions = 1 * time * 1
-SSB2 <- Eps2 <- array(rep(0, eq_time), c(1, eq_time, 1, 1))
-
 # Recruitment normal variable
 # Dimensions = area * timeT * CR
 if (stochasticity == T) {
@@ -94,6 +68,9 @@ if (stochasticity == T) {
 } else if (stochasticity == F) {
   nuR2 <- array(rep(0, eq_time), c(1, eq_time, 1, 1))
 }
+
+# initialize epsilon vector
+Eps2 <- array(rep(0, eq_time), c(1, eq_time, 1, 1))
 
 # eps[1]
 Eps2[1, 1, 1, 1] <- nuR2[1, 1, 1, 1]*sqrt(1 + rho_R^2)
@@ -112,18 +89,55 @@ FM_values <- seq(from = 0, to = 1, by = 0.01)
 fn <- length(FM_values)
 dep <- rep(0, fn)
 
-biomass2 <- array(rep(NA, fn*eq_time), c(fn, eq_time))
+# Initialize population size and catch arrays
+# Dimensions = age * 1 * time * 1
+N2 <- catch2 <- array(rep(0, n*eq_time), c(n, 1, eq_time, 1, 1))
+
+# Initialize biomass, SSB, and recruitment error
+# Dimensions = 1 * time * 1
+SSB2 <- biomass2 <- array(rep(0, eq_time), c(1, eq_time, 1, 1))
+abundance_all2 <- abundance_mature2 <- array(rep(0, eq_time), c(1, eq_time, 1, 1))
+
+rec_biomass <- array(rep(NA, fn*eq_time), c(fn, eq_time))
+
+SAD <- equilibrium_SAD(a = 1, cr = 1, nm = 1, A = 1, rec_age, max_age, n, W, 
+                       R0, Mat, h, B0, sigma_R, Fb = 0, S, M, eq_time = 150, 
+                       m, stochasticity = F, rho_R, nat_mortality = M)
 
 # Enter FM, N, abundance, and biomasses for time = 1 to rec_age
 for (t in 1:rec_age) {
-  N2[, a, t, 1, 1] <- SAD
-  biomass2[a, t, 1, 1] <- sum(N2[, a, t, 1, 1] * W)
-  catch2[a, t, 1, 1] <- 0
-  SSB2[t, 1, 1] <- sum(N2[, a, t - rec_age, 1, 1]*W*Mat)
+  N2[, 1, t, 1, 1] <- SAD
+  biomass2[1, t, 1, 1] <- sum(N2[, 1, t, 1, 1] * W)
+  catch2[, 1, t, 1, 1] <- rep(0, n)
+  SSB2[1, t, 1, 1] <- sum(N2[, 1, t - rec_age, 1, 1]*W*Mat)
+  abundance_all2[1, t, 1, 1] <- sum(N2[, 1, t, 1, 1])
+  abundance_mature2[1, t, 1, 1] <- sum(N2[m:max_age - 1, 1, t, 1, 1])
+} 
+
+# Calculate final biomass given zero fishing
+FM2 <- array(rep(0, n*eq_time), c(n, 1, eq_time, 1, 1))
+
+# Step population forward in time with set fishing level
+for (t in (rec_age + 1):eq_time) {
+  
+  PD <- pop_dynamics(a = 1, t, cr = 1, nm = 1, rec_age, max_age, n, SSB2, 
+                     N2, W, Mat, A = 1, R0, h, B0, Eps2, sigma_R, Fb = 0, E2, 
+                     S, NM, FM2, m, abundance_all2, abundance_mature2, 
+                     biomass2, fishing = T, nat_mortality = M)
+  
+  FM2[, 1, t, 1, 1]               <- rep(0, n)
+  N2[, 1, t, 1, 1]                <- PD[[2]]
+  abundance_all2[1, t, 1, 1]      <- PD[[3]]
+  abundance_mature2[1, t, 1, 1]   <- PD[[4]]
+  biomass2[1, t, 1, 1]            <- PD[[5]]
+  SSB2[1, t, 1, 1]                <- PD[[6]]
+  
 }
 
+FM0_biomass <- biomass2[1, eq_time, 1, 1]
+
 # Substitute in values for Fb to get depletion level
-for (i in 1:fn) { 
+for (i in 2:fn) { 
   
   FM2 <- array(rep(FM_values[i], n*eq_time), c(n, 1, eq_time, 1, 1))
   
@@ -131,18 +145,22 @@ for (i in 1:fn) {
   for (t in (rec_age + 1):eq_time) {
     
     PD <- pop_dynamics(a = 1, t, cr = 1, nm = 1, rec_age, max_age, n, SSB2, 
-                       N2, W, Mat, A, R0, h, B0, Eps2, sigma_R, Fb, E2, S, 
-                       NM, FM2, m, abundance_all2, abundance_mature2, 
-                       biomass2, fishing = F, nat_mortality)
+                       N2, W, Mat, A = 1, R0, h, B0, Eps2, sigma_R, Fb = 0, E2, 
+                       S, NM, FM2, m, abundance_all2, abundance_mature2, 
+                       biomass2, fishing = T, nat_mortality = M)
     
-    N2[, a, t, cr, nm]                <- PD[[2]]
-    biomass2[a, t, cr, nm]            <- PD[[5]]
-
+    FM2[, 1, t, 1, 1]               <- rep(FM_values[i], n)
+    N2[, 1, t, 1, 1]                <- PD[[2]]
+    abundance_all2[1, t, 1, 1]      <- PD[[3]]
+    abundance_mature2[1, t, 1, 1]   <- PD[[4]]
+    biomass2[1, t, 1, 1]            <- PD[[5]]
+    SSB2[1, t, 1, 1]                <- PD[[6]]
+    
   }
   
-}
+  dep[i] <- 1 - (biomass2[1, eq_time, 1, 1] / FM0_biomass)
 
-dep <- 1 - (biomass2[eq_time, 1, 1, 1] / biomass2[eq_time, 1, 1, 1])
+}
 
 closest_FM <- FM_values[which.min(abs(dep - true_dep))] 
 
