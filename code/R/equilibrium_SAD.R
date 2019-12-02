@@ -1,5 +1,5 @@
 equilibrium_SAD <- function(a, cr, nm, A, rec_age, max_age, n, W, R0,
-                            Mat, h, B0, Eps, sigma_R, Fb, S, M, eq_time, m, 
+                            Mat, h, B0, sigma_R, Fb, S, M, eq_time, m, 
                             stochasticity, rho_R, nat_mortality) {
   
   # Initialize population size array
