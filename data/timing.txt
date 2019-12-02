@@ -13,5 +13,5 @@ sims:		time:
 1e1           	4    min  31.25 sec
 1e2		45   min  30.09 sec
 1e3		370  min  36.25 sec
-1e4		2611 min  6.35  sec
-1e5		
+1e4		2611 min  06.35 sec
+                3059 min  51.19 sec
