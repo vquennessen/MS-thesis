@@ -27,7 +27,7 @@ pop_dynamics <- function(a, t, cr, nm, rec_age, max_age, n, SSB, N, W, Mat, A,
   abundance_all[a, t, cr, nm] <- sum(N[, a, t, cr, nm])
   
   # Calculate abundance of mature fish
-  abundance_mature[a, t, cr, nm] <- sum(N[m:n, a, t, cr, nm])
+  abundance_mature[a, t, cr, nm] <- sum(N[m:max_age - 1, a, t, cr, nm])
   
   # Calculate biomass of all fish
   biomass[a, t, cr, nm] <- sum(N[, a, t, cr, nm] * W)
