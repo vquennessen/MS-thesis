@@ -1,22 +1,29 @@
-setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")
+rm(list = ls())
+
+# setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")
 
 num_sims <- 1e4
 species <- 'BR2003'
 final_DR <- 0.8
-factor <- 'yield'
+factor <- 'biomass'
 
-filepath <- paste('../../data/1e', log10(num_sims), '_', species, '_', final_DR, 
-                  '_', factor, '.Rda', sep = '')
+filepath <- paste('~/Projects/DensityRatio/data/', species, '/1e', log10(num_sims), 
+                  '_', final_DR, '_', factor, '.Rda', sep = '')
 
 load(filepath)
 
 y1 <- 0
-y2 <- 5
+y2 <- 1
+
+# set plot margins
+par(mar=c(4.5,5,3,1))
+
+# main title
+title <- paste('Variance vs. Sample Size:', factor, sep = ' ')
 
 # create empty plot
-par(mar=c(4.5,5,3,1))
 plot(1, type = 'l',                          # make an empty line graph
-     main = 'Variance vs. Sample Size',      # title of plot
+     main = title,                           # title of plot
      ylab = 'Sample Variance',               # axis labels
      xlab = 'Sample Size', 
      xaxt = 'n', 
@@ -49,17 +56,18 @@ time2 <- 20
 sample_size <- seq(1e2, num_sims, 1e2)
 
 # initialize variance arrays 
-vars <- array(rep(NA, length(sample_size*num_runs)), c(sample_size, num_runs))
+vars <- array(rep(NA, length(sample_size)*num_runs), 
+              c(length(sample_size), num_runs))
 
 for (j in 1:num_runs) {
   
   for (i in 1:length(sample_size)) {
     
     indices <- sample(1:num_sims, sample_size[i])
-    sampled <- sims_yield[, , , indices]
+    object <- get(paste('sims_', factor, sep = ''))
     
-    # calculate variance of yield at time2 across all simulations 
-    vars[i] <- var(sampled[1, time2, 1, indices])
+    # calculate variance of yield at time2 across all sampled simulations 
+    vars[i, j] <- var(object[1, time2 + 1, 1, indices])
     
   }
   
