@@ -1,6 +1,5 @@
 setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")
 
-
 num_sims <- 1e4
 species <- 'BR2003'
 final_DR <- 0.8
@@ -47,7 +46,7 @@ num_runs <- 10
 time2 <- 20
 
 # set different sample sizes
-sample_size <- seq(1e2, 1e4, 1e2)
+sample_size <- seq(1e2, num_sims, 1e2)
 
 # initialize variance arrays 
 vars <- array(rep(NA, length(sample_size*num_runs)), c(sample_size, num_runs))
@@ -66,4 +65,5 @@ for (j in 1:num_runs) {
   
   # plot one run through various sample sizes
   points(sample_size, vars[, j])
+  
 }
