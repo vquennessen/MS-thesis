@@ -1,4 +1,4 @@
-equilibrium_SAD <- function(a, cr, nm, A, rec_age, max_age, n, W, R0,
+equilibrium_SAD <- function(rec_age, max_age, n, W, R0,
                             Mat, h, B0, sigma_R, Fb, S, M, eq_time, m, 
                             stochasticity, rho_R, nat_mortality) {
   
@@ -30,11 +30,11 @@ equilibrium_SAD <- function(a, cr, nm, A, rec_age, max_age, n, W, R0,
   # Enter FM, N, abundance, and biomasses for time = 1 to rec_age
   # Dimensions = age * area * time * CR * M values (3)
   for (t in 1:(rec_age + 1)) {
-    N2[, a, t, cr, nm] <- rep(100, n)
-    biomass2[a, t, cr, nm] <- sum(N2[, a, t, cr, nm] * W)
-    SSB2[a, t, cr, nm] <- sum(N2[, a, t, cr, nm]*W*Mat)
-    abundance_all2[a, t, cr, nm] <- sum(N2[, a, t, cr, nm])
-    abundance_mature2[a, t, cr, nm] <- sum(N2[m:n, a, t, cr, nm])
+    N2[, 1, t, 1, 1] <- rep(100, n)
+    biomass2[1, t, 1, 1] <- sum(N2[, 1, t, 1, 1] * W)
+    SSB2[1] <- sum(N2[, 1, t, 1, 1]*W*Mat)
+    abundance_all2[1, t, 1, 1] <- sum(N2[, 1, t, 1, 1])
+    abundance_mature2[1, t, 1, 1] <- sum(N2[m:n, 1, t, 1, 1])
   }
   
   # Step population forward in time with set fishing level
@@ -46,12 +46,12 @@ equilibrium_SAD <- function(a, cr, nm, A, rec_age, max_age, n, W, R0,
                        NM, FM2, m, abundance_all2, abundance_mature2, 
                        biomass2, fishing = F, nat_mortality)
     
-    FM2[, a, t, cr, nm]               <- PD[[1]]
-    N2[, a, t, cr, nm]                <- PD[[2]]
-    abundance_all2[a, t, cr, nm]      <- PD[[3]]
-    abundance_mature2[a, t, cr, nm]   <- PD[[4]]
-    biomass2[a, t, cr, nm]            <- PD[[5]]
-    SSB2[a, t, cr, nm]                <- PD[[6]]
+    FM2[, 1, t, 1, 1]               <- PD[[1]]
+    N2[, 1, t, 1, 1]                <- PD[[2]]
+    abundance_all2[1, t, 1, 1]      <- PD[[3]]
+    abundance_mature2[1, t, 1, 1]   <- PD[[4]]
+    biomass2[1, t, 1, 1]            <- PD[[5]]
+    SSB2[1, t, 1, 1]                <- PD[[6]]
     
   }
   
@@ -62,7 +62,7 @@ equilibrium_SAD <- function(a, cr, nm, A, rec_age, max_age, n, W, R0,
   # }
   # lines(1:eq_time, N2[n, 1, 1:eq_time, 1], col = 'blue')
   
-  SAD <- N2[, a, eq_time - 1, cr, nm]
+  SAD <- N2[, 1, eq_time - 1, 1, 1]
   
   # # Adjust stable age distribution to give total biomass of B0
   # B1 <- as.numeric(SAD %*% W)
