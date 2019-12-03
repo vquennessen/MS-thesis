@@ -17,12 +17,12 @@ fishery_management <- T
 fishing <- T
 adult_movement <- T
 error <- 0.05
-final_DR <- 0.8
+final_DR <- 0.2
 plotting <- T
 plot_individual_runs <- F
 
 # set numbers of simulations
-num_sims <- 1e5
+num_sims <- 3
 
 # initialize yield and biomass arrays
 sims_yield <- array(rep(0, A*(time2 + 1)*CR*num_sims), 
@@ -52,22 +52,18 @@ for (i in 1:num_sims) {
   
 }
 
-q <- ifelse(num_sims < 101, num_sims, paste("1e", log10(num_sims)))
+q <- ifelse(num_sims < 101, num_sims,  paste("1e", log10(num_sims), sep = ''))
 
-filepath1 = paste("../../data/", q, "_", species, "_", final_DR, 
-                  "_yield.Rda", sep = '')
-filepath2 = paste("../../data/", q, "_", species, "_", final_DR, 
-                  "_biomass.Rda", sep = '')
-filepath3 = paste("../../data/", q, "_", species, "_", final_DR, 
-                  "_SSB.Rda", sep = '')
-filepath4 = paste("../../data/", q, "_", species, "_", final_DR, 
-                  "_DR.Rda", sep = '')
+filepath1 = paste('../../data/', species, '/', q, "_", final_DR, "_yield.Rda", 
+                  sep = '')
+filepath2 = paste('../../data/', species, '/', q, "_", final_DR, "_biomass.Rda", 
+                  sep = '')
+filepath3 = paste('../../data/', species, '/', q, "_", final_DR, "_SSB.Rda", 
+                  sep = '')
+filepath4 = paste('../../data/', species, '/', q, "_", final_DR, "_DR.Rda", 
+                  sep = '')
 
 save(sims_yield, file = filepath1)
 save(sims_biomass, file = filepath2)
 save(sims_SSB, file = filepath3)
 save(sims_DR, file = filepath4)
-
-plot_stuff(filepath1, filepath2, filepath3, filepath4, A, time2, CR, num_sims, 
-           sample_size = num_sims, PD = 0.25, plot_individual_runs, 
-           y_DR[, num_sims], species, final_DR)
