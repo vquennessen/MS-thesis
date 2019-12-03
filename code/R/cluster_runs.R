@@ -1,4 +1,4 @@
-cluster_runs <- function(species, final_DR) {
+cluster_runs <- function(species, final_DR, num_sims) {
   
   source('./base_model.R')
   source('./plot_stuff.R')
@@ -20,9 +20,6 @@ cluster_runs <- function(species, final_DR) {
   error <- 0.05
   plotting <- T
   plot_individual_runs <- F
-  
-  # set numbers of simulations
-  num_sims <- 1e4
   
   # initialize yield and biomass arrays
   sims_yield <- array(rep(0, A*(time2 + 1)*CR*num_sims), 
