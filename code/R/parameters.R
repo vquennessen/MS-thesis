@@ -42,11 +42,11 @@ parameters = function(species) {
 
                                             #### fleets: sport, hook, trawl ####
     fleets <- c('sport', 'hook', 'trawl')   # names of fleets
-    alpha <- c(0.33, 0.6, 0.64)          # slope of upcurve per fleet
-    beta <- c(1.2, 0.6, 0)               # slope of downcurve per fleet
-    F_fin <- c(0.25, 0.06, 0)              # final selectivity if dome-shaped 
-    L50_up <- c(2, 5, 10)             # L50 value for upcurve
-    L50_down <- c(6, 16, 35)           # L50 value for downcurve
+    alpha <- c(0.33, 0.6, 0.64)             # slope of upcurve per fleet
+    beta <- c(1.2, 0.6, 0)                  # slope of downcurve per fleet
+    F_fin <- c(0.25, 0.06, 0)               # final selectivity if dome-shaped 
+    L50_up <- c(2, 5, 10)                   # L50 value for upcurve
+    L50_down <- c(6, 16, 35)                # L50 value for downcurve
     cf <- c(0.71, 0.28, 0.01)               # fraction of fishery caught / fleet
                                             #       from upcurve to 1
                                             
