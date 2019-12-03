@@ -96,13 +96,14 @@ N2 <- catch2 <- array(rep(0, n*eq_time), c(n, 1, eq_time, 1, 1))
 # Initialize biomass, SSB, and recruitment error
 # Dimensions = 1 * time * 1
 SSB2 <- biomass2 <- array(rep(0, eq_time), c(1, eq_time, 1, 1))
-abundance_all2 <- abundance_mature2 <- array(rep(0, eq_time), c(1, eq_time, 1, 1))
+abundance_all2 <- abundance_mature2 <- array(rep(0, eq_time), 
+                                             c(1, eq_time, 1, 1))
 
 rec_biomass <- array(rep(NA, fn*eq_time), c(fn, eq_time))
 
-SAD <- equilibrium_SAD(a = 1, cr = 1, nm = 1, A = 1, rec_age, max_age, n, W, 
-                       R0, Mat, h, B0, sigma_R, Fb = 0, S, M, eq_time = 150, 
-                       m, stochasticity = F, rho_R, nat_mortality = M)
+SAD <- equilibrium_SAD(rec_age, max_age, n, W, R0, Mat, h, B0, sigma_R, Fb, 
+                       S, M, eq_time = 150, m, stochasticity = F, rho_R, 
+                       nat_mortality = M)
 
 # Enter FM, N, abundance, and biomasses for time = 1 to rec_age
 for (t in 1:rec_age) {
