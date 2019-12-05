@@ -1,7 +1,7 @@
 pop_dynamics <- function(a, t, cr, nm, rec_age, max_age, n, SSB, N, W, Mat, A, 
                          R0, h, B0, Eps, sigma_R, Fb, E, S, NM, FM, m, 
                          abundance_all, abundance_mature, biomass, fishing, 
-                         nat_mortality) {
+                         nat_mortality, recruitment_mode) {
   
   # Calculate fishing mortality
   if (fishing == T) {
@@ -12,7 +12,7 @@ pop_dynamics <- function(a, t, cr, nm, rec_age, max_age, n, SSB, N, W, Mat, A,
   
   # Calculate recruitment and add recruits to population
   N[1, a, t, cr, nm] <- recruitment(a, t, cr, nm, SSB, A, R0, h, B0, Eps, 
-                                    sigma_R, rec_age)
+                                    sigma_R, rec_age, recruitment_mode)
   
   # Ages rec_age + 1 to max_age - 1
   for (i in 2:(n - 1)) {
