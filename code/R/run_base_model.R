@@ -24,6 +24,7 @@ error <- 0.05
 final_DR <- 0.2
 plotting <- T
 plot_individual_runs <- F
+recruitment_mode <- 'pool'
 
 # set numbers of simulations
 num_sims <- 3
@@ -43,8 +44,8 @@ y_DR <- array(rep(0, (time2 + 1)*num_sims), c((time2 + 1), num_sims))
 for (i in 1:num_sims) {
   
   output <- base_model(species, A, MPAs, time1, time2, CR, allocation, R0, 
-             stochasticity, surveys, transects, fishery_management, 
-             fishing, adult_movement, plotting, error, final_DR)
+             stochasticity, surveys, transects, fishery_management, fishing, 
+             adult_movement, plotting, error, final_DR, recruitment_mode)
   
   # save the relative yield and biomasses for all areas, times after reserve
   # implementation, and control rules
