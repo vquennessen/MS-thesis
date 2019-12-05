@@ -42,7 +42,7 @@ y_DR <- array(rep(0, (time2 + 1)*num_sims), c((time2 + 1), num_sims))
 # run the model for each simulation
 for (i in 1:num_sims) {
   
-  output <- base_model(species, A, time1, time2, CR, allocation, R0, 
+  output <- base_model(species, A, MPAs, time1, time2, CR, allocation, R0, 
              stochasticity, surveys, transects, fishery_management, 
              fishing, adult_movement, plotting, error, final_DR)
   

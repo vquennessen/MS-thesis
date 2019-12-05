@@ -1,6 +1,6 @@
 #' Runs base model, based on Babcock & MacCall (2011)
 
-base_model <- function(species, A, time1, time2, CR, allocation, R0, 
+base_model <- function(species, A, MPAs, time1, time2, CR, allocation, R0, 
                        stochasticity, surveys, transects, fishery_management, 
                        fishing, adult_movement, plotting, error, final_DR) {
   
