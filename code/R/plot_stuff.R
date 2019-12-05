@@ -62,6 +62,11 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
   
   # set layout matrix for all plots
   layout_m <- matrix(c(1, 3, 2, 3), nrow = 2, ncol = 2, byrow = T)
+  w1 <- 2; w2 <- 0.35
+  h1 <- 5; h2 <- 2
+  
+  # set main title
+  main_title <- paste(species, ", Target DR = ", final_DR, sep = '')
   
   # set legend title and text and position
   legend_title <- expression(bold('Control Rule'))
@@ -71,16 +76,23 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
   position <- 'left'
   
   # plot margins
-  plot1_margins <- c(0.1, 4.5, 5.1, 0.1)
-  plot2_margins <- c(4.1, 4.5, 3.1, 0.1)
-  plot3_margins <- c(0.1, 0.1, 0.1, 0.1)
+  plot1_margins <- c(0.75, 4.7, 6, 0.25)
+  plot2_margins <- c(4.3, 4.7, 2, 0.25)
+  plot3_margins <- c(0, 1, 0, 0)
+  
+  # text sizes
+  mt <- 1.75    # main title for main plot
+  mt2 <- 1.5    # main title for DR plot
+  lab <- 1.5    # axis labels
+  ax <- 1.25    # axis tick labels
+  leg <- 1.25   # legend text
   
   ##### Plot relative biomass + range over time after reserve implementation #####
   
   # y-axis limits
   y1 <- 0
   y2 <- 4
-  y_by <- (y2 - y1)/2
+  y_by <- (y2 - y1)/4
   
   # x-axis limits
   x1 <- 0
@@ -96,38 +108,34 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
     
     # set plotting layout
     layout(mat = layout_m,
-           widths = c(2, 0.4),                   # Widths of the 2 columns
-           heights = c(4, 2))                    # Heights of the 2 rows
+           widths = c(w1, w2),                   # Widths of the 2 columns
+           heights = c(h1, h2))                  # Heights of the 2 rows
     
-    main_title <- paste(species, ", Target DR = ", final_DR, sep = '')
-
     area <- ifelse(a < 2, 'far from', ifelse(a == 3, 'in', 'near'))
-    title <- sprintf("Relative biomass: %s reserve", area)
+    sub_title <- sprintf("Relative biomass: %s reserve", area)
     
-    # plot the relative yield
+    # plot the relative biomass
     par(mar = plot1_margins)
     plot(1, type = 'l',                          # make an empty line graph
-         main = title,                           # title of plot
+         main = paste(main_title, '\n', sub_title, sep = ''),  # title of plot
          ylab = 'Relative Biomass',              # axis labels
          xlab = 'Years since marine reserve implementation',
          xaxt = 'n',
          yaxt = 'n',                             # get rid of y-axis
          xlim = c(x1, x2),                       # set x-axis limits
          ylim = c(y1, y2), 
-         cex.main = 1.75, cex.axis = 3, cex.lab = 1.5)
-    
-    # Add species and final_DR main title over whole plot
-    mtext(main_title, outer = TRUE, cex = 1.5)
+         cex.main = mt, cex.lab = lab)
     
     # add a gray dotted line at y = 1
-    lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3)
+    lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3, lwd = 2)
     
     # set specific y-axis
     ytick <- seq(y1, y2, by = y_by)              # set yaxis tick marks
     axis(side = 2,                               # specify y axis
          at = ytick,                             # apply tick marks
          labels = T,                             # apply appropriate labels
-         las = 1)                                # set text horizontal
+         las = 1,                                # set text horizontal
+         cex.axis = ax)                          # set axis text size 
     
     for (cr in 1:CR) {
       lines(x1:x2, B_medians[a, , cr],
@@ -150,21 +158,23 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
          yaxt = 'n',                             # get rid of y-axis
          xlim = c(0, time2),                     # set x-axis limits
          ylim = c(0, y2_dr), 
-         cex.lab = 1.5, cex.main = 1.5)
+         cex.lab = lab, cex.main = mt2)
     
     # set specific y-axis
     dr_ytick <- seq(y1_dr, y2_dr, by_dr)         # set y axis tick marks
     axis(side = 2,                               # specify y axis
          at = dr_ytick,                          # apply tick marks
          labels = T,                             # apply appropriate labels
-         las = 1)                                # set text horizontal
+         las = 1,                                # set text horizontal
+         cex.axis = ax)                          # set axis text size 
     
     # set specific x-axis
     xtick <- seq(x1, x2, by = x_by)              # set x axis tick marks
     axis(side = 1,                               # specify x axis
          at = xtick,                             # apply tick marks
          labels = T,                             # apply appropriate labels
-         las = 1)                                # set text horizontal
+         las = 1,                                # set text horizontal
+         cex.axis = ax)                          # set axis text size 
     
     for (cr in 1:CR) {
       lines(x1:x2, DR_medians[, cr],
@@ -173,7 +183,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
             lty = (cr %% 3) + 1)}                # set line type
     
     # add a gray dotted line at target_DR over time
-    lines(0:time2, y_DR, col = 'gray', lty = 3)
+    lines(0:time2, y_DR, col = 'gray', lty = 3, lwd = 2)
     
     # add a legend
     par(mar = plot3_margins)
@@ -185,7 +195,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
            title = legend_title,                 # add legend title
            legend = legend_text,                 # add legend labels
            seg.len = 3,                          # adjust length of lines
-           cex = 1.1,                            # adjust legend text size
+           cex = leg,                            # adjust legend text size
            bty = 'n') 
     
   }
@@ -200,43 +210,41 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
   for (a in 1:2) {
 
     area <- ifelse(a == 1, 'far from', 'near')
-    title <- sprintf("Relative yield: %s reserve", area)
+    sub_title <- sprintf("Relative yield: %s reserve", area)
 
     # set plotting layout
     layout(mat = layout_m,
-           widths = c(2, 0.4),                   # Widths of the 2 columns
-           heights = c(4, 2))                    # Heights of the 2 rows
+           widths = c(w1, w2),                   # Widths of the 2 columns
+           heights = c(h1, h2))                  # Heights of the 2 rows
 
-    # plot the relative biomass
+    # plot the relative yield
     par(mar = plot1_margins)
     plot(1, type = 'l',                          # make an empty line graph
-         main = title,                           # title of plot
-         ylab = 'Relative Yield',              # axis labels
+         main = paste(main_title, '\n', sub_title, sep = ''),  # title of plot
+         ylab = 'Relative Yield',                # axis labels
          xlab = 'Years since marine reserve implementation',
          xaxt = 'n',
          yaxt = 'n',                             # get rid of y-axis
          xlim = c(x1, x2),                       # set x-axis limits
          ylim = c(yy1, yy2),
-         cex.main = 1.75, cex.axis = 3, cex.lab = 1.5)
-    
-    # Add species and final_DR main title over whole plot
-    mtext(main_title, outer = TRUE, cex = 1.5)
+         cex.main = mt, cex.lab = lab)
 
     # add a gray dotted line at y = 1
-    lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3)
+    lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3, lwd = 2)
 
     # set specific y-axis
-    yytick <- seq(yy1, yy2, by = yy_by)              # set y axis tick marks
-    axis(side = 2,                               # specify y axis
-         at = yytick,                             # apply tick marks
-         labels = T,                             # apply appropriate labels
-         las = 1)                                # set text horizontal
-
+    yytick <- seq(yy1, yy2, by = yy_by)        # set y axis tick marks
+    axis(side = 2,                             # specify y axis
+         at = yytick,                          # apply tick marks
+         labels = T,                           # apply appropriate labels
+         las = 1,                              # set text horizontal
+         cex.axis = ax)                        # set axis text size 
+    
     for (cr in 1:CR) {
       lines(x1:x2, Y_medians[a, , cr],
-            col = color[cr],                  # use pre-defined color palette
-            lwd = 2,                     # set line width
-            lty = line_type[cr])                  # set line type
+            col = color[cr],                   # use pre-defined color palette
+            lwd = 2,                           # set line width
+            lty = line_type[cr])               # set line type
 
       polygon(x = c(x1:x2, rev(x1:x2)),
               y = c(Y_lower[a, , cr], rev(Y_upper[a, , cr])),
@@ -253,22 +261,24 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
          yaxt = 'n',                           # get rid of y-axis
          xlim = c(0, time2),                   # set x-axis limits
          ylim = c(0, y2_dr),
-         cex.lab = 1.5, cex.main = 1.5)
+         cex.lab = lab, cex.main = mt2)
 
     # set specific y-axis
-    dr_ytick <- seq(y1_dr, y2_dr, by_dr)              # set y axis tick marks
+    dr_ytick <- seq(y1_dr, y2_dr, by_dr)       # set y axis tick marks
     axis(side = 2,                             # specify y axis
          at = dr_ytick,                        # apply tick marks
          labels = T,                           # apply appropriate labels
-         las = 1)                              # set text horizontal
-
+         las = 1,                              # set text horizontal
+         cex.axis = ax)                        # set axis text size 
+    
     # set specific x-axis
     xtick <- seq(x1, x2, by = x_by)            # set x axis tick marks
     axis(side = 1,                             # specify x axis
          at = xtick,                           # apply tick marks
          labels = T,                           # apply appropriate labels
-         las = 1)                              # set text horizontal
-
+         las = 1,                              # set text horizontal
+         cex.axis = ax)                        # set axis text size 
+    
     for (cr in 1:CR) {
       lines(x1:x2, DR_medians[, cr],
             col = color[cr],                   # use pre-defined color palette
@@ -276,8 +286,8 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
             lty = (cr %% 3) + 1)}              # set line type
 
     # add a gray dotted line at target_DR over time
-    lines(0:time2, y_DR, col = 'gray', lty = 3)
-
+    lines(0:time2, y_DR, col = 'gray', lty = 3, lwd = 2)
+    
     # add a legend
     par(mar = plot3_margins)
     plot(1, type = 'n', axes = F, xlab = '', ylab = '')
@@ -288,7 +298,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
            title = legend_title,                 # add legend title
            legend = legend_text,                 # add legend labels
            seg.len = 3,                          # adjust length of lines
-           cex = 1.1,                            # adjust legend text size
+           cex = leg,                            # adjust legend text size
            bty = 'n') 
   }
 
@@ -297,40 +307,40 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
   # y-axis limits
   yyy1 <- 0.5
   yyy2 <- 6.5
-  yyy_by <- (yyy2 - yyy1)/2
+  yyy_by <- (yyy2 - yyy1)/4
   
   for (a in 1:3) {
   
     area <- ifelse(a < 2, 'far from', ifelse(a == 3, 'in', 'near'))
-    title <- sprintf("Relative SSB range: %s reserve", area)
+    sub_title <- sprintf("Relative SSB: %s reserve", area)
+    
+    # set plotting layout
+    layout(mat = layout_m,
+           widths = c(w1, w2),                   # Widths of the 2 columns
+           heights = c(h1, h2))                  # Heights of the 2 rows
   
-    # plot the relative yield
+    # plot the relative SSB
     par(mar = plot1_margins)
     plot(1, type = 'l',                          # make an empty line graph
-         main = title,                           # title of plot
+         main = paste(main_title, '\n', sub_title, sep = ''),  # title of plot
          ylab = 'Relative SSB',                  # axis labels
          xlab = 'Years since marine reserve implementation',
          xaxt = 'n',
          yaxt = 'n',                             # get rid of y-axis
          xlim = c(x1, x2),                       # set x-axis limits
-         ylim = c(yyy1, yyy2))
-  
+         ylim = c(yyy1, yyy2), 
+         cex.main = mt, cex.lab = lab)
+    
     # add a gray dotted line at y = 1
-    lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3)
+    lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3, lwd = 2)
   
     # set specific y-axis
     yyytick <- seq(yyy1, yyy2, by = yyy_by)      # set yaxis tick marks
     axis(side = 2,                               # specify y axis
          at = yyytick,                           # apply tick marks
          labels = T,                             # apply appropriate labels
-         las = 1)                                # set text horizontal
-  
-    # set specific x-axis
-    xtick <- seq(x1, x2, by = x_by)              # set x axis tick marks
-    axis(side = 1,                               # specify x axis
-         at = xtick,                             # apply tick marks
-         labels = T,                             # apply appropriate labels
-         las = 1)                                # set text horizontal
+         las = 1,                                # set text horizontal
+         cex.axis = ax)                          # set axis text size             
   
     for (cr in 1:CR) {
         lines(x1:x2, SSB_medians[a, , cr],
@@ -353,21 +363,24 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
          yaxt = 'n',                           # get rid of y-axis
          xlim = c(0, time2),                   # set x-axis limits
          ylim = c(0, y2_dr),
-         cex.lab = 1.5, cex.main = 1.5)
+         cex.lab = lab, cex.main = mt2)
     
     # set specific y-axis
-    dr_ytick <- seq(y1_dr, y2_dr, by_dr)              # set y axis tick marks
+    dr_ytick <- seq(y1_dr, y2_dr, by_dr)       # set y axis tick marks
     axis(side = 2,                             # specify y axis
          at = dr_ytick,                        # apply tick marks
          labels = T,                           # apply appropriate labels
-         las = 1)                              # set text horizontal
+         las = 1,                              # set text horizontal
+         cex.axis = ax)                        # set axis text size
     
     # set specific x-axis
     xtick <- seq(x1, x2, by = x_by)            # set x axis tick marks
     axis(side = 1,                             # specify x axis
          at = xtick,                           # apply tick marks
          labels = T,                           # apply appropriate labels
-         las = 1)                              # set text horizontal
+         las = 1,                              # set text horizontal
+         cex.axis = ax)                        # set axis text size             
+
     
     for (cr in 1:CR) {
       lines(x1:x2, DR_medians[, cr],
@@ -376,7 +389,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
             lty = (cr %% 3) + 1)}              # set line type
     
     # add a gray dotted line at target_DR over time
-    lines(0:time2, y_DR, col = 'gray', lty = 3)
+    lines(0:time2, y_DR, col = 'gray', lty = 3, lwd = 2)
     
     # add a legend
     par(mar = plot3_margins)
@@ -388,7 +401,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
            title = legend_title,                 # add legend title
            legend = legend_text,                 # add legend labels
            seg.len = 3,                          # adjust length of lines
-           cex = 1.1,                            # adjust legend text size
+           cex = leg,                            # adjust legend text size
            bty = 'n') 
   }
   
@@ -425,7 +438,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
            cex.main = 1.75, cex.axis = 3, cex.lab = 1.5)
 
       # add a gray dotted line at y = 1
-      lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3)
+      lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3, lwd = 2)
 
       # set specific y-axis
       ytick <- seq(y1, y2, by = y_by)              # set y axis tick marks
@@ -494,7 +507,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
            cex.main = 1.75, cex.axis = 3, cex.lab = 1.5)
       
       # add a gray dotted line at y = 1
-      lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3)
+      lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3, lwd = 2)
       
       # set specific y-axis
       ytick <- seq(y1, y2, by = y_by)              # set y axis tick marks
