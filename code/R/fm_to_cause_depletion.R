@@ -124,7 +124,8 @@ for (t in (rec_age + 1):eq_time) {
   PD <- pop_dynamics(a = 1, t, cr = 1, nm = 1, rec_age, max_age, n, SSB2, 
                      N2, W, Mat, A = 1, R0, h, B0, Eps2, sigma_R, Fb = 0, E2, 
                      S, NM, FM2, m, abundance_all2, abundance_mature2, 
-                     biomass2, fishing = T, nat_mortality = M)
+                     biomass2, fishing = T, nat_mortality = M, 
+                     recruitment_mode = 'pool')
   
   FM2[, 1, t, 1, 1]               <- rep(0, n)
   N2[, 1, t, 1, 1]                <- PD[[2]]
@@ -148,7 +149,8 @@ for (i in 2:fn) {
     PD <- pop_dynamics(a = 1, t, cr = 1, nm = 1, rec_age, max_age, n, SSB2, 
                        N2, W, Mat, A = 1, R0, h, B0, Eps2, sigma_R, Fb = 0, E2, 
                        S, NM, FM2, m, abundance_all2, abundance_mature2, 
-                       biomass2, fishing = T, nat_mortality = M)
+                       biomass2, fishing = T, nat_mortality = M, 
+                       recruitment_mode = 'pool')
     
     FM2[, 1, t, 1, 1]               <- rep(FM_values[i], n)
     N2[, 1, t, 1, 1]                <- PD[[2]]

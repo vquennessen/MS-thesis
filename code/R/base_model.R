@@ -2,7 +2,8 @@
 
 base_model <- function(species, A, MPAs, time1, time2, CR, allocation, R0, 
                        stochasticity, surveys, transects, fishery_management, 
-                       fishing, adult_movement, plotting, error, final_DR) {
+                       fishing, adult_movement, plotting, error, final_DR, 
+                       recruitment_mode) {
   
   ##### Source functions #######################################################
   
@@ -125,7 +126,7 @@ base_model <- function(species, A, MPAs, time1, time2, CR, allocation, R0,
           PD <- pop_dynamics(a, t, cr, nm, rec_age, max_age, n, SSB, N, W, Mat, 
                              A, R0, h, B0, Eps, sigma_R, Fb, E, S, NM, FM, m, 
                              abundance_all, abundance_mature, biomass, fishing, 
-                             nat_mortality)
+                             nat_mortality, recruitment_mode)
           
           FM[, a, t, cr, nm]               <- PD[[1]]
           N[, a, t, cr, nm]                <- PD[[2]]
@@ -172,7 +173,7 @@ base_model <- function(species, A, MPAs, time1, time2, CR, allocation, R0,
           PD <- pop_dynamics(a, t, cr, nm, rec_age, max_age, n, SSB, N, W, Mat, 
                              A, R0, h, B0, Eps, sigma_R, Fb, E, S, NM, FM, m, 
                              abundance_all, abundance_mature, biomass, fishing, 
-                             nat_mortality)
+                             nat_mortality, recruitment_mode)
           
           FM[, a, t, cr, nm]               <- PD[[1]]
           N[, a, t, cr, nm]                <- PD[[2]]
