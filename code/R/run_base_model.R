@@ -7,24 +7,15 @@ source('./plot_stuff.R')
 source('./transient_DR.R')
 
 species <- 'BR2003'
-A <- 5
-MPAs <- c(3)
-time1 <- 50
-time2 <- 20
-CR <- 6
-allocation <- 'IFD'
-R0 <- 1e+5
 stochasticity <- T
 surveys <- T
-transects <- 24
 fishery_management <- T
 fishing <- T
 adult_movement <- T
-error <- 0.05
 final_DR <- 0.2
 plotting <- T
 plot_individual_runs <- F
-recruitment_mode <- 'pool'
+years_sampled <- 1
 
 # set numbers of simulations
 num_sims <- 3
@@ -43,9 +34,9 @@ y_DR <- array(rep(0, (time2 + 1)*num_sims), c((time2 + 1), num_sims))
 # run the model for each simulation
 for (i in 1:num_sims) {
   
-  output <- base_model(species, A, MPAs, time1, time2, CR, allocation, R0, 
-             stochasticity, surveys, transects, fishery_management, fishing, 
-             adult_movement, plotting, error, final_DR, recruitment_mode)
+  output <- base_model(species, stochasticity, surveys, fishery_management, 
+                       fishing, adult_movement, plotting, final_DR, 
+                       years_sampled)
   
   # save the relative yield and biomasses for all areas, times after reserve
   # implementation, and control rules

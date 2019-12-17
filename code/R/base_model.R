@@ -1,9 +1,8 @@
 #' Runs base model, based on Babcock & MacCall (2011)
 
-base_model <- function(species, A, MPAs, time1, time2, CR, allocation, R0, 
-                       stochasticity, surveys, transects, fishery_management, 
-                       fishing, adult_movement, plotting, error, final_DR, 
-                       recruitment_mode) {
+base_model <- function(species, stochasticity, surveys, fishery_management, 
+                       fishing, adult_movement, plotting, final_DR, 
+                       years_sampled) {
   
   ##### Source functions #######################################################
   
@@ -28,6 +27,26 @@ base_model <- function(species, A, MPAs, time1, time2, CR, allocation, R0,
   source("./equilibrium_SAD.R")
   source("./movement.R")
   source("./transient_DR.R")
+  
+  ##### Load model parameters
+  
+  R0 <- 1e+5
+  A <- 5
+  MPAs <- c(3)
+  time1 <- 50
+  time2 <- 20
+  CR <- 6
+  recruitment_mode <- 'pool'
+  error <- 0.05
+  areas_sampled <- 'all'
+  fish_sampled <- 'all'
+  transects <- 24
+  allocation <- 'IFD'
+  
+  # set areas in and out of marine reserves
+  areas <- 1:A
+  inside <- MPAs
+  outside <- areas[-MPAs] 
   
   ##### Load life history characteristics for species ##########################
   
@@ -68,17 +87,13 @@ base_model <- function(species, A, MPAs, time1, time2, CR, allocation, R0,
   
   ##### Population Dynamics - Non-Time Varying #################################
   
-  # set areas in and out of marine reserves
-  areas <- 1:A
-  inside <- MPAs
-  outside <- areas[-MPAs] 
-  
   # Initialize arrays for time-varying dynamics
   IA <- initialize_arrays(A, time1, time2, R0, rec_age, max_age, L1f, L2f, Kf, 
                           a1f, a2f, af, bf, k_mat, Fb, L50, sigma_R, rho_R, 
                           fleets, alpha, beta, start, F_fin, L50_up, L50_down, 
                           cf, switch, full, x, sp, M, CR, phi, stochasticity, 
-                          r, D, transects, h, surveys, fishing, error)
+                          r, D, transects, h, surveys, fishing, error, 
+                          recruitment_mode)
   
   timeT            <- IA[[1]]     # total amount of timesteps (years)
   E                <- IA[[2]]     # nominal fishing effort in each area 
@@ -139,7 +154,7 @@ base_model <- function(species, A, MPAs, time1, time2, CR, allocation, R0,
           if (surveys == T) {
               Count[a, t, , , cr, nm] <- sampling(a, t, cr, nm, Delta, Gamma, 
                                                   abundance_all, abundance_mature, 
-                                                  transects, x, Count, nuS)
+                                                  transects, x, Count, nuS, A)
           }
           
           # fishing
@@ -162,7 +177,8 @@ base_model <- function(species, A, MPAs, time1, time2, CR, allocation, R0,
       for (nm in 1:NM) {
         
         # effort allocation
-        E <- effort_allocation(t, cr, nm, allocation, A, E, yield, time1)
+        E <- effort_allocation(t, cr, nm, allocation, E, yield, time1, inside,
+                               outside)
         
         # If there is adult movement, add movement
         if (adult_movement == T) { N <- movement(t, cr, nm, N, A, AMP) }
@@ -186,7 +202,7 @@ base_model <- function(species, A, MPAs, time1, time2, CR, allocation, R0,
           if (surveys == T) {
             Count[a, t, , , cr, nm] <- sampling(a, t, cr, nm, Delta, Gamma, 
                                             abundance_all, abundance_mature, 
-                                            transects, x, Count, nuS)
+                                            transects, x, Count, nuS, A)
           }
           
           # fishing
@@ -201,7 +217,8 @@ base_model <- function(species, A, MPAs, time1, time2, CR, allocation, R0,
         # management
         if (fishery_management == T) {
           E <- control_rule(t, cr, nm, A, E, Count, time1, time2, transects, 
-                            nat_mortality, final_DR, inside, outside)
+                            nat_mortality, final_DR, inside, outside, 
+                            areas_sampled, fish_sampled, years_sampled)
         }
         
       }
