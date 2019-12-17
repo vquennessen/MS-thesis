@@ -1,6 +1,6 @@
-equilibrium_SAD <- function(rec_age, max_age, n, W, R0,
-                            Mat, h, B0, sigma_R, Fb, S, M, eq_time, m, 
-                            stochasticity, rho_R, nat_mortality) {
+equilibrium_SAD <- function(rec_age, max_age, n, W, R0, Mat, h, B0, sigma_R, 
+                            Fb, S, M, eq_time, m, stochasticity, rho_R, 
+                            nat_mortality, recruitment_mode, A) {
   
   # Initialize population size array
   # Dimensions = age * 1 * time * 1 * 1
