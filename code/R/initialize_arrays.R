@@ -3,7 +3,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
                               rho_R, fleets, alpha, beta, start, F_fin, 
                               L50_up, L50_down, cf, switch, full, x, sp, M, CR, 
                               phi, stochasticity, r, D, transects, h, surveys,
-                              fishing, error) {
+                              fishing, error, recruitment_mode) {
   
   # total amount of timesteps (years)
   timeT <- time1 + time2            
@@ -126,7 +126,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   # Dimensions age
   SAD <- equilibrium_SAD(rec_age, max_age, n, W, R0, Mat, h, B0, sigma_R, Fb, 
                          S, M, eq_time = 150, m, stochasticity = F, rho_R, 
-                         nat_mortality = M)
+                         nat_mortality = M, recruitment_mode, A)
   
   # Enter N, abundance, and biomasses for time = 1 to rec_age
   # Dimensions = age * area * time * CR
