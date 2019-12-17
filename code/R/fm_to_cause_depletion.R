@@ -8,6 +8,7 @@ eq_time <- 150
 true_dep <- 0.488
 R0 <- 1e+5
 stochasticity <- F
+recruitment_mode <- 'pool'
 
 # source required functions
 source("./parameters.R")
@@ -150,7 +151,7 @@ for (i in 2:fn) {
                        N2, W, Mat, A = 1, R0, h, B0, Eps2, sigma_R, Fb = 0, E2, 
                        S, NM, FM2, m, abundance_all2, abundance_mature2, 
                        biomass2, fishing = T, nat_mortality = M, 
-                       recruitment_mode = 'pool')
+                       recruitment_mode)
     
     FM2[, 1, t, 1, 1]               <- rep(FM_values[i], n)
     N2[, 1, t, 1, 1]                <- PD[[2]]
