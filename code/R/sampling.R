@@ -1,5 +1,5 @@
 sampling <- function(a, t, cr, nm, Delta, Gamma, abundance_all, 
-                     abundance_mature, transects, x, Count, nuS) {
+                     abundance_mature, transects, x, Count, nuS, A) {
   
   # Total population size across all areas
   total_all <- sum(abundance_all[, t, cr, nm])
