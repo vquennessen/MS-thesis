@@ -1,8 +1,10 @@
-effort_allocation <- function(t, cr, nm, allocation, A, E, yield, time1, 
-                              inside, outside) {
+effort_allocation <- function(t, cr, nm, allocation, E, yield, time1, inside, 
+                              outside) {
   
   #' number of areas not in a reserve
   out <- length(outside)
+  ins <- length(inside)
+  all <- out + ins
   
   #' If effort is allocated using the ideal free distribution, effort for one 
   #' year depends on the distribution of yield from the previous year
@@ -19,7 +21,7 @@ effort_allocation <- function(t, cr, nm, allocation, A, E, yield, time1,
     
     if (t < time1) {
       
-      E[, t, cr] <- rep(sum(E[, t, cr, nm])/A, A)
+      E[, t, cr] <- rep(sum(E[, t, cr, nm])/all, all)
       
     } else if (t >= time1) {
     
