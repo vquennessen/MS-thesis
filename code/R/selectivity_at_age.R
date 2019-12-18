@@ -1,12 +1,12 @@
-selectivity_at_age <- function(fleets, L, max_age, rec_age, alpha, L50_up, 
-                               L50_down, F_fin, beta, n, cf, age) {
+selectivity_at_age <- function(fleets, L, max_age, rec_age, alpha, A50_up, 
+                               A50_down, F_fin, beta, n, cf, age) {
   
   # length of fleet vector
   f <- length(fleets)
   
   # translate L50_up and L50_down to lengths instead of ages
-  L50upL <- L[L50_up - rec_age + 1]
-  L50downL <- L[L50_down - rec_age + 1]
+  L50up <- L[A50_up - rec_age + 1]
+  L50down <- L[A50_down - rec_age + 1]
   
   # initialize upcurves and downcurves
   upcurve <- array(rep(NA, f*(max_age + 1)), c(f, max_age + 1))
@@ -21,10 +21,10 @@ selectivity_at_age <- function(fleets, L, max_age, rec_age, alpha, L50_up,
   S <- array(rep(0, f*n), c(f, n))
   
   for (i in 1:f) {
-    upcurve[i, age + 1] <- 1 / (1 + exp(-1*alpha[i]*(L - L50upL[i])))
+    upcurve[i, age + 1] <- 1 / (1 + exp(-1*alpha[i]*(L - L50up[i])))
     
     downcurve[i, age + 1] <- 1 - 
-      (1 - F_fin[i]) / (1 + exp(-1*beta[i]*(L - L50downL[i])))
+      (1 - F_fin[i]) / (1 + exp(-1*beta[i]*(L - L50down[i])))
     
     if (beta[i] == 0) {downcurve[i, age + 1] <- rep(1, n)}
     

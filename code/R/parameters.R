@@ -45,14 +45,54 @@ parameters = function(species) {
     alpha <- c(0.33, 0.6, 0.64)             # slope of upcurve per fleet
     beta <- c(1.2, 0.6, 0)                  # slope of downcurve per fleet
     F_fin <- c(0.25, 0.06, 0)               # final selectivity if dome-shaped 
-    L50_up <- c(2, 5, 10)                   # L50 value for upcurve
-    L50_down <- c(6, 16, 35)                # L50 value for downcurve
+    A50_up <- c(2, 5, 10)                   # A50 value for upcurve
+    A50_down <- c(6, 16, 35)                # A50 value for downcurve
     cf <- c(0.71, 0.28, 0.01)               # fraction of fishery caught / fleet
                                             #       from upcurve to 1
                                             
   }
   
-  if (species == 'black rockfish 2015') {
+  if (species == 'CAB2005') {
+    # Black Rockfish 2003 assessment
+    # Source: Ralston & Dick 2003
+    max_age <- 17                           # maximum age
+    M <- 0.275                              # natural mortality
+    rec_age <- 1                            # age at recruitment
+    af <- 1.24e-5; bf <- 3.113              # weight at length parameters (f)
+    a1f <- 5; L1f <- 41.3;                  # growth parameters (f)
+    a2f <- 30; L2f <- 61.9; Kf <- 0.18  
+    L50 <- 25.702                           # length at 50% maturity
+    k_mat <- -0.743                         # slope of maturity curve
+    ldp <- 0.1                              # larval drift proportion
+    h <- 0.7                                # steepness
+    phi <- 0.71                             # unfished recruits per spawner
+    sigma_R <- 1                            # recruitment standard deviation
+    rho_R <- 0                              # recruitment autocorrelation
+    AMP <- 0.1                              # adult movement proportion
+    D <- 0.4                                # depletion
+    Fb <- 1.1                               # fishing mortality to cause D
+    r <- 0.27                               # Proportion of positive transects 
+                                            #       in PISCO monitoring data
+    x <- 3.27                               # mean of positive transects
+    sp <- 3.32                              # std of positive transects
+    
+    c <- 0.0273                             # eggs produced per kg, intercept
+    b <- 1.53e-4                            # eggs produced per kg, slope
+    
+    #### fleets: sport, hook, trawl ####
+    fleets <- c('dead', 'live', 'man.made', 
+                'shore', 'PBR', 'CPFV')     # names of fleets
+    alpha <- c()             # slope of upcurve per fleet
+    beta <- c()                  # slope of downcurve per fleet
+    F_fin <- c()               # final selectivity if dome-shaped 
+    A50_up <- c()                   # L50 value for upcurve
+    A50_down <- c()                # L50 value for downcurve
+    cf <- c()               # fraction of fishery caught / fleet
+                                            #       from upcurve to 1
+    
+  }
+  
+  if (species == 'BR2015') {
     # source: Cope et al. 2016
     max_age <- 40                           # maximum age
     M <- 0.17                               # natural mortality
@@ -87,15 +127,15 @@ parameters = function(species) {
     beta <- c(0.25, 0.5, 0.4, 1.1, 0.5)     # slope of downcurve per fleet
     F_fin <- c(0.325, 0.05, -0.11, 
                -0.025, 0.135)               # final selectivity if dome-shaped 
-    L50_up <- c(7, 5, 5, 5, 3)              # L50 value for upcurve
-    L50_down <- c(15, 13, 13, 12, 6.5)      # L50 value for downcurve
+    A50_up <- c(7, 5, 5, 5, 3)              # L50 value for upcurve
+    A50_down <- c(15, 13, 13, 12, 6.5)      # L50 value for downcurve
     cf <- c(0.0001, 0.1679, 0.0982,         # fraction of fishery caught / fleet
             0.6979, 0.0358)               
   }
   
   output = list(max_age, M, rec_age, af, bf, a1f, L1f, a2f, L2f, Kf, L50, k_mat, 
                 ldp, h, phi, sigma_R, rho_R, AMP, D, Fb, r, x, sp, c, b, fleets, 
-                alpha, beta, F_fin, L50_up, L50_down, cf)
+                alpha, beta, F_fin, A50_up, A50_down, cf)
   
   return(output)
   
