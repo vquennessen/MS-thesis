@@ -112,13 +112,13 @@ L <- length_at_age(age, L1f, L2f, Kf, a1f, a2f) # length at age
 
 # manual parameters
 fleet <- c('dead', 'live', 'man.made', 'shore', 'PBR', 'CPFV')
-A50up <- c(2, 3, 1, 2, 1)
+A50up <- c(2, 3, 1, 1, 2, 1)
 L50up <- L[A50up - rec_age + 1]
-alpha <- c(0.4, 0.25, 5, 0.2354, 0.3117, 0.2460)
+alpha <- c(0.4, 0.25, 5, 0.15, 0.35, 0.25)
 Ffin <- c(1, 0.7, 0.38, 0.43, 1, 1)
-A50down <- c(1, 17, 5, 6, 1, 1)
+A50down <- c(1, 17, 5, 4, 1, 1)
 L50down <- L[A50down - rec_age + 1]
-beta <- c(0, 0.35, 0.5, -0.2494, 0, 0)
+beta <- c(0, 0.35, 0.5, 0.26, 0, 0)
 
 # initialize upcurves and downcurves
 f <- length(fleet)
@@ -131,7 +131,7 @@ for (j in 1:rec_age) {
   upcurve[, j] <- downcurve[, j] <- 0
 }
 
-i <- 3
+i <- 6
 
 upcurve[i, age + 1] <- 1 / (1 + exp(-1 * alpha[i] * (L - L50up[i])))
 downcurve[i, age + 1] <- 1 - (1 - Ffin[i]) / (1 + exp(-1 * beta[i] * (L - L50down[i])))
@@ -140,12 +140,14 @@ plot(0:max_age, upcurve[i, ], type = 'l', lwd = 2, col = 'black',
      ylim = c(0, 1))
 lines(0:max_age, downcurve[i, ], lwd = 2, col = 'green')
 # some point
-abline(h = 0.8, col = 'blue')
-abline(v = 4.5, col = 'blue')
+abline(h = 0.85, col = 'blue')
+abline(v = 2, col = 'blue')
 # another point
 abline(h = 0.5, col = 'purple')
-abline(v = 5.75, col = 'purple')
+abline(v = 1, col = 'purple')
+# abline(v = 6, col = 'purple')
 # where it hits proportion = 1.0
-abline(v = 1, col = 'orange')
+abline(v = 5, col = 'orange')
+# abline(h = 0.85, col = 'orange')
 # final value
-abline(h = 0.38, col = 'red')
+# abline(h = 0.43, col = 'red')
