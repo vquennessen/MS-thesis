@@ -3,12 +3,13 @@
 # clear environment
 rm(list = ls())
 
-species <- 'BR2003'
+species <- 'CAB2005'
 eq_time <- 150
 true_dep <- 0.488
 R0 <- 1e+5
 stochasticity <- F
 recruitment_mode <- 'pool'
+A <- 5
 
 # source required functions
 source("./parameters.R")
@@ -86,7 +87,7 @@ for (t in 2:eq_time) {
 E2 <- array(rep(1, eq_time), c(1, eq_time, 1, 1))
 
 # Initialize FM and depletion levels
-FM_values <- seq(from = 0, to = 1, by = 0.01)
+FM_values <- seq(from = 0, to = 2, by = 0.01)
 fn <- length(FM_values)
 dep <- rep(0, fn)
 
@@ -104,7 +105,7 @@ rec_biomass <- array(rep(NA, fn*eq_time), c(fn, eq_time))
 
 SAD <- equilibrium_SAD(rec_age, max_age, n, W, R0, Mat, h, B0, sigma_R, Fb, 
                        S, M, eq_time = 150, m, stochasticity = F, rho_R, 
-                       nat_mortality = M)
+                       nat_mortality = M, recruitment_mode, A)
 
 # Enter FM, N, abundance, and biomasses for time = 1 to rec_age
 for (t in 1:rec_age) {
@@ -125,8 +126,7 @@ for (t in (rec_age + 1):eq_time) {
   PD <- pop_dynamics(a = 1, t, cr = 1, nm = 1, rec_age, max_age, n, SSB2, 
                      N2, W, Mat, A = 1, R0, h, B0, Eps2, sigma_R, Fb = 0, E2, 
                      S, NM, FM2, m, abundance_all2, abundance_mature2, 
-                     biomass2, fishing = T, nat_mortality = M, 
-                     recruitment_mode = 'pool')
+                     biomass2, fishing = T, nat_mortality = M, recruitment_mode)
   
   FM2[, 1, t, 1, 1]               <- rep(0, n)
   N2[, 1, t, 1, 1]                <- PD[[2]]
