@@ -224,8 +224,8 @@ base_model <- function(species, stochasticity, surveys, fishery_management,
       }
       
       # calculate true density ratio
-      outside_density <- sum(abundance_mature[c(1, 2, 4, 5), t, cr, 2]) / 4
-      inside_density <- sum(abundance_mature[c(3), t, cr, 2]) / 1
+      outside_density <- sum(abundance_mature[outside, t, cr, 2]) / length(outside)
+      inside_density <- sum(abundance_mature[inside, t, cr, 2]) / length(inside)
       Density_Ratios[t - time1 + 1, cr] <- outside_density / inside_density
       
     }
