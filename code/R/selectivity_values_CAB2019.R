@@ -25,7 +25,7 @@ k_mat                  <- par[[12]]       # slope of maturity curve
 # Calculated values
 age <- rec_age:max_age                          # applicable ages
 n <- length(age)                                # number of age bins
-L <- length_at_age(age, L1f, L2f, Kf, a1f, a2f) # length at age
+L <- length_at_age(rec_age, max_age, L1f, L2f, Kf, a1f, a2f, all_ages = T) # length at age
 
 # manual parameters
 fleet <- c('dead', 'live', 'shore', 'ocean')
