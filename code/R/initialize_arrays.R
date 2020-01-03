@@ -16,7 +16,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   
   # Length at age
   # Dimensions = 1 * age
-  L <- length_at_age(age, L1f, L2f, Kf, a1f, a2f)
+  L <- length_at_age(rec_age, max_age, L1f, L2f, Kf, a1f, a2f, all_ages = F)
   
   # Weight at age
   # Dimensions = 1 * age
