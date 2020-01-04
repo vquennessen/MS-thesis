@@ -81,7 +81,7 @@ parameters = function(species) {
     
     #### fleets: sport, hook, trawl ####
     fleets <- c('trawl', 'live', 'dead',    # names of fleets
-                'recO', 'recS')   
+                'ocean', 'shore')   
     alpha <- c(0.325, 0.4, 0.35, 
                0.65, 0.425)                 # slope of upcurve per fleet
     beta <- c(0.25, 0.5, 0.4, 1.1, 0.5)     # slope of downcurve per fleet
@@ -137,23 +137,23 @@ parameters = function(species) {
   if (species == 'CAB2019') {
     # Black Rockfish 2003 assessment
     # Source: Ralston & Dick 2003
-    max_age <-                            # maximum age
-    M <-                               # natural mortality
-    rec_age <-                             # age at recruitment
-    af <- ; bf <-               # weight at length parameters (f)
-    a1f <- ; L1f <- ;                  # growth parameters (f)
-    a2f <- ; L2f <- ; Kf <-   
-    L50 <-                            # length at 50% maturity
-    k_mat <-                          # slope of maturity curve
-    ldp <-                               # larval drift proportion
-    h <-                                 # steepness
-    phi <-                              # unfished recruits per spawner
-    sigma_R <-                             # recruitment standard deviation
-    rho_R <-                               # recruitment autocorrelation
-    AMP <-                               # adult movement proportion
-    D <-                                 # depletion
+    max_age <- 20                           # maximum age
+    M <- 0.26                               # natural mortality
+    rec_age <- 4                            # age at recruitment
+    af <- 1.90e-5; bf <- 2.99               # weight at length parameters (f)
+    a1f <- -1.28; L1f <- -0.37;             # growth parameters (f)
+    a2f <- 3.86; L2f <- 43.67; Kf <- 0.225  
+    L50 <- 43                               # length at 50% maturity
+    k_mat <- -0.7                           # slope of maturity curve
+    ldp <- 0.1                              # larval drift proportion
+    h <- 0.7                                # steepness
+    phi <- 1.1                              # unfished recruits per spawner
+    sigma_R <- 0.5                          # recruitment standard deviation
+    rho_R <- 0                              # recruitment autocorrelation
+    AMP <- 0.1                              # adult movement proportion
+    D <- 0.528                              # depletion
     Fb <-                                # fishing mortality to cause D
-    r <-                                # Proportion of positive transects 
+    r <- 0.247                              # Proportion of positive transects 
                                             #       in PISCO monitoring data
     x <-                                # mean of positive transects
     sp <-                               # std of positive transects
@@ -162,14 +162,13 @@ parameters = function(species) {
     b <- 1.53e-4                            # eggs produced per kg, slope
     
     #### fleets: sport, hook, trawl ####
-    fleets <- c('dead', 'live', 'man.made', 
-                'shore', 'PBR', 'CPFV')     # names of fleets
-    alpha <- c()                  # slope of upcurve per fleet
-    beta <- c()     # slope of downcurve per fleet
-    F_fin <- c()    # final selectivity if dome-shaped 
-    A50_up <- c()           # A50 value for upcurve
-    A50_down <- c()        # A50 value for downcurve
-    cf <- c()                 # fraction of fishery caught / fleet
+    fleets <- c('live', 'dead', 'ocean', 'shore') # names of fleets
+    alpha <- c(0.4, 0.33, 0.35, 0.9)              # slope of upcurve per fleet
+    beta <- c(0.35, 0, 0, 0.2)                    # slope of downcurve per fleet
+    F_fin <- c(0.7, 1, 1, 0.07)                   # final select. if dome-shaped 
+    A50_up <- c(3, 4, 2, 1)                       # A50 value for upcurve
+    A50_down <- c(17, 1, 1, 3)                    # A50 value for downcurve
+    cf <- c(0.6033, 0.0415, 0.3423, 0.0130)       # fraction of fishery
     
   }
   
