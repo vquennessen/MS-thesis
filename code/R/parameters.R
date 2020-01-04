@@ -162,14 +162,13 @@ parameters = function(species) {
     b <- 1.53e-4                            # eggs produced per kg, slope
     
     #### fleets: sport, hook, trawl ####
-    fleets <- c('dead', 'live', 'man.made', 
-                'shore', 'PBR', 'CPFV')     # names of fleets
-    alpha <- c()                  # slope of upcurve per fleet
-    beta <- c()     # slope of downcurve per fleet
-    F_fin <- c()    # final selectivity if dome-shaped 
-    A50_up <- c()           # A50 value for upcurve
-    A50_down <- c()        # A50 value for downcurve
-    cf <- c()                 # fraction of fishery caught / fleet
+    fleets <- c('live', 'dead', 'ocean', 'shore') # names of fleets
+    alpha <- c(0.4, 0.33, 0.35, 0.9)              # slope of upcurve per fleet
+    beta <- c(0.35, 0, 0, 0.2)                    # slope of downcurve per fleet
+    F_fin <- c(0.7, 1, 1, 0.07)                   # final select. if dome-shaped 
+    A50_up <- c(3, 4, 2, 1)                       # A50 value for upcurve
+    A50_down <- c(17, 1, 1, 3)                    # A50 value for downcurve
+    cf <- c(0.6033, 0.0415, 0.3423, 0.0130)       # fraction of fishery
     
   }
   
