@@ -1,10 +1,3 @@
-#' Loads life history characteristic parameters for selected species
-#'
-#' @param species a character string
-#' 
-#' @return a list of species life history characteristic parameters
-
-
 parameters = function(species) {
   
   # Error handling

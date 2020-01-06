@@ -1,5 +1,3 @@
-# Calculate Fm to cause observed depletion
-
 # clear environment
 rm(list = ls())
 

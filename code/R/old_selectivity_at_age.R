@@ -1,36 +1,3 @@
-#' Selectivity at age
-#'
-#' @param L length at age, a numeric vector
-#' @param fleets fleet names, a string of character variables
-#' @param alpha slope of upcurve per fleet, a numeric vector
-#' @param beta slope of downcurve per fleet, a numeric vector
-#' @param start length at initial vulnerability per fleet, a numeric vector
-#' @param F_fin final selectivities per fleet, if dome-shaped, a numeric vector
-#' @param L50_up L50 for upcurve per fleet, a numeric vector
-#' @param L50_down L50 for downcurve per fleet, a numeric vector
-#' @param cf fraction of fishery caught per fleet, a numeric vector
-#' @param switch lengths where selectivity switches from upcurve to 1 per fleet, 
-#' a numeric vector
-#' @param full lengths where selectivity switches from 1 to downcurve per fleet,
-#' a numeric vector
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' fleets <- c('sport', 'hook', 'trawl')
-#' alpha <- c(0.45, 0.369, 0.426)          
-#' beta <- c(1.28, 0.419, 0)              
-#' start <- c(20, 20, 20)                  
-#' F_fin <- c(0.265, 0.29, 0)              
-#' L50_up <- c(25.2, 33.2, 46)             
-#' L50_down <- c(36.7, 46.4, 50)           
-#' cf <- c(0.71, 0.28, 0.01)               
-#' switch <- c(29, 29, 0)                  
-#' full <- c(31, 39, 0)                    
-#' selectivity_at_age(L, fleets, alpha, beta, start, F_fin, L50_up, L50_down,
-#' cf, switch)
-
 old_selectivity_at_age <- function(L, fleets, alpha, beta, start, F_fin, L50_up, 
                                L50_down, cf, switch, full) {
   
