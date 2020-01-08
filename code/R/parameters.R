@@ -33,7 +33,7 @@ parameters = function(species) {
     c <- 0.2747                             # eggs produced per kg, intercept
     b <- 0.0941                             # eggs produced per kg, slope
 
-                                            #### fleets: sport, hook, trawl ####
+    #### selectivity parameters ####
     fleets <- c('sport', 'hook', 'trawl')   # names of fleets
     alpha <- c(0.33, 0.6, 0.64)             # slope of upcurve per fleet
     beta <- c(1.2, 0.6, 0)                  # slope of downcurve per fleet
@@ -72,7 +72,7 @@ parameters = function(species) {
     c <- 0.2747                             # eggs produced per kg, intercept
     b <- 0.0941                             # eggs produced per kg, slope
     
-    #### fleets: sport, hook, trawl ####
+    #### selectivity parameters ####
     fleets <- c('trawl', 'live', 'dead',    # names of fleets
                 'ocean', 'shore')   
     alpha <- c(0.325, 0.4, 0.35, 
@@ -113,7 +113,7 @@ parameters = function(species) {
     c <- 0.0273                             # eggs produced per kg, intercept
     b <- 1.53e-4                            # eggs produced per kg, slope
     
-    #### fleets: sport, hook, trawl ####
+    #### selectivity parameters ####
     fleets <- c('dead', 'live', 'man.made', 
                 'shore', 'PBR', 'CPFV')     # names of fleets
     alpha <- c(0.4, 0.25, 5, 0.15, 
@@ -154,7 +154,7 @@ parameters = function(species) {
     c <- 0.0273                             # eggs produced per kg, intercept
     b <- 1.53e-4                            # eggs produced per kg, slope
     
-    #### fleets: sport, hook, trawl ####
+    #### selectivity parameters ####
     fleets <- c('live', 'dead', 'ocean', 'shore') # names of fleets
     alpha <- c(0.4, 0.33, 0.35, 0.9)              # slope of upcurve per fleet
     beta <- c(0.35, 0, 0, 0.2)                    # slope of downcurve per fleet
@@ -165,6 +165,43 @@ parameters = function(species) {
     
   }
   
+  if (species == 'LING2017') {
+    # Black Rockfish 2003 assessment
+    # Source: Ralston & Dick 2003
+    max_age <- 25                           # maximum age
+    M <- 0.28                               # natural mortality
+    rec_age <- 3                            # age at recruitment
+    af <- 2.76e-6; bf <- 3.28               # weight at length parameters (f)
+    a1f <- 1; L1f <- 17.28;                 # growth parameters (f)
+    a2f <- 20; L2f <- 120; Kf <- 0.128  
+    L50 <- 56.7                             # length at 50% maturity
+    k_mat <- -0.27                          # slope of maturity curve
+    ldp <- 0.1                              # larval drift proportion
+    h <- 0.7                                # steepness
+    phi <- 1.1                              # unfished recruits per spawner
+    sigma_R <- 0.55                         # recruitment standard deviation
+    rho_R <- 0                              # recruitment autocorrelation
+    AMP <- 0.1                              # adult movement proportion
+    D <- 0.579                              # depletion
+    Fb <-                                # fishing mortality to cause D
+    r <-                               # Proportion of positive transects 
+                                            #       in PISCO monitoring data
+    x <-                                # mean of positive transects
+    sp <-                               # std of positive transects
+      
+    c <- 1                             # eggs produced per kg, intercept
+    b <- 0                            # eggs produced per kg, slope
+    
+    #### selectivity parameters ####
+    fleets <- c('trawl', 'fixed_gear', 'WArec', 'ORrec') # names of fleets
+    alpha <- c()              # slope of upcurve per fleet
+    beta <- c()                    # slope of downcurve per fleet
+    F_fin <- c()                   # final select. if dome-shaped 
+    A50_up <- c()                       # A50 value for upcurve
+    A50_down <- c()                    # A50 value for downcurve
+    cf <- c()       # fraction of fishery
+    
+  }
   
   output = list(max_age, M, rec_age, af, bf, a1f, L1f, a2f, L2f, Kf, L50, k_mat, 
                 ldp, h, phi, sigma_R, rho_R, AMP, D, Fb, r, x, sp, c, b, fleets, 
