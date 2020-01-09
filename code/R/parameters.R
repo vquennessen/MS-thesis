@@ -37,7 +37,7 @@ parameters = function(species) {
     fleets <- c('sport', 'hook', 'trawl')   # names of fleets
     alpha <- c(0.33, 0.6, 0.64)             # slope of upcurve per fleet
     beta <- c(1.2, 0.6, 0)                  # slope of downcurve per fleet
-    F_fin <- c(0.25, 0.06, 0)               # final selectivity if dome-shaped 
+    F_fin <- c(0.25, 0.06, 1)               # final selectivity if dome-shaped 
     A50_up <- c(2, 5, 10)                   # A50 value for upcurve
     A50_down <- c(6, 16, 35)                # A50 value for downcurve
     cf <- c(0.71, 0.28, 0.01)               # fraction of fishery caught / fleet
@@ -189,17 +189,17 @@ parameters = function(species) {
     x <-                                # mean of positive transects
     sp <-                               # std of positive transects
       
-    c <- 1                             # eggs produced per kg, intercept
-    b <- 0                            # eggs produced per kg, slope
+    c <- -7.46                              # eggs produced per kg, intercept
+    b <- 1.335                              # eggs produced per kg, slope
     
     #### selectivity parameters ####
     fleets <- c('trawl', 'fixed_gear', 'WArec', 'ORrec') # names of fleets
-    alpha <- c()              # slope of upcurve per fleet
-    beta <- c()                    # slope of downcurve per fleet
-    F_fin <- c()                   # final select. if dome-shaped 
-    A50_up <- c()                       # A50 value for upcurve
-    A50_down <- c()                    # A50 value for downcurve
-    cf <- c()       # fraction of fishery
+    alpha <- c(0.25, 0.25, 0.55, 1)         # slope of upcurve per fleet
+    beta <- c(0.09, 0.3, 0.17, 0.15)        # slope of downcurve per fleet
+    F_fin <- c(0.07, 0, 0, 0)               # final select. if dome-shaped 
+    A50_up <- c(3, 5, 5, 3)                 # A50 value for upcurve
+    A50_down <- c(15, 12, 10, 9)            # A50 value for downcurve
+    cf <- c(0.2872, 0.1379, 0.3253, 0.2496) # fraction of fishery
     
   }
   

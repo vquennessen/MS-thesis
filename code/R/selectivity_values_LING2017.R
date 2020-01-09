@@ -31,13 +31,13 @@ L1 <- append(0, L)
 
 # manual parameters
 fleet <- c('trawl', 'fixed_gear', 'WArec', 'ORrec') # names of fleets
-A50up <- c(3, 5, 5, 4)
+A50up <- c(3, 5, 5, 3)
 L50up <- L[A50up]
 alpha <- c(0.25, 0.25, 0.55, 1)
 Ffin <- c(0.07, 0, 0, 0)
 A50down <- c(15, 12, 10, 9)
 L50down <- L[A50down]
-beta <- c(0.09, 0.3, 0.17, 0.25)
+beta <- c(0.09, 0.3, 0.17, 0.15)
 
 # initialize upcurves and downcurves
 f <- length(fleet)
