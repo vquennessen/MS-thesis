@@ -46,8 +46,8 @@ fleets                 <- par[[26]]       # fishery fleet names
 alpha                  <- par[[27]]       # slope for upcurve
 beta                   <- par[[28]]       # slope for downcurve
 F_fin                  <- par[[29]]       # F_fin for fishery, 0 if asymptotic
-L50_up                 <- par[[30]]       # L50 for upcurve
-L50_down               <- par[[31]]       # L50 for downcurve
+A50_up                 <- par[[30]]       # L50 for upcurve
+A50_down               <- par[[31]]       # L50 for downcurve
 cf                     <- par[[32]]       # fraction of fishery caught / fleet
 
 ##### Calculate set values #####
@@ -59,8 +59,8 @@ W <- weight_at_age(L, af, bf)                   # weight at age
 Mat <- fraction_mature_at_age(n, k_mat, L, L50) # maturity at age
 m <- age[min(which(Mat > 0.5))]                 # age at 50% mature
 B0 <- R0/phi                                    # unfished spawning stock biomass
-S <- selectivity_at_age(fleets, L, max_age, rec_age, alpha, L50_up, 
-                        L50_down, F_fin, beta, n, cf, age)
+S <- selectivity_at_age(fleets, L, max_age, rec_age, alpha, A50_up, 
+                        A50_down, F_fin, beta, n, cf, age)
 
 # Recruitment normal variable
 # Dimensions = area * timeT * CR
@@ -111,7 +111,7 @@ SAD <- equilibrium_SAD(rec_age, max_age, n, W, R0, Mat, h, B0, sigma_R, Fb,
                        S, M, eq_time = 150, m, stochasticity = F, rho_R, 
                        nat_mortality = M, recruitment_mode, A)
 
-# Enter FM, N, abundance, and biomasses for time = 1 to rec_age
+# Enter N, abundance, catch, and biomasses for time = 1 to rec_age
 for (t in 1:rec_age) {
   N2[, 1, t, 1, 1] <- SAD
   biomass2[1, t, 1, 1] <- sum(N2[, 1, t, 1, 1] * W)
@@ -121,7 +121,7 @@ for (t in 1:rec_age) {
   abundance_mature2[1, t, 1, 1] <- sum(N2[m:max_age - 1, 1, t, 1, 1])
 } 
 
-# Calculate final biomass given zero fishing
+# Initialize FM matrix
 FM2 <- array(rep(0, n*eq_time), c(n, 1, eq_time, 1, 1))
 
 # Step population forward in time with set fishing level
@@ -141,6 +141,7 @@ for (t in (rec_age + 1):eq_time) {
   
 }
 
+# Calculate final biomass given zero fishing
 FM0_biomass <- biomass2[1, eq_time, 1, 1]
 
 # Substitute in values for Fb to get depletion level
