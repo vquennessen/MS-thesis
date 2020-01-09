@@ -32,6 +32,8 @@ selectivity_at_age <- function(fleets, L, max_age, rec_age, alpha, A50_up,
       S[i, a] <- min(upcurve[i, a + rec_age], downcurve[i, a + rec_age])
     }
     
+    S[i, ] <- cf[i]*S[i, ]
+    
   }
   
   # ############################################################################
@@ -51,7 +53,6 @@ selectivity_at_age <- function(fleets, L, max_age, rec_age, alpha, A50_up,
   # legend(x = 'topright', fleets, lwd = 2, cex = 0.8,
   #        col = c('purple', 'blue', 'green')) #, 'yellow', 'red'))
   
-  S[i, ] <- cf[i]*S[i, ]
   selectivity <- colSums(S)
   
   return (selectivity)

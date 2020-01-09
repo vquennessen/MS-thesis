@@ -9,7 +9,7 @@ rm(list = ls())
 source("./parameters.R")
 source("./length_at_age.R")
 
-species <- 'black rockfish 2003'
+species <- 'BR2003'
 
 fleet <- c('sport', 'hook', 'trawl')
 L50up <- c(3, 5, 10)
@@ -47,7 +47,7 @@ rm(list = ls())
 source("./parameters.R")
 source("./length_at_age.R")
 
-species <- 'black rockfish 2003'
+species <- 'BR2003'
 
 fleet <- c('sport', 'hook', 'trawl')
 Ffin <- c(0.27, 0.28, 1)
@@ -86,7 +86,7 @@ rm(list = ls())
 source("./parameters.R")
 source("./length_at_age.R")
 
-species <- 'black rockfish 2003'
+species <- 'BR2003'
 
 # load species parameters
 par <- parameters(species)
@@ -104,15 +104,16 @@ k_mat                  <- par[[12]]       # slope of maturity curve
 # Calculated values
 age <- rec_age:max_age                          # applicable ages
 n <- length(age)                                # number of age bins
-L <- length_at_age(rec_age, max_age, L1f, L2f, Kf, a1f, a2f, all_ages = F) # length at age
+L <- length_at_age(rec_age, max_age, L1f, L2f, 
+                   Kf, a1f, a2f, all_ages = F)  # length at age
 
 # manual parameters
 fleet <- c('sport', 'hook', 'trawl')
 L50upA <- c(2, 5, 10)
 L50upL <- L[L50upA - rec_age + 1]
 alpha <- c(0.35, 0.6, 0.64)
-Ffin <- c(0.25, 0.06, 0)
-L50downA <- c(6, 16, 0)
+Ffin <- c(0.25, 0.06, 1)
+L50downA <- c(6, 16, max_age)
 L50downL <- L[L50downA - rec_age + 1]
 beta <- c(1.2, 0.6, 0)
 
@@ -129,13 +130,12 @@ for (j in 1:rec_age) {
 
 i <- 3
 
-# for (i in 1:f) {
-  upcurve[i, age + 1] <- 1 / (1 + exp(-1 * alpha[i] * (L - L50upL[i])))
-  downcurve[i, age + 1] <- 1 - (1 - Ffin[i]) / (1 + exp(-1 * beta[i] * (L - L50downL[i])))
-# }
+upcurve[i, age + 1] <- 1 / (1 + exp(-1 * alpha[i] * (L - L50upL[i])))
+downcurve[i, age + 1] <- 1 - (1 - Ffin[i]) / (1 + exp(-1 * beta[i] * (L - L50downL[i])))
 
 plot(0:max_age, upcurve[i, ], type = 'l', lwd = 2, col = 'black', 
-     ylim = c(0, 1))
+     ylim = c(0, 1), xlab = 'Age', ylab = 'Selectivity', 
+     main = paste(species, ": ", fleet[i], sep = ""))
 lines(0:max_age, downcurve[i, ], lwd = 2, col = 'green')
 abline(h = 0.5, col = 'blue')
 abline(v = 10, col = 'blue')
