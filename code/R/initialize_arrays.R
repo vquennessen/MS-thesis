@@ -163,7 +163,7 @@ initialize_arrays <- function(A, time1, time2, R0, rec_age, max_age, L1f, L2f,
   output <- list(timeT, E, n, L, W, Mat, m, S, FM, N, SSB, 
                  abundance_all, abundance_mature, biomass, Count, nuS, 
                  Eps, catch, yield, B0, Delta, Gamma, rel_biomass, rel_yield,
-                 rel_SSB, nat_mortality, NM, Density_Ratios)
+                 rel_SSB, nat_mortality, NM, Density_Ratios, age)
   
   return(output)
   

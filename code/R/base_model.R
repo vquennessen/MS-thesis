@@ -81,8 +81,8 @@ base_model <- function(species, stochasticity, surveys, fishery_management,
   alpha                  <- par[[27]]       # slope for upcurve
   beta                   <- par[[28]]       # slope for downcurve
   F_fin                  <- par[[29]]       # F_fin for fishery, 0 if asymptotic
-  L50_up                 <- par[[30]]       # L50 for upcurve
-  L50_down               <- par[[31]]       # L50 for downcurve
+  A50_up                 <- par[[30]]       # A50 for upcurve
+  A50_down               <- par[[31]]       # A50 for downcurve
   cf                     <- par[[32]]       # fraction of fishery caught / fleet
   
   ##### Population Dynamics - Non-Time Varying #################################
@@ -123,6 +123,7 @@ base_model <- function(species, stochasticity, surveys, fishery_management,
   nat_mortality    <- IA[[26]]    # Range of potential natural mortality values
   NM               <- IA[[27]]    # Number of potential natural mortality values
   Density_Ratios   <- IA[[28]]    # Density ratios
+  age              <- IA[[29]]    # Vector of ages from recruitment to max
   
   ##### Population Dynamics - Time Varying #####################################
   

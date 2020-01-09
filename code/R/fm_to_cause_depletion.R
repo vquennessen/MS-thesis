@@ -1,7 +1,8 @@
 # clear environment
 rm(list = ls())
 
-species <- 'CAB2005'
+##### specify parameters for this run #####
+species <- 'BR2003'
 eq_time <- 150
 true_dep <- 0.488
 R0 <- 1e+5
@@ -9,7 +10,7 @@ stochasticity <- F
 recruitment_mode <- 'pool'
 A <- 5
 
-# source required functions
+##### source required functions #####
 source("./parameters.R")
 source("./length_at_age.R")
 source("./weight_at_age.R")
@@ -21,7 +22,7 @@ source("./epsilon.R")
 source("./recruitment.R")
 source("./fishing_mortality.R")
 
-# load species parameters
+##### load species parameters #####
 par <- parameters(species)
 
 max_age                <- par[[1]]        # maximum age
@@ -49,17 +50,17 @@ L50_up                 <- par[[30]]       # L50 for upcurve
 L50_down               <- par[[31]]       # L50 for downcurve
 cf                     <- par[[32]]       # fraction of fishery caught / fleet
 
-# Calculated values
+##### Calculate set values #####
 age <- rec_age:max_age                          # applicable ages
 n <- length(age)                                # number of age bins
-L <- length_at_age(age, L1f, L2f, Kf, a1f, a2f) # length at age
+L <- length_at_age(rec_age, max_age, L1f, L2f, 
+                   Kf, a1f, a2f, all_ages = F)  # length at age
 W <- weight_at_age(L, af, bf)                   # weight at age
 Mat <- fraction_mature_at_age(n, k_mat, L, L50) # maturity at age
 m <- age[min(which(Mat > 0.5))]                 # age at 50% mature
 B0 <- R0/phi                                    # unfished spawning stock biomass
 S <- selectivity_at_age(fleets, L, max_age, rec_age, alpha, L50_up, 
                         L50_down, F_fin, beta, n, cf, age)
-Fb <- 0
 
 # Recruitment normal variable
 # Dimensions = area * timeT * CR
@@ -71,15 +72,18 @@ if (stochasticity == T) {
 
 # initialize epsilon vector
 Eps2 <- array(rep(0, eq_time), c(1, eq_time, 1, 1))
-
 # eps[1]
 Eps2[1, 1, 1, 1] <- nuR2[1, 1, 1, 1]*sqrt(1 + rho_R^2)
-
 # fill in rest of epsilon vector
 for (t in 2:eq_time) {
   Eps2[1, t, 1, 1] <- rho_R*Eps2[1, t-1, 1, 1] + 
     nuR2[1, t, 1, 1]*sqrt(1 + rho_R^2)
 }
+
+##### Initialize arrays #####
+
+# Set historical FM to 0
+Fb <- 0
 
 # Fishing effort stays constant
 E2 <- array(rep(1, eq_time), c(1, eq_time, 1, 1))
@@ -87,6 +91,8 @@ E2 <- array(rep(1, eq_time), c(1, eq_time, 1, 1))
 # Initialize FM and depletion levels
 FM_values <- seq(from = 0, to = 2, by = 0.01)
 fn <- length(FM_values)
+
+# Initialize depletion vector
 dep <- rep(0, fn)
 
 # Initialize population size and catch arrays
