@@ -5,6 +5,7 @@ setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")
 source('./base_model.R')
 source('./plot_stuff.R')
 source('./transient_DR.R')
+library(densityratio)
 
 species <- 'BR2003'
 stochasticity <- T
