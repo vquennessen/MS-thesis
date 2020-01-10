@@ -1,3 +1,18 @@
+#' Title
+#'
+#' @param rec_age 
+#' @param max_age 
+#' @param L1f 
+#' @param L2f 
+#' @param Kf 
+#' @param a1f 
+#' @param a2f 
+#' @param all_ages 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 length_at_age = function(rec_age, max_age, L1f, L2f, Kf, a1f, a2f, all_ages = F) {
   
   if (all_ages == T) { 
@@ -11,4 +26,7 @@ length_at_age = function(rec_age, max_age, L1f, L2f, Kf, a1f, a2f, all_ages = F)
   return(L)
   
 }
+
+
+
 
