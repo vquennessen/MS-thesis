@@ -1,4 +1,4 @@
-#' Title
+#' Length at age
 #'
 #' @param rec_age 
 #' @param max_age 
