@@ -1,3 +1,6 @@
+# set working directory
+setwd("~/Projects/DensityRatio/code/R")
+
 # clear environment
 rm(list = ls())
 
