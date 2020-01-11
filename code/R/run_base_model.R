@@ -7,16 +7,16 @@ source('./plot_stuff.R')
 source('./transient_DR.R')
 library(densityratio)
 
-species <- 'BR2003'
-stochasticity <- T
-surveys <- T
-fishery_management <- T
-fishing <- T
-adult_movement <- T
-final_DR <- 0.2
-plotting <- T
-plot_individual_runs <- F
-years_sampled <- 1
+Species <- 'BR2003'
+Stochasticity <- T
+Surveys <- T
+Fishery_management <- T
+Fishing <- T
+Adult_movement <- T
+Final_DR <- 0.2
+Plotting <- T
+Plot_individual_runs <- F
+Years_sampled <- 1
 
 # set numbers of simulations
 num_sims <- 3
@@ -35,9 +35,9 @@ y_DR <- array(rep(0, (time2 + 1)*num_sims), c((time2 + 1), num_sims))
 # run the model for each simulation
 for (i in 1:num_sims) {
   
-  output <- base_model(species, stochasticity, surveys, fishery_management, 
-                       fishing, adult_movement, plotting, final_DR, 
-                       years_sampled)
+  output <- base_model(Species, Stochasticity, Surveys, Fishery_management, 
+                       Fishing, Adult_movement, Plotting, Final_DR, 
+                       Years_sampled)
   
   # save the relative yield and biomasses for all areas, times after reserve
   # implementation, and control rules
@@ -65,6 +65,6 @@ save(sims_biomass, file = filepath2)
 save(sims_SSB, file = filepath3)
 save(sims_DR, file = filepath4)
 
-plot_stuff(filepath1, filepath2, filepath3, filepath4, A, time2, CR, num_sims, 
-           sample_size = num_sims, PD = 0.25, plot_individual_runs, 
-           y_DR[, num_sims], species, final_DR)
+plot_stuff(filepath1, filepath2, filepath3, filepath4, A, Time2, CR, num_sims, 
+           sample_size = num_sims, PD = 0.25, Plot_individual_runs, 
+           y_DR[, num_sims], Species, Final_DR)
