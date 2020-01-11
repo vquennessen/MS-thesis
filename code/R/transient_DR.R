@@ -1,4 +1,4 @@
-transient_DR <- function(start_time, end_time, final_DR, nat_mortality, nm) {
+transient_DR <- function(start_time, end_time, Final_DR, Nat_mortality, nm) {
   
   # calculate target_DR based on transient timescales
   
@@ -6,7 +6,7 @@ transient_DR <- function(start_time, end_time, final_DR, nat_mortality, nm) {
   years <- start_time:end_time
 
   # calculate moving DR array
-  target_DR <- 1 - (1 - final_DR)*(1 - exp(-1 * nat_mortality[nm] * years))
+  target_DR <- 1 - (1 - Final_DR)*(1 - exp(-1 * Nat_mortality[nm] * years))
   
   return(target_DR)
   

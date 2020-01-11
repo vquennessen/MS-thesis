@@ -12,7 +12,7 @@ parameters = function(Species) {
     Max_age <- 35                           # maximum age
     M <- 0.14                               # natural mortality
     Rec_age <- 2                            # age at recruitment
-    A <- 1.68e-5; B <- 3                    # weight at length parameters (f)
+    WA <- 1.68e-5; WB <- 3                  # weight at length parameters (f)
     A1 <- 5; L1 <- 32.21;                   # growth parameters (f)
     A2 <- 15; L2 <- 47.95; K <- 0.2022  
     L50 <- 39.53                            # length at 50% maturity
@@ -50,7 +50,7 @@ parameters = function(Species) {
     Max_age <- 40                           # maximum age
     M <- 0.17                               # natural mortality
     Rec_age <- 3                            # age at recruitment
-    A <- 2.6e-5; B <- 2.88                  # weight at length parameters (f)
+    WA <- 2.6e-5; WB <- 2.88                # weight at length parameters (f)
     A1 <- 1; L1 <- 20.32;                   # growth parameters (f)
     A2 <- 40; L2 <- 49.67; K <- 0.21  
     L50 <- 43.69                            # length at 50% maturity
@@ -91,7 +91,7 @@ parameters = function(Species) {
     Max_age <- 17                           # maximum age
     M <- 0.275                              # natural mortality
     Rec_age <- 1                            # age at recruitment
-    A <- 1.24e-5; B <- 3.113                # weight at length parameters (f)
+    WA <- 1.24e-5; WB <- 3.113              # weight at length parameters (f)
     A1 <- 5; L1 <- 41.3;                    # growth parameters (f)
     A2 <- 30; L2 <- 61.9; K <- 0.18  
     L50 <- 25.702                           # length at 50% maturity
@@ -132,7 +132,7 @@ parameters = function(Species) {
     Max_age <- 20                           # maximum age
     M <- 0.26                               # natural mortality
     Rec_age <- 4                            # age at recruitment
-    A <- 1.90e-5; B <- 2.99                 # weight at length parameters (f)
+    WA <- 1.90e-5; WB <- 2.99               # weight at length parameters (f)
     A1 <- -1.28; L1 <- -0.37;               # growth parameters (f)
     A2 <- 3.86; L2 <- 43.67; K <- 0.225  
     L50 <- 43                               # length at 50% maturity
@@ -170,7 +170,7 @@ parameters = function(Species) {
     Max_age <- 25                           # maximum age
     M <- 0.28                               # natural mortality
     Rec_age <- 3                            # age at recruitment
-    A <- 2.76e-6; B <- 3.28                 # weight at length parameters (f)
+    WA <- 2.76e-6; WB <- 3.28               # weight at length parameters (f)
     A1 <- 1; L1 <- 17.28;                   # growth parameters (f)
     A2 <- 20; L2 <- 120; K <- 0.128  
     L50 <- 56.7                             # length at 50% maturity
@@ -202,8 +202,8 @@ parameters = function(Species) {
     
   }
   
-  output = list(Max_age, M, Rec_age, A, B, A1, L1f, A2, L2, K, L50, K_mat, LDP, 
-                H, Phi, Sigma_R, Rho_R, AMP, D, Fb, R, X, SP, C, D, Fleets, 
+  output = list(Max_age, M, Rec_age, WA, WB, A1, L1f, A2, L2, K, L50, K_mat, 
+                LDP, H, Phi, Sigma_R, Rho_R, AMP, D, Fb, R, X, SP, C, D, Fleets, 
                 Alpha, Beta, F_fin, A50_up, A50_down, Cf)
   
   return(output)

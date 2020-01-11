@@ -1,5 +1,5 @@
 management <- function(t, cr, E, DR, CR_type, target_DR, floor_DR, 
-                       effort_inc_allowed, time1) {
+                       effort_inc_allowed, Time1) {
   
   #' If the control rule is based on effort, and the density ratio is higher
   #' than the target density ratio, allow effort in each area to increase by the
@@ -19,7 +19,7 @@ management <- function(t, cr, E, DR, CR_type, target_DR, floor_DR,
   #' decreased back down to 10% of the original value
   } else if (DR < floor_DR) {
     
-    E[, t, cr, ] <- E[, time1, cr, ]*0.10
+    E[, t, cr, ] <- E[, Time1, cr, ]*0.10
     
   }
   

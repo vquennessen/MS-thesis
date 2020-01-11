@@ -1,38 +1,38 @@
-selectivity_at_age <- function(fleets, L, max_age, rec_age, alpha, A50_up, 
-                               A50_down, F_fin, beta, n, cf, age) {
+selectivity_at_age <- function(Fleets, L, Max_age, Rec_age, Alpha, A50_up, 
+                               A50_down, F_fin, Beta, Num, Cf, Age) {
   
   # length of fleet vector
-  f <- length(fleets)
+  f <- length(Fleets)
   
   # translate L50_up and L50_down to lengths instead of ages
-  L50up <- L[A50_up - rec_age + 1]
-  L50down <- L[A50_down - rec_age + 1]
+  L50up <- L[A50_up - Rec_age + 1]
+  L50down <- L[A50_down - Rec_age + 1]
   
   # initialize upcurves and downcurves
-  upcurve <- array(rep(NA, f*(max_age + 1)), c(f, max_age + 1))
-  downcurve <- array(rep(NA, f*(max_age + 1)), c(f, max_age + 1))
+  upcurve <- array(rep(NA, f*(Max_age + 1)), c(f, Max_age + 1))
+  downcurve <- array(rep(NA, f*(Max_age + 1)), c(f, Max_age + 1))
   
-  for (i in 1:rec_age) {
+  for (i in 1:Rec_age) {
     upcurve[, i] <- downcurve[, i] <- 0
   }
   
   # initialize selectivity at age array
   # dimensions = age * fleet
-  S <- array(rep(0, f*n), c(f, n))
+  S <- array(rep(0, f*Num), c(f, Num))
   
   for (i in 1:f) {
-    upcurve[i, age + 1] <- 1 / (1 + exp(-1*alpha[i]*(L - L50up[i])))
+    upcurve[i, Age + 1] <- 1 / (1 + exp(-1*Alpha[i]*(L - L50up[i])))
     
-    downcurve[i, age + 1] <- 1 - 
-      (1 - F_fin[i]) / (1 + exp(-1*beta[i]*(L - L50down[i])))
+    downcurve[i, Age + 1] <- 1 - 
+      (1 - F_fin[i]) / (1 + exp(-1*Beta[i]*(L - L50down[i])))
     
-    if (beta[i] == 0) {downcurve[i, age + 1] <- rep(1, n)}
+    if (Beta[i] == 0) { downcurve[i, Age + 1] <- rep(1, Num) }
     
-    for (a in 1:n) {
-      S[i, a] <- min(upcurve[i, a + rec_age], downcurve[i, a + rec_age])
+    for (a in 1:Num) {
+      S[i, a] <- min(upcurve[i, a + Rec_age], downcurve[i, a + Rec_age])
     }
     
-    S[i, ] <- cf[i]*S[i, ]
+    S[i, ] <- Cf[i]*S[i, ]
     
   }
   
@@ -46,11 +46,11 @@ selectivity_at_age <- function(fleets, L, max_age, rec_age, alpha, A50_up,
   #      xlab = 'Age (year)',
   #      ylab = 'Selectivity',
   #      xlim = c(0, 40))
-  # lines(age, S[2, ], type = 'l', lwd = 2, col = 'blue')
-  # lines(age, S[3, ], type = 'l', lwd = 2, col = 'green')
-  # # lines(age, S[4, ], type = 'l', lwd = 2, col = 'yellow')
-  # # lines(age, S[5, ], type = 'l', lwd = 2, col = 'red')
-  # legend(x = 'topright', fleets, lwd = 2, cex = 0.8,
+  # lines(Age, S[2, ], type = 'l', lwd = 2, col = 'blue')
+  # lines(Age, S[3, ], type = 'l', lwd = 2, col = 'green')
+  # # lines(Age, S[4, ], type = 'l', lwd = 2, col = 'yellow')
+  # # lines(Age, S[5, ], type = 'l', lwd = 2, col = 'red')
+  # legend(x = 'topright', Fleets, lwd = 2, cex = 0.8,
   #        col = c('purple', 'blue', 'green')) #, 'yellow', 'red'))
   
   selectivity <- colSums(S)
