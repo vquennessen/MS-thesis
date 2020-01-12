@@ -30,8 +30,8 @@ parameters = function(Species) {
     X <- 15.42                              # mean of positive transects
     SP <- 16.97                             # std of positive transects
 
-    C <- 0.2747                             # eggs produced per kg, intercept
-    D <- 0.0941                             # eggs produced per kg, slope
+    B <- 0.2747                             # eggs produced per kg, intercept
+    C <- 0.0941                             # eggs produced per kg, slope
 
                                             #### selectivity parameters ####
     Fleets <- c('sport', 'hook', 'trawl')   # names of fleets
@@ -68,8 +68,8 @@ parameters = function(Species) {
     X <- 15.42                              # mean of positive transects
     SP <- 16.97                             # std of positive transects
     
-    C <- 0.2747                             # eggs produced per kg, intercept
-    D <- 0.0941                             # eggs produced per kg, slope
+    B <- 0.2747                             # eggs produced per kg, intercept
+    C <- 0.0941                             # eggs produced per kg, slope
     
     #### selectivity parameters ####
     Fleets <- c('trawl', 'live', 'dead',    # names of fleets
@@ -109,8 +109,8 @@ parameters = function(Species) {
     X <- 3.27                               # mean of positive transects
     SP <- 3.32                              # std of positive transects
     
-    C <- 0.0273                             # eggs produced per kg, intercept
-    D <- 1.53e-4                            # eggs produced per kg, slope
+    B <- 0.0273                             # eggs produced per kg, intercept
+    C <- 1.53e-4                            # eggs produced per kg, slope
     
     #### selectivity parameters ####
     Fleets <- c('dead', 'live', 'man.made', 
@@ -150,8 +150,8 @@ parameters = function(Species) {
     X <-                                # mean of positive transects
     SP <-                               # std of positive transects
     
-    C <- 0.0273                             # eggs produced per kg, intercept
-    D <- 1.53e-4                            # eggs produced per kg, slope
+    B <- 0.0273                             # eggs produced per kg, intercept
+    C <- 1.53e-4                            # eggs produced per kg, slope
     
     #### selectivity parameters ####
     Fleets <- c('live', 'dead', 'ocean', 'shore') # names of fleets
@@ -188,8 +188,8 @@ parameters = function(Species) {
     X <-                                # mean of positive transects
     SP <-                               # std of positive transects
       
-    C <- -7.46                              # eggs produced per kg, intercept
-    D <- 1.335                              # eggs produced per kg, slope
+    B <- -7.46                              # eggs produced per kg, intercept
+    C <- 1.335                              # eggs produced per kg, slope
     
     #### selectivity parameters ####
     Fleets <- c('trawl', 'fixed_gear', 'WArec', 'ORrec') # names of fleets
