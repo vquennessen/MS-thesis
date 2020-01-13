@@ -73,8 +73,8 @@ base_model <- function(Species, Stochasticity, Surveys, Fishery_management,
                                             #       in PISCO monitoring data
   X                      <- par[[22]]       # mean of positive transects
   SP                     <- par[[23]]       # std of positive transects
-  C                      <- par[[24]]       # eggs produced per g, intercept
-  D                      <- par[[25]]       # eggs produced per g, slope
+  B                      <- par[[24]]       # eggs produced per g, intercept
+  C                      <- par[[25]]       # eggs produced per g, slope
   
   # selectivity parameters
   Fleets                 <- par[[26]]       # fishery fleet names
