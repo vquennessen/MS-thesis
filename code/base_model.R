@@ -215,14 +215,15 @@ base_model <- function(Species, Stochasticity, Surveys, Fishery_management,
           
         }
         
-        # management
-        if (Fishery_management == T) {
-          E <- control_rule(t, cr, nm, A, E, Count, Time1, Time2, Transects, 
-                            Nat_mortality, Final_DR, Inside, Outside, 
-                            Areas_sampled, Fish_sampled, Years_sampled)
-        }
-        
       }
+       
+      # management
+        if (Fishery_management == T) {
+          E[, t, cr, ] <- control_rule(t, cr, nm, A, E, Count, Time1, Time2, 
+                                       Transects, Nat_mortality, Final_DR, 
+                                       Inside, Outside, Areas_sampled, 
+                                       Fish_sampled, Years_sampled)
+        }
       
       # calculate true density ratio
       Density_ratio <- true_DR(t, cr, Abundance_mature, Outside, Inside, 
