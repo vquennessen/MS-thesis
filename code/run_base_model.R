@@ -1,43 +1,55 @@
 rm(list = ls())
 
-setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")
-
-source('./base_model.R')
 source('./plot_stuff.R')
-source('./transient_DR.R')
 library(densityratio)
 
-Species <- 'BR2003'
-Stochasticity <- T
-Surveys <- T
-Fishery_management <- T
-Fishing <- T
-Adult_movement <- T
-Final_DR <- 0.2
-Plotting <- T
-Plot_individual_runs <- F
-Years_sampled <- 1
-
 # set numbers of simulations
-num_sims <- 3
+num_sims <- 2
+
+# set arguments
+Species = 'BR.CA.2003'
+R0 = 1e+5
+A = 5
+MPAs = c(3)
+Time1 = 50
+Time2 = 20
+Recruitment_mode = 'pool'
+Error = 0.05
+Stochasticity = TRUE
+Surveys = TRUE
+Fishery_management = TRUE
+Fishing = TRUE
+Transects = 24
+Adult_movement = TRUE
+Plotting = FALSE
+Final_DR = 0.6
+Years_sampled = 1
+Areas_sampled = 'all'
+Ind_sampled = 'all'
+Allocation = 'IFD'
+Control_rules = c(1:6)
+CR <- length(Control_rules)
 
 # initialize yield and biomass arrays
-sims_yield <- array(rep(0, A*(time2 + 1)*CR*num_sims), 
-                    c(A, (time2 + 1), CR, num_sims))
-sims_biomass <- array(rep(0, A*(time2 + 1)*CR*num_sims), 
-                      c(A, (time2 + 1), CR, num_sims))
-sims_SSB <- array(rep(0, A*(time2 + 1)*CR*num_sims), 
-                  c(A, (time2 + 1), CR, num_sims))
-sims_DR <- array(rep(0, (time2 + 1)*CR*num_sims), 
-                 c((time2 + 1), CR, num_sims))
-y_DR <- array(rep(0, (time2 + 1)*num_sims), c((time2 + 1), num_sims))
+sims_yield <- array(rep(0, A*(Time2 + 1)*CR*num_sims), 
+                    c(A, (Time2 + 1), CR, num_sims))
+sims_biomass <- array(rep(0, A*(Time2 + 1)*CR*num_sims), 
+                      c(A, (Time2 + 1), CR, num_sims))
+sims_SSB <- array(rep(0, A*(Time2 + 1)*CR*num_sims), 
+                  c(A, (Time2 + 1), CR, num_sims))
+sims_DR <- array(rep(0, (Time2 + 1)*CR*num_sims), 
+                 c((Time2 + 1), CR, num_sims))
+y_DR <- array(rep(0, (Time2 + 1)*num_sims), c((Time2 + 1), num_sims))
 
 # run the model for each simulation
 for (i in 1:num_sims) {
   
-  output <- base_model(Species, Stochasticity, Surveys, Fishery_management, 
-                       Fishing, Adult_movement, Plotting, Final_DR, 
-                       Years_sampled)
+  output <- densityratio::base_model(Species, R0, A, MPAs, Time1, Time2, 
+                                     Recruitment_mode, Error, Stochasticity, 
+                                     Surveys, Fishery_management, Fishing, 
+                                     Transects, Adult_movement, Plotting, 
+                                     Final_DR, Years_sampled, Areas_sampled, 
+                                     Ind_sampled, Allocation, Control_rules)
   
   # save the relative yield and biomasses for all areas, times after reserve
   # implementation, and control rules
