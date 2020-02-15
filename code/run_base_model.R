@@ -4,10 +4,10 @@ source('./plot_stuff.R')
 library(densityratio)
 
 # set numbers of simulations
-num_sims <- 100
+num_sims <- 5
 
 # set arguments
-Species = 'BR.CA.2003'
+Species = 'BR_CA_2003'
 R0 = 1e+5
 A = 5
 MPAs = c(3)
