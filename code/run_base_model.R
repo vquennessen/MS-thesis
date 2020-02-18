@@ -1,6 +1,7 @@
 rm(list = ls())
-
+setwd('~/Projects/MS-thesis/code')
 source('./plot_stuff.R')
+devtools::install_git('https://github.com/vquennessen/densityratio.git')
 library(densityratio)
 
 # set numbers of simulations
