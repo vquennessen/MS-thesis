@@ -5,7 +5,7 @@ devtools::install_git('https://github.com/vquennessen/densityratio.git')
 library(densityratio)
 
 # set numbers of simulations
-num_sims <- 5
+num_sims <- 25
 
 # set arguments
 Species = 'BR_CA_2003'
