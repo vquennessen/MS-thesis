@@ -35,15 +35,14 @@ Plot_individual_runs = F
 y_DR <- densityratio::transient_DR(Time1 = 50, TimeT = 70, Final_DR = 0.6,
                                    Nat_mortality = c(0.09, 0.14, 0.19), nm = 2)
 
+# total time
+TimeT <- Time1 + Time2
+
 # initialize yield and biomass arrays
-sims_yield <- array(rep(0, A*(Time2 + 1)*CR*num_sims), 
-                    c(A, (Time2 + 1), CR, num_sims))
-sims_biomass <- array(rep(0, A*(Time2 + 1)*CR*num_sims), 
-                      c(A, (Time2 + 1), CR, num_sims))
-sims_SSB <- array(rep(0, A*(Time2 + 1)*CR*num_sims), 
-                  c(A, (Time2 + 1), CR, num_sims))
-sims_DR <- array(rep(0, (Time2 + 1)*CR*num_sims), 
-                 c((Time2 + 1), CR, num_sims))
+sims_yield <- array(rep(0, A*TimeT*CR*num_sims), c(A, TimeT, CR, num_sims))
+sims_biomass <- array(rep(0, A*TimeT*CR*num_sims), c(A, TimeT, CR, num_sims))
+sims_SSB <- array(rep(0, A*TimeT*CR*num_sims), c(A, TimeT, CR, num_sims))
+sims_DR <- array(rep(0, TimeT*CR*num_sims), c(TimeT, CR, num_sims))
 
 # run the model for each simulation
 for (i in 1:num_sims) {
