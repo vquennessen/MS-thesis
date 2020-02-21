@@ -1,21 +1,42 @@
 plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, 
-                       A, time2, CR, num_sims, sample_size, PD, 
+                       A, Time1, Time2, CR, num_sims, sample_size, PD, 
                        plot_individual_runs, y_DR, species, final_DR) {
   
   # setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")  
   
-  # library(viridis)
-  
+  # load objects
   load(filepath1)
   load(filepath2)
   load(filepath3)
   load(filepath4)
   
-  indices <- sample(1:num_sims, sample_size)
-  Y_sample_runs <- sims_yield[, , , indices]
-  B_sample_runs <- sims_biomass[, , , indices]
-  SSB_sample_runs <- sims_SSB[, , , indices]
-  DR_sample_runs <- sims_DR[, , indices]
+  # sample from simulations
+  indices <- sample(1:num_sims, sample_size, replace = FALSE)
+  
+  # pull out sample sims
+  Y_sample <- sims_yield[, , , indices]
+  B_sample <- sims_biomass[, , , indices]
+  SSB_sample <- sims_SSB[, , , indices]
+  DR_sample <- sims_DR[, , indices]
+  
+  # initialize relative arrays
+  Rel_biomass <- array(rep(0, A*(Time2 + 1)*CR*num_sims), c(A, Time2 + 1, CR, num_sims))
+  Rel_yield <- array(rep(0, A*(Time2 + 1)*CR*num_sims), c(A, Time2 + 1, CR, num_sims))
+  Rel_SSB <- array(rep(0, A*(Time2 + 1)*CR*num_sims), c(A, Time2 + 1, CR, num_sims))
+  
+  # total time
+  TimeT <- Time1 + Time2
+  
+  # calculate relative arrays after reserve implementation
+  for (a in 1:A) {
+    for (cr in 1:CR) {
+      for (sim in indices) {
+        Rel_biomass[a, , cr, sim] <- sims_biomass[a, Time1:TimeT, cr, ENM, sim]/sims_biomass[a, Time1, cr, ENM, sim]
+        Rel_yield[a, , cr, sim] <- sims_yield[a, Time1:TimeT, cr, ENM, sim]/sims_yield[a, Time1, cr, ENM, sim]
+        Rel_SSB[a, , cr, sim] <- sims_SSB[a, Time1:TimeT, cr, ENM, sim]/sims_SSB[a, Time1, cr, ENM, sim]        
+      }
+    }
+  }
   
   # replace NA's in sims_yield with 0s
   Y_sample_runs[is.na(Y_sample_runs)] <- 0
