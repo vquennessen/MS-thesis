@@ -1,11 +1,10 @@
 rm(list = ls())
 setwd('~/Projects/MS-thesis/code')
-source('./plot_stuff.R')
 devtools::install_git('https://github.com/vquennessen/densityratio.git')
 library(densityratio)
 
 # set numbers of simulations
-num_sims <- 3
+num_sims <- 5
 
 # set arguments
 Species = 'BR_CA_2003'
@@ -24,13 +23,14 @@ Transects = 24
 Adult_movement = TRUE
 Plotting = FALSE
 Final_DR = 0.6
-Years_sampled = 1
-Areas_sampled = 'all'
-Ind_sampled = 'all'
+Years_sampled = NULL
+Areas_sampled = NULL
+Ind_sampled = NULL
 Allocation = 'IFD'
-Control_rules = c(7:14)
+BM = TRUE
+Control_rules = c(1:8)
 CR <- length(Control_rules)
-Plot_individual_runs = F
+Plot_individual_runs = FALSE
 
 # total time
 TimeT <- Time1 + Time2
@@ -47,7 +47,7 @@ for (i in 1:num_sims) {
                                      Surveys, Fishery_management, Fishing, 
                                      Transects, Adult_movement, Plotting, 
                                      Final_DR, Years_sampled, Areas_sampled, 
-                                     Ind_sampled, Allocation, Control_rules)
+                                     Ind_sampled, Allocation, BM, Control_rules)
   
   # save the relative yield and biomasses for all areas, times after reserve
   # implementation, and control rules
@@ -56,16 +56,68 @@ for (i in 1:num_sims) {
 
   print(i)
   
-}
-
-q <- ifelse(num_sims < 101, num_sims,  paste("1e", log10(num_sims), sep = ''))
-
-filepath1 = paste('../data/', Species, '/', q, "_", Final_DR, "_yield.Rda", 
-                  sep = '')
-filepath3 = paste('../data/', Species, '/', q, "_", Final_DR, "_SSB.Rda", 
-                  sep = '')
-
-save(sims_yield, file = filepath1)
-save(sims_SSB, file = filepath3)
-
+} 
+  
+  # initialize arrays for sums of yield and SSB
+  Y <- array(rep(0, TimeT*CR*num_sims), c(TimeT, CR, num_sims))
+  SSB <- array(rep(0, TimeT*CR*num_sims), c(TimeT, CR, num_sims))
+  
+  for (t in 1:TimeT) {
+    for (cr in 1:CR) {
+      for (sim in 1:num_sims) {
+        Y[t, cr, sim] <- sum(sims_yield[, t, cr, sim])
+        SSB[t, cr, sim] <- sum(sims_SSB[, t, cr, sim])
+      }
+    }
+  }
+  
+  # starting yield and biomass
+  start_Y <- array(rep(0, CR*num_sims), c(CR, num_sims))
+  start_SSB <- array(rep(0, CR*num_sims), c(CR, num_sims))
+  
+  for (cr in 1:CR) {
+    for (sim in 1:num_sims) {
+      start_Y[cr, sim] <- sum(sims_yield[c(1, 2, 4, 5), Time1, cr, sim])
+      start_SSB[cr, sim] <- sum(sims_SSB[c(1, 2, 4, 5), Time1, cr, sim])
+    }
+  }
+  
+  # relative yield and SSB after reserve implementation
+  rel_Y <- array(rep(0, (Time2 + 1)*CR*num_sims), c(Time2 + 1, CR, num_sims))
+  rel_SSB <- array(rep(0, (Time2 + 1)*CR*num_sims), c(Time2 + 1, CR, num_sims))
+  
+  for (t in Time1:TimeT) {
+    for (cr in 1:CR) {
+      for (sim in 1:num_sims) {
+        rel_Y[t - Time1 + 1, cr, sim] <- Y[t, cr, sim]/start_Y[cr, sim]
+        rel_SSB[t - Time1 + 1, cr, sim] <- SSB[t, cr, sim]/start_SSB[cr, sim]
+      }
+    }
+  }
+  
+  # pull out only every 5 years
+  indices <- seq(Time1 + 10, TimeT, by = 10)
+  ind <- length(indices)
+  
+  # initialize median, lowerIQR, and upperIQR arrays
+  Y_means <- array(rep(NA, ind*CR), c(ind, CR))
+  SSB_means <- array(rep(NA, ind*CR), c(ind, CR))
+  
+  # extract data from files and plot medians + interquartile ranges
+  for (i in 1:ind) {
+    for (cr in 1:CR) {
+        Y_means[i, cr] <- mean(rel_Y[indices[i] - Time1 + 1, cr, ])
+        SSB_means[i, cr] <- mean(rel_SSB[indices[i] - Time1 + 1, cr, ])
+    }
+  }
+  
+  data <- rep(2, 8)
+  barplot(data, col = NA, border = FALSE, axes = TRUE)
+  
+  barplot(height = SSB_means, names.arg = 1:8, beside = TRUE, col = 'gray', 
+          border = TRUE, xlab = 'Control Rule', ylim = c(0, 2))
+  
+  barplot(SSB_means[, 1])
+  points(Y_means[, 1])
+  
 
