@@ -5,10 +5,10 @@ devtools::install_git('https://github.com/vquennessen/densityratio.git')
 library(densityratio)
 
 # set numbers of simulations
-num_sims <- 25
+num_sims <- 250
 
 # set arguments
-Species = 'BR_CA_2003'
+Species = 'BR_OR_2015'
 R0 = 1e+5
 A = 5
 MPAs = c(3)
@@ -23,26 +23,28 @@ Fishing = TRUE
 Transects = 24
 Adult_movement = TRUE
 Plotting = FALSE
-Final_DR = 0.6
+Final_DR = 0.2
 Years_sampled = 1
 Areas_sampled = 'all'
 Ind_sampled = 'all'
 Allocation = 'IFD'
 Control_rules = c(1:6)
 CR <- length(Control_rules)
-Plot_individual_runs = F
+Plot_individual_runs <- F
+BM <- FALSE
 
-y_DR <- densityratio::transient_DR(Time1 = 50, TimeT = 70, Final_DR = 0.6,
+y_DR <- densityratio::transient_DR(Time1 = 50, TimeT = 70, Final_DR,
                                    Nat_mortality = c(0.09, 0.14, 0.19), nm = 2)
 
 # total time
 TimeT <- Time1 + Time2
 
 # initialize yield and biomass arrays
-sims_yield <- array(rep(0, A*TimeT*CR*num_sims), c(A, TimeT, CR, num_sims))
-sims_biomass <- array(rep(0, A*TimeT*CR*num_sims), c(A, TimeT, CR, num_sims))
-sims_SSB <- array(rep(0, A*TimeT*CR*num_sims), c(A, TimeT, CR, num_sims))
-sims_DR <- array(rep(0, TimeT*CR*num_sims), c(TimeT, CR, num_sims))
+sims_yield <- array(rep(0, 2*TimeT*CR*1*num_sims), c(2, TimeT, CR, 1, num_sims))
+sims_biomass <- array(rep(0, 3*TimeT*CR*1*num_sims), c(3, TimeT, CR, 1, num_sims))
+sims_SSB <- array(rep(0, 3*TimeT*CR*1*num_sims), c(3, TimeT, CR, 1, num_sims))
+sims_DR <- array(rep(0, (Time2 + 1)*CR*num_sims), c(Time2 + 1, CR, num_sims))
+sims_N <- array(rep(0, 38*3*TimeT*CR*1*num_sims), c(38, 3, TimeT, CR, 1, num_sims))
 
 # run the model for each simulation
 for (i in 1:num_sims) {
@@ -52,20 +54,21 @@ for (i in 1:num_sims) {
                                      Surveys, Fishery_management, Fishing, 
                                      Transects, Adult_movement, Plotting, 
                                      Final_DR, Years_sampled, Areas_sampled, 
-                                     Ind_sampled, Allocation, Control_rules)
+                                     Ind_sampled, Allocation, BM, Control_rules)
   
   # save the relative yield and biomasses for all areas, times after reserve
   # implementation, and control rules
-  sims_yield[, , , i] <- output[[1]]
-  sims_biomass[, , , i] <- output[[2]]
-  sims_SSB[, , , i] <- output[[3]]
+  sims_yield[, , , , i] <- output[[1]]
+  sims_biomass[, , , , i] <- output[[2]]
+  sims_SSB[, , , , i] <- output[[3]]
   sims_DR[, , i] <- output[[4]]
+  sims_N[, , , , , i] <- output[[5]]
 
   print(i)
   
 }
 
-q <- ifelse(num_sims < 101, num_sims,  paste("1e", log10(num_sims), sep = ''))
+q <- ifelse(num_sims < 1000, num_sims,  paste("1e", log10(num_sims), sep = ''))
 
 filepath1 = paste('../data/', Species, '/', q, "_", Final_DR, "_yield.Rda", 
                   sep = '')
