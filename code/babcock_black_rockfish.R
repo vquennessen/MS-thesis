@@ -65,8 +65,8 @@ SSB <- array(rep(0, TimeT*CR*num_sims), c(TimeT, CR, num_sims))
 for (t in 1:TimeT) {
   for (cr in 1:CR) {
     for (sim in 1:num_sims) {
-      Y[t, cr, sim] <- sum(sims_yield[, t, cr, sim])
-      SSB[t, cr, sim] <- sum(sims_SSB[, t, cr, sim])
+      Y[t, cr, sim] <- sum(sims_yield[c(1, 2, 4, 5), t, cr, sim])
+      SSB[t, cr, sim] <- sum(sims_SSB[c(1, 2, 4, 5), t, cr, sim])
     }
   }
 }
@@ -89,13 +89,13 @@ rel_SSB <- array(rep(0, (Time2 + 1)*CR*num_sims), c(Time2 + 1, CR, num_sims))
 for (t in Time1:TimeT) {
   for (cr in 1:CR) {
     for (sim in 1:num_sims) {
-      rel_Y[t - Time1 + 1, cr, sim] <- Y[t, cr, sim]/start_Y[cr, sim]
+      rel_Y[t - Time1 + 1, cr, sim] <- mean(Y[t:(t - 10), cr, sim])/start_Y[cr, sim]
       rel_SSB[t - Time1 + 1, cr, sim] <- SSB[t, cr, sim]/start_SSB[cr, sim]
     }
   }
 }
 
-# pull out only every 5 years
+# pull out only every 10 years
 indices <- seq(Time1 + 10, TimeT, by = 10)
 ind <- length(indices)
 
