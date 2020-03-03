@@ -70,20 +70,23 @@ for (i in 1:num_sims) {
 
 q <- ifelse(num_sims < 1000, num_sims,  paste("1e", log10(num_sims), sep = ''))
 
-filepath1 = paste('../data/', Species, '/', q, "_", Final_DR, "_yield.Rda", 
-                  sep = '')
-filepath2 = paste('../data/', Species, '/', q, "_", Final_DR, "_biomass.Rda", 
-                  sep = '')
-filepath3 = paste('../data/', Species, '/', q, "_", Final_DR, "_SSB.Rda", 
-                  sep = '')
-filepath4 = paste('../data/', Species, '/', q, "_", Final_DR, "_DR.Rda", 
-                  sep = '')
+filepath1 = paste('home/quennessenv/ExpanDrive/Box/data/', Species, '/', q, "_", 
+                  Final_DR, "_yield.Rda", sep = '')
+filepath2 = paste('home/quennessenv/ExpanDrive/Box/data/', Species, '/', q, "_", 
+                  Final_DR, "_biomass.Rda", sep = '')
+filepath3 = paste('home/quennessenv/ExpanDrive/Box/data/', Species, '/', q, "_", 
+                  Final_DR, "_SSB.Rda", sep = '')
+filepath4 = paste('home/quennessenv/ExpanDrive/Box/data/', Species, '/', q, "_", 
+                  Final_DR, "_DR.Rda", sep = '')
+filepath5 = paste('home/quennessenv/ExpanDrive/Box/data/', Species, '/', q, '-', 
+                  Final_DR, '_N.Rda', sep = '')
 
 save(sims_yield, file = filepath1)
 save(sims_biomass, file = filepath2)
 save(sims_SSB, file = filepath3)
 save(sims_DR, file = filepath4)
+save(sims_N, file = filepath5)
 
-plot_stuff(filepath1, filepath2, filepath3, filepath4, A, Time2, CR, num_sims, 
-           sample_size = num_sims, PD = 0.25, Plot_individual_runs, 
+plot_stuff(filepath1, filepath2, filepath3, filepath4, filepath5, A, Time2, CR, 
+           num_sims, sample_size = num_sims, PD = 0.25, Plot_individual_runs, 
            y_DR, Species, Final_DR)
