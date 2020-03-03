@@ -1,4 +1,4 @@
-plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, 
+plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
                        A, Time1, Time2, CR, num_sims, sample_size, PD, 
                        plot_individual_runs, y_DR, species, final_DR) {
   
@@ -9,15 +9,17 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
   load(filepath2)
   load(filepath3)
   load(filepath4)
+  load(filepath5)
   
   # sample from simulations
   indices <- sample(1:num_sims, sample_size, replace = FALSE)
   
   # pull out sample sims
-  Y_sample <- sims_yield[, , , indices]
-  B_sample <- sims_biomass[, , , indices]
-  SSB_sample <- sims_SSB[, , , indices]
-  DR_sample <- sims_DR[, , indices]
+  Y_sample   <- sims_yield[, , , , indices]
+  B_sample   <- sims_biomass[, , , , indices]
+  SSB_sample <- sims_SSB[, , , , indices]
+  DR_sample  <- sims_DR[, , indices]
+  N_sample   <- sims_N[, , , , , indices]
   
   # initialize relative arrays
   Rel_biomass <- array(rep(0, A*(Time2 + 1)*CR*num_sims), c(A, Time2 + 1, CR, num_sims))
@@ -28,15 +30,23 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4,
   TimeT <- Time1 + Time2
   
   # calculate relative arrays after reserve implementation
-  for (a in 1:A) {
+  for (a in 1:3) {
     for (cr in 1:CR) {
       for (sim in indices) {
-        Rel_biomass[a, , cr, sim] <- sims_biomass[a, Time1:TimeT, cr, ENM, sim]/sims_biomass[a, Time1, cr, ENM, sim]
-        Rel_yield[a, , cr, sim] <- sims_yield[a, Time1:TimeT, cr, ENM, sim]/sims_yield[a, Time1, cr, ENM, sim]
-        Rel_SSB[a, , cr, sim] <- sims_SSB[a, Time1:TimeT, cr, ENM, sim]/sims_SSB[a, Time1, cr, ENM, sim]        
+        Rel_biomass[a, , cr, sim] <- sims_biomass[a, Time1:TimeT, cr, 1, sim]/sims_biomass[a, Time1, cr, 1, sim]
+        Rel_SSB[a, , cr, sim] <- sims_SSB[a, Time1:TimeT, cr, 1, sim]/sims_SSB[a, Time1, cr, 1, sim]        
       }
     }
   }
+  
+  for (a in 1:2) {
+    for (cr in 1:CR) {
+      for (sim in indices) {
+        Rel_yield[a, , cr, sim] <- sims_yield[a, Time1:TimeT, cr, 1, sim]/sims_yield[a, Time1, cr, 1, sim]
+        }
+    }
+  }
+  
   
   # replace NA's in sims_yield with 0s
   Y_sample_runs[is.na(Y_sample_runs)] <- 0
