@@ -19,8 +19,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
   B_sample   <- sims_biomass[, , , , indices]
   SSB_sample <- sims_SSB[, , , , indices]
   DR_sample  <- sims_DR[, , indices]
-  N_sample   <- sims_N[, , , , , indices]
-  
+
   # initialize relative arrays
   Rel_biomass <- array(rep(0, A*(Time2 + 1)*CR*num_sims), c(A, Time2 + 1, CR, num_sims))
   Rel_yield <- array(rep(0, A*(Time2 + 1)*CR*num_sims), c(A, Time2 + 1, CR, num_sims))
@@ -47,42 +46,40 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
     }
   }
   
-  
-  # replace NA's in sims_yield with 0s
-  Y_sample_runs[is.na(Y_sample_runs)] <- 0
-  
   # initialize median, lowerIQR, and upperIQR arrays
-  Y_medians <- Y_lower <- Y_upper <- array(rep(NA, A*(time2 + 1)*CR), 
-                                           c(A, time2 + 1, CR))
-  B_medians <- B_lower <- B_upper <- array(rep(NA, A*(time2 + 1)*CR), 
-                                           c(A, time2 + 1, CR))
-  SSB_medians <- SSB_lower <- SSB_upper <- array(rep(NA, A*(time2 + 1)*CR), 
-                                                 c(A, time2 + 1, CR))
-  DR_medians <- array(rep(NA, (time2 + 1)*CR), c(time2 + 1, CR))
+  Y_medians <- Y_lower <- Y_upper <- array(rep(NA, A*(Time2 + 1)*CR), 
+                                           c(A, Time2 + 1, CR))
+  B_medians <- B_lower <- B_upper <- array(rep(NA, A*(Time2 + 1)*CR), 
+                                           c(A, Time2 + 1, CR))
+  SSB_medians <- SSB_lower <- SSB_upper <- array(rep(NA, A*(Time2 + 1)*CR), 
+                                                 c(A, Time2 + 1, CR))
+  DR_medians <- array(rep(NA, (Time2 + 1)*CR), c(Time2 + 1, CR))
   
   # extract data from files and plot medians + interquartile ranges
-  for (t in 1:(time2 + 1)) {
+  for (t in 1:(Time2 + 1)) {
     for (cr in 1:CR) {
       
-      DR_medians[t, cr] <- median(DR_sample_runs[t, cr, ])
+      DR_medians[t, cr] <- median(DR_sample[t, cr, ])
       
       for (a in 1:A) {
         
-        Y_medians[a, t, cr] <- median(Y_sample_runs[a, t, cr, ])
-        B_medians[a, t, cr] <- median(B_sample_runs[a, t, cr, ])
-        SSB_medians[a, t, cr] <- median(SSB_sample_runs[a, t, cr, ])
+        Y_medians[a, t, cr] <- median(Rel_yield[a, t, cr, ])
+        B_medians[a, t, cr] <- median(Rel_biomass[a, t, cr, ])
+        SSB_medians[a, t, cr] <- median(Rel_SSB[a, t, cr, ])
         
-        Y_lower[a, t, cr] <- quantile(Y_sample_runs[a, t, cr, ], 0.5 - PD)
-        B_lower[a, t, cr] <- quantile(B_sample_runs[a, t, cr, ], 0.5 - PD)
-        SSB_lower[a, t, cr] <- quantile(SSB_sample_runs[a, t, cr, ], 0.5 - PD)
+        Y_lower[a, t, cr] <- quantile(Rel_yield[a, t, cr, ], 0.5 - PD)
+        B_lower[a, t, cr] <- quantile(Rel_biomass[a, t, cr, ], 0.5 - PD)
+        SSB_lower[a, t, cr] <- quantile(Rel_SSB[a, t, cr, ], 0.5 - PD)
         
-        Y_upper[a, t, cr] <- quantile(Y_sample_runs[a, t, cr, ], 0.5 + PD)
-        B_upper[a, t, cr] <- quantile(B_sample_runs[a, t, cr, ], 0.5 + PD)
-        SSB_upper[a, t, cr] <- quantile(SSB_sample_runs[a, t, cr, ], 0.5 + PD)
+        Y_upper[a, t, cr] <- quantile(Rel_yield[a, t, cr, ], 0.5 + PD)
+        B_upper[a, t, cr] <- quantile(Rel_biomass[a, t, cr, ], 0.5 + PD)
+        SSB_upper[a, t, cr] <- quantile(Rel_SSB[a, t, cr, ], 0.5 + PD)
         
       }
     }
   } 
+  
+  ##### plotting parameters #####
   
   # use red-blue color palette
   palette <- colorRampPalette(c('red', 'blue'))
@@ -97,7 +94,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
   h1 <- 5; h2 <- 2
   
   # set main title
-  main_title <- paste(species, ", Target DR = ", final_DR, sep = '')
+  main_title <- paste(Species, ", Target DR = ", Final_DR, sep = '')
   
   # set legend title and text and position
   legend_title <- expression(bold('Control Rule'))
@@ -127,7 +124,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
   
   # x-axis limits
   x1 <- 0
-  x2 <- time2
+  x2 <- Time2
   x_by <- x2/4
   
   # DR y-axis limits
@@ -158,7 +155,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
          cex.main = mt, cex.lab = lab)
     
     # add a gray dotted line at y = 1
-    lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3, lwd = 2)
+    lines(0:Time2, rep(1, Time2 + 1), col = 'gray', lty = 3, lwd = 2)
     
     # set specific y-axis
     ytick <- seq(y1, y2, by = y_by)              # set yaxis tick marks
@@ -187,7 +184,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
          xlab = 'Years since marine reserve implementation',
          xaxt = 'n',
          yaxt = 'n',                             # get rid of y-axis
-         xlim = c(0, time2),                     # set x-axis limits
+         xlim = c(0, Time2),                     # set x-axis limits
          ylim = c(0, y2_dr), 
          cex.lab = lab, cex.main = mt2)
     
@@ -214,7 +211,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
             lty = (cr %% 3) + 1)}                # set line type
     
     # add a gray dotted line at target_DR over time
-    lines(0:time2, y_DR, col = 'gray', lty = 3, lwd = 2)
+    lines(0:Time2, y_DR, col = 'gray', lty = 3, lwd = 2)
     
     # add a legend
     par(mar = plot3_margins)
@@ -231,7 +228,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
     
   }
 
-  ###### Plot relative yield + IQR over time after reserve implementation ######
+  ##### Plot relative yield + IQR over time after reserve implementation ######
 
   # y-axis limits
   yy1 <- 0.3
@@ -261,7 +258,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
          cex.main = mt, cex.lab = lab)
 
     # add a gray dotted line at y = 1
-    lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3, lwd = 2)
+    lines(0:Time2, rep(1, Time2 + 1), col = 'gray', lty = 3, lwd = 2)
 
     # set specific y-axis
     yytick <- seq(yy1, yy2, by = yy_by)        # set y axis tick marks
@@ -290,7 +287,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
          xlab = 'Years since marine reserve implementation',
          xaxt = 'n',
          yaxt = 'n',                           # get rid of y-axis
-         xlim = c(0, time2),                   # set x-axis limits
+         xlim = c(0, Time2),                   # set x-axis limits
          ylim = c(0, y2_dr),
          cex.lab = lab, cex.main = mt2)
 
@@ -317,7 +314,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
             lty = (cr %% 3) + 1)}              # set line type
 
     # add a gray dotted line at target_DR over time
-    lines(0:time2, y_DR, col = 'gray', lty = 3, lwd = 2)
+    lines(0:Time2, y_DR, col = 'gray', lty = 3, lwd = 2)
     
     # add a legend
     par(mar = plot3_margins)
@@ -363,7 +360,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
          cex.main = mt, cex.lab = lab)
     
     # add a gray dotted line at y = 1
-    lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3, lwd = 2)
+    lines(0:Time2, rep(1, Time2 + 1), col = 'gray', lty = 3, lwd = 2)
   
     # set specific y-axis
     yyytick <- seq(yyy1, yyy2, by = yyy_by)      # set yaxis tick marks
@@ -392,7 +389,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
          xlab = 'Years since marine reserve implementation',
          xaxt = 'n',
          yaxt = 'n',                           # get rid of y-axis
-         xlim = c(0, time2),                   # set x-axis limits
+         xlim = c(0, Time2),                   # set x-axis limits
          ylim = c(0, y2_dr),
          cex.lab = lab, cex.main = mt2)
     
@@ -420,7 +417,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
             lty = (cr %% 3) + 1)}              # set line type
     
     # add a gray dotted line at target_DR over time
-    lines(0:time2, y_DR, col = 'gray', lty = 3, lwd = 2)
+    lines(0:Time2, y_DR, col = 'gray', lty = 3, lwd = 2)
     
     # add a legend
     par(mar = plot3_margins)
@@ -451,7 +448,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
 
       # x-axis limits
       x1 <- 0
-      x2 <- time2
+      x2 <- Time2
       x_by <- x2/4
 
       area <- ifelse(a == 1, 'far from', 'near')
@@ -469,7 +466,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
            cex.main = 1.75, cex.axis = 3, cex.lab = 1.5)
 
       # add a gray dotted line at y = 1
-      lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3, lwd = 2)
+      lines(0:Time2, rep(1, Time2 + 1), col = 'gray', lty = 3, lwd = 2)
 
       # set specific y-axis
       ytick <- seq(y1, y2, by = y_by)              # set y axis tick marks
@@ -520,7 +517,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
       
       # x-axis limits
       x1 <- 0
-      x2 <- time2
+      x2 <- Time2
       x_by <- x2/4
       
       area <- ifelse(a == 1, 'far from', 'near')
@@ -538,7 +535,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
            cex.main = 1.75, cex.axis = 3, cex.lab = 1.5)
       
       # add a gray dotted line at y = 1
-      lines(0:time2, rep(1, time2 + 1), col = 'gray', lty = 3, lwd = 2)
+      lines(0:Time2, rep(1, Time2 + 1), col = 'gray', lty = 3, lwd = 2)
       
       # set specific y-axis
       ytick <- seq(y1, y2, by = y_by)              # set y axis tick marks
@@ -579,4 +576,25 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
     
   }
 
+  
+  ##### Plot age structure #####
+  N_sample <- sims_N[, , , , , indices]
+  n <- dim(N_sample)[2]
+  
+  # initialize median age structures
+  N_medians <- array(rep(0, ages*3*(Time2 + 1)*CR), c(ages, 3, Time2 + 1, CR))
+  
+  # fill in median age structure
+  for (i in n) {
+    for (a in 1:3) {
+      for (t in Time1:TimeT) {
+        for (cr in c(2, 5)) {
+          N_median[i, a, t, cr] <- median(N_sample[i, a, t, cr, ])
+        }
+      }     
+    }
+  }
+  
+  # plot SAD
+  
 }
