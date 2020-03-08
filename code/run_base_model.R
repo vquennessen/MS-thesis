@@ -63,6 +63,8 @@ for (i in 1:num_sims) {
   sims_SSB[, , , , i] <- output[[3]]
   sims_DR[, , i] <- output[[4]]
   sims_N[, , , , , i] <- output[[5]]
+  Rec_age <- output[[6]]
+  Max_age <- output[[7]]
 
   print(i)
   

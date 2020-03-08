@@ -1,8 +1,12 @@
 plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
                        A, Time1, Time2, CR, num_sims, sample_size, PD, 
-                       plot_individual_runs, y_DR, species, final_DR) {
+                       plot_individual_runs, y_DR, species, final_DR, Rec_age, 
+                       Max_age) {
   
   # setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")  
+  
+  # load any necessary libraries
+  library(plyr)
   
   # load objects
   load(filepath1)
@@ -14,12 +18,14 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
   # sample from simulations
   indices <- sample(1:num_sims, sample_size, replace = FALSE)
   
+  ##### relative yield, biomass, and SSB #####
+  
   # pull out sample sims
   Y_sample   <- sims_yield[, , , , indices]
   B_sample   <- sims_biomass[, , , , indices]
   SSB_sample <- sims_SSB[, , , , indices]
   DR_sample  <- sims_DR[, , indices]
-
+  
   # initialize relative arrays
   Rel_biomass <- array(rep(0, A*(Time2 + 1)*CR*num_sims), c(A, Time2 + 1, CR, num_sims))
   Rel_yield <- array(rep(0, A*(Time2 + 1)*CR*num_sims), c(A, Time2 + 1, CR, num_sims))
@@ -42,7 +48,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
     for (cr in 1:CR) {
       for (sim in indices) {
         Rel_yield[a, , cr, sim] <- sims_yield[a, Time1:TimeT, cr, 1, sim]/sims_yield[a, Time1, cr, 1, sim]
-        }
+      }
     }
   }
   
@@ -90,8 +96,8 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
   
   # set layout matrix for all plots
   layout_m <- matrix(c(1, 3, 2, 3), nrow = 2, ncol = 2, byrow = T)
-  w1 <- 2; w2 <- 0.35
-  h1 <- 5; h2 <- 2
+  w1 <- 2; w2 <- 0.5
+  h1 <- 4; h2 <- 2
   
   # set main title
   main_title <- paste(Species, ", Target DR = ", Final_DR, sep = '')
@@ -104,8 +110,8 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
   position <- 'left'
   
   # plot margins
-  plot1_margins <- c(0.75, 4.7, 6, 0.25)
-  plot2_margins <- c(4.3, 4.7, 2, 0.25)
+  plot1_margins <- c(0.75, 5, 6, 0.25)
+  plot2_margins <- c(4.3, 5, 2, 0.25)
   plot3_margins <- c(0, 1, 0, 0)
   
   # text sizes
@@ -118,8 +124,8 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
   ##### Plot relative biomass + range over time after reserve implementation #####
   
   # y-axis limits
-  y1 <- 0
-  y2 <- 4
+  y1 <- 0.5
+  y2 <- 1.5
   y_by <- (y2 - y1)/4
   
   # x-axis limits
@@ -171,8 +177,8 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
             lwd = 2,                             # set line width
             lty = line_type[cr])                 # set line type
       
-      polygon(x = c(x1:x2, rev(x1:x2)), 
-              y = c(B_lower[a, , cr], rev(B_upper[a, , cr])), 
+      polygon(x = c(x1:x2, rev(x1:x2)),
+              y = c(B_lower[a, , cr], rev(B_upper[a, , cr])),
               col = adjustcolor(color[cr], alpha.f = 0.10), border = NA)
     }
     
@@ -227,24 +233,24 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
            bty = 'n') 
     
   }
-
+  
   ##### Plot relative yield + IQR over time after reserve implementation ######
-
+  
   # y-axis limits
-  yy1 <- 0.3
-  yy2 <- 1.5
+  yy1 <- 0.2
+  yy2 <- 1.2
   yy_by <- (yy2 - yy1)/4
-
+  
   for (a in 1:2) {
-
+    
     area <- ifelse(a == 1, 'far from', 'near')
     sub_title <- sprintf("Relative yield: %s reserve", area)
-
+    
     # set plotting layout
     layout(mat = layout_m,
            widths = c(w1, w2),                   # Widths of the 2 columns
            heights = c(h1, h2))                  # Heights of the 2 rows
-
+    
     # plot the relative yield
     par(mar = plot1_margins)
     plot(1, type = 'l',                          # make an empty line graph
@@ -256,10 +262,10 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
          xlim = c(x1, x2),                       # set x-axis limits
          ylim = c(yy1, yy2),
          cex.main = mt, cex.lab = lab)
-
+    
     # add a gray dotted line at y = 1
     lines(0:Time2, rep(1, Time2 + 1), col = 'gray', lty = 3, lwd = 2)
-
+    
     # set specific y-axis
     yytick <- seq(yy1, yy2, by = yy_by)        # set y axis tick marks
     axis(side = 2,                             # specify y axis
@@ -273,12 +279,12 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
             col = color[cr],                   # use pre-defined color palette
             lwd = 2,                           # set line width
             lty = line_type[cr])               # set line type
-
+      
       polygon(x = c(x1:x2, rev(x1:x2)),
               y = c(Y_lower[a, , cr], rev(Y_upper[a, , cr])),
               col = adjustcolor(color[cr], alpha.f = 0.10), border = NA)
     }
-
+    
     # plot the density ratios over time
     par(mar = plot2_margins)
     plot(1, type = 'l',                        # make an empty line graph
@@ -290,7 +296,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
          xlim = c(0, Time2),                   # set x-axis limits
          ylim = c(0, y2_dr),
          cex.lab = lab, cex.main = mt2)
-
+    
     # set specific y-axis
     dr_ytick <- seq(y1_dr, y2_dr, by_dr)       # set y axis tick marks
     axis(side = 2,                             # specify y axis
@@ -312,7 +318,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
             col = color[cr],                   # use pre-defined color palette
             lwd = 2,                           # set line width
             lty = (cr %% 3) + 1)}              # set line type
-
+    
     # add a gray dotted line at target_DR over time
     lines(0:Time2, y_DR, col = 'gray', lty = 3, lwd = 2)
     
@@ -329,7 +335,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
            cex = leg,                            # adjust legend text size
            bty = 'n') 
   }
-
+  
   ##### Plot relative SSB + range over time after reserve implementation #####
   
   # y-axis limits
@@ -338,7 +344,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
   yyy_by <- (yyy2 - yyy1)/4
   
   for (a in 1:3) {
-  
+    
     area <- ifelse(a < 2, 'far from', ifelse(a == 3, 'in', 'near'))
     sub_title <- sprintf("Relative SSB: %s reserve", area)
     
@@ -346,7 +352,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
     layout(mat = layout_m,
            widths = c(w1, w2),                   # Widths of the 2 columns
            heights = c(h1, h2))                  # Heights of the 2 rows
-  
+    
     # plot the relative SSB
     par(mar = plot1_margins)
     plot(1, type = 'l',                          # make an empty line graph
@@ -361,7 +367,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
     
     # add a gray dotted line at y = 1
     lines(0:Time2, rep(1, Time2 + 1), col = 'gray', lty = 3, lwd = 2)
-  
+    
     # set specific y-axis
     yyytick <- seq(yyy1, yyy2, by = yyy_by)      # set yaxis tick marks
     axis(side = 2,                               # specify y axis
@@ -369,18 +375,18 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
          labels = T,                             # apply appropriate labels
          las = 1,                                # set text horizontal
          cex.axis = ax)                          # set axis text size             
-  
+    
     for (cr in 1:CR) {
-        lines(x1:x2, SSB_medians[a, , cr],
-              col = color[cr],                   # use pre-defined color palette
-              lwd = 2,                           # set line width
-              lty = line_type[cr])               # set line type
-  
-        polygon(x = c(x1:x2, rev(x1:x2)),
-                y = c(SSB_lower[a, , cr], rev(SSB_upper[a, , cr])),
-                col = adjustcolor(color[cr], alpha.f = 0.10), border = NA)
-   }
-  
+      lines(x1:x2, SSB_medians[a, , cr],
+            col = color[cr],                   # use pre-defined color palette
+            lwd = 2,                           # set line width
+            lty = line_type[cr])               # set line type
+      
+      polygon(x = c(x1:x2, rev(x1:x2)),
+              y = c(SSB_lower[a, , cr], rev(SSB_upper[a, , cr])),
+              col = adjustcolor(color[cr], alpha.f = 0.10), border = NA)
+    }
+    
     # plot the density ratios over time
     par(mar = plot2_margins)
     plot(1, type = 'l',                        # make an empty line graph
@@ -408,7 +414,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
          labels = T,                           # apply appropriate labels
          las = 1,                              # set text horizontal
          cex.axis = ax)                        # set axis text size             
-
+    
     
     for (cr in 1:CR) {
       lines(x1:x2, DR_medians[, cr],
@@ -434,26 +440,26 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
   }
   
   ##### Plot individual runs ###################################################
-
+  
   if (plot_individual_runs == T) {
-
+    
     ##### Yield #####
-
+    
     for (a in 1:2) {
-
+      
       # y-axis limits
       y1 <- 0
       y2 <- 3
       y_by <- (y2 - y1)/4
-
+      
       # x-axis limits
       x1 <- 0
       x2 <- Time2
       x_by <- x2/4
-
+      
       area <- ifelse(a == 1, 'far from', 'near')
       title <- sprintf("Relative yield: %s reserve", area)
-
+      
       # plot the relative biomass
       plot(1, type = 'l',                          # make an empty line graph
            main = title,                           # title of plot
@@ -464,35 +470,35 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
            xlim = c(x1, x2),                       # set x-axis limits
            ylim = c(y1, y2),
            cex.main = 1.75, cex.axis = 3, cex.lab = 1.5)
-
+      
       # add a gray dotted line at y = 1
       lines(0:Time2, rep(1, Time2 + 1), col = 'gray', lty = 3, lwd = 2)
-
+      
       # set specific y-axis
       ytick <- seq(y1, y2, by = y_by)              # set y axis tick marks
       axis(side = 2,                               # specify y axis
            at = ytick,                             # apply tick marks
            labels = T,                             # apply appropriate labels
            las = 1)                                # set text horizontal
-
+      
       # set specific x-axis
       xtick <- seq(x1, x2, by = x_by)              # set x axis tick marks
       axis(side = 1,                               # specify x axis
            at = xtick,                             # apply tick marks
            labels = T,                             # apply appropriate labels
            las = 1)                                # set text horizontal
-
+      
       for (k in 1:sample_size) {
-
+        
         for (cr in c(2, 5)) {
           lines(x1:x2, Y_sample_runs[a, , cr, k],
                 col = color[cr],                  # use pre-defined color palette
                 lwd = 2,                     # set line width
                 lty = line_type[cr])                  # set line type
         }
-
+        
       }
-
+      
       # add a legend
       legend(x = 'right', inset = 0, horiz = F,   # position
              col = color,                          # apply color palette
@@ -504,7 +510,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
              cex = 1.1,                            # adjust legend text size
              bty = 'n') 
     }
-
+    
     
     ##### Biomass #####
     
@@ -575,26 +581,193 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
     }
     
   }
-
   
-  ##### Plot age structure #####
+  
+  ##### age structure #####
   N_sample <- sims_N[, , , , , indices]
-  n <- dim(N_sample)[2]
+  ages <- Rec_age:Max_age
+  n <- length(ages)
   
   # initialize median age structures
-  N_medians <- array(rep(0, ages*3*(Time2 + 1)*CR), c(ages, 3, Time2 + 1, CR))
+  control_rules <- c(2, 5)
+  N_medians <- array(rep(0, n*3*(Time2 + 1)*length(control_rules)), 
+                     c(n, 3, Time2 + 1, length(control_rules)))
   
   # fill in median age structure
-  for (i in n) {
+  for (i in 1:n) {
     for (a in 1:3) {
-      for (t in Time1:TimeT) {
-        for (cr in c(2, 5)) {
-          N_median[i, a, t, cr] <- median(N_sample[i, a, t, cr, ])
+      for (t in 1:(Time2 + 1)) {
+        for (cr in 1:length(control_rules)) {
+          N_medians[i, a, t, cr] <- median(N_sample[i, a, Time1 + t - 1, control_rules[cr], ])
         }
       }     
     }
   }
   
-  # plot SAD
+  ##### plotting parameters (age structure) #####
+  
+  # SAD
+  SAD <- N_sample[, 1, 1, 1, 1]
+  years <- seq(20, 0, by = -5)
+  
+  # set main titles
+  CR <- ifelse(cr == 2, 'Static', 'Transient')
+  main_title1 <- paste(Species, ', ', CR, 'Control rule \n Target DR = ', 
+                       Final_DR, sep = '')
+  main_title2 <- paste(Species, ', Target DR = ', Final_DR, sep = '')
+  
+  # use red-blue color palettes
+  palette <- colorRampPalette(c('red', 'blue'))
+  color1 <- palette(length(years) + 1)
+  color2 <- palette(length(years) + 1)
+  
+  # set line types - solid for correct M, dashed for high M, dotted for low M
+  line_type1 <- 1:(length(years) + 1)
+  line_type2 <- 1:(length(years))
+  
+  # set legend title and text and position
+  legend_title <- expression(bold('Control Rule'))
+  legend_text1  <- c("SAD", paste('Year', years))
+  legend_text2  <- paste('Year', years)
+  position <- 'topright'
+  
+  # plot margins
+  plot_margins1 = c(4.5, 5, 6, 1)
+  plot_margins2 = c(4.5, 6.25, 4, 1)
+  
+  # text sizes
+  mt <- 1.75    # main title for main plot
+  lab <- 1.5    # axis labels
+  ax <- 1.25    # axis tick labels
+  leg <- 1.25   # legend text
+  
+  ##### plotting transient - static control rules age distributions #####
+  
+  # y axis margins
+  y1 <- -100
+  y2 <- 100
+  y_by <- 50
+  
+  # x axis margins
+  x1 <- Max_age / 2
+  x2 <- Max_age
+  x_by <- round((x2 - x1)/4, 0)
+  
+  # empty plot + axes + labels + titles
+  par(mar = plot_margins2)
+  plot(1, type = 'l',                          # make an empty line graph
+       main = main_title2,                      # title of plot
+       ylab = 'Median Numbers at Age \n Transient - Static Control Rule', 
+       xlab = 'Age',
+       yaxt = 'n', xaxt = 'n',                 # get rid of y-axis
+       xlim = c(x1, x2),                       # set x-axis limits
+       ylim = c(y1, y2), 
+       cex.main = mt, cex.lab = lab, cex.axis = ax)
+  
+  # set specific y-axis
+  ytick <- seq(y1, y2, by = y_by)              # set yaxis tick marks
+  axis(side = 2,                               # specify y axis
+       at = ytick,                             # apply tick marks
+       labels = T,                             # apply appropriate labels
+       las = 0,                                # set text horizontal
+       cex.axis = ax)
+  
+  # set specific y-axis
+  xtick <- seq(x1, x2, by = x_by)              # set yaxis tick marks
+  axis(side = 1,                               # specify y axis
+       at = xtick,                             # apply tick marks
+       labels = T,                             # apply appropriate labels
+       las = 0,                                # set text horizontal
+       cex.axis = ax) # set axis text size 
+  
+  # plot line at y = 1, then add lines for 5, 10, 15, 20 years
+  abline(h = 0, col = 'black', lty = 1, lwd = 2)
+  
+  for (y in 1:length(years)) {
+    lines(ages, N_medians[, a, years[y] + 1, 2] - N_medians[, a, years[y] + 1, 1], 
+          lty = line_type[y + 1], 
+          col = color[y + 1], 
+          lwd = 2)
+  }
+  
+  legend(x = position, inset = 0, horiz = F,   # position
+         col = color2,                          # apply color palette
+         lwd = 2,                              # apply line thicknesses
+         lty = line_type2,                      # apply line patterns
+         title = legend_title,                 # add legend title
+         legend = legend_text2,                 # add legend labels
+         seg.len = 3,                          # adjust length of lines
+         cex = leg,                            # adjust legend text size
+         bty = 'n') 
+  
+  ##### plot age distributions separately with SAD #####
+  
+  # y axis margins
+  yy1 <- 0
+  high_point <- max(N_medians[1, 3, , ])
+  yy2 <- round_any(high_point, 5000, f = ceiling)
+  yy_by <- yy2 / 2
+  
+  # x axis margins
+  xx1 <- Rec_age
+  xx2 <- Max_age
+  xx_by <- round((xx2 - xx1)/4, 0)
+  
+  for (cr in 1:length(control_rules)) {
+    
+    # set main title
+    CR <- ifelse(cr == 2, 'Static', 'Transient')
+    main_title1 <- paste(Species, ', ', CR, ' control rule \n Target DR = ', 
+                         Final_DR, sep = '')
+    
+    # empty plot + axes + labels + titles
+    par(mar = plot_margins1)
+    plot(1, type = 'l',                          # make an empty line graph
+         main = main_title1,                      # title of plot
+         ylab = 'Median Numbers at Age', 
+         xlab = 'Age',
+         yaxt = 'n', xaxt = 'n',                 # get rid of y-axis
+         xlim = c(xx1, xx2),                       # set x-axis limits
+         ylim = c(yy1, yy2), 
+         cex.main = mt, cex.lab = lab, cex.axis = ax)
+    
+    # set specific y-axis
+    yytick <- seq(yy1, yy2, by = yy_by)              # set yaxis tick marks
+    axis(side = 2,                               # specify y axis
+         at = yytick,                             # apply tick marks
+         labels = T,                             # apply appropriate labels
+         las = 0,                                # set text horizontal
+         cex.axis = ax)
+    
+    # set specific y-axis
+    xxtick <- seq(xx1, xx2, by = xx_by)              # set yaxis tick marks
+    axis(side = 1,                               # specify y axis
+         at = xxtick,                             # apply tick marks
+         labels = T,                             # apply appropriate labels
+         las = 0,                                # set text horizontal
+         cex.axis = ax) # set axis text size 
+    
+    # plot SAD, then add lines for 5, 10, 15, 20 years
+    lines(ages, SAD, col = color[1], lty = line_type[1], lwd = 2)
+    
+    for (y in 1:length(years)) {
+      lines(ages, N_medians[, a, years[y] + 1, cr], 
+            lty = line_type[y + 1], 
+            col = color[y + 1], 
+            lwd = 2)
+    }
+    
+    legend(x = position, inset = 0.01, horiz = F,   # position
+           col = color1,                          # apply color palette
+           lwd = 2,                              # apply line thicknesses
+           lty = line_type1,                      # apply line patterns
+           title = legend_title,                 # add legend title
+           legend = legend_text1,                 # add legend labels
+           seg.len = 3,                          # adjust length of lines
+           cex = leg,                            # adjust legend text size
+           bty = 'n') 
+    
+  }
+  
   
 }
