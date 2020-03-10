@@ -5,83 +5,113 @@ devtools::install_git('https://github.com/vquennessen/densityratio.git')
 library(densityratio)
 
 # set numbers of simulations
-num_sims <- 1000
+num_sims <- 1
 
 # set arguments
 Species = 'BR_OR_2015'
-R0 = 1e+5
+R0 = 1e5
 A = 5
-MPAs = c(3)
+MPA = 3
 Time1 = 50
 Time2 = 20
-Recruitment_mode = 'pool'
 Error = 0.05
-Stochasticity = TRUE
-Surveys = TRUE
-Fishery_management = TRUE
-Fishing = TRUE
 Transects = 24
-Adult_movement = TRUE
 Plotting = FALSE
 Final_DR = 0.2
-Years_sampled = 1
-Areas_sampled = 'all'
-Ind_sampled = 'all'
-Allocation = 'IFD'
 Control_rules = c(1:6)
 CR <- length(Control_rules)
 Plot_individual_runs <- F
 BM <- FALSE
+Output.Yield = TRUE
+Output.Biomass = TRUE
+Output.SSB = TRUE
+Output.N = TRUE
+Output.Density.Ratio = TRUE
+Output.Effort = TRUE
+Surveys = TRUE
+Fishing = TRUE
+Stochasticity = TRUE
+Recruitment_mode = 'pool'
+Allocation = 'IFD'
+Adult_movement = TRUE
+Fishery_management = TRUE
+Years_sampled = 1
+Areas_sampled = 'all'
+Ind_sampled = 'all'
 
 y_DR <- densityratio::transient_DR(Time1 = 50, TimeT = 70, Final_DR,
                                    Nat_mortality = c(0.09, 0.14, 0.19), nm = 2)
+Rec_age <- parameters(Species)[[3]]
+Max_age <- parameters(Species)[[1]]
+ages <- Rec_age:Max_age
+n <- length(ages)
 
 # total time
 TimeT <- Time1 + Time2
 
 # initialize yield and biomass arrays
-sims_yield <- array(rep(0, 2*TimeT*CR*1*num_sims), c(2, TimeT, CR, 1, num_sims))
-sims_biomass <- array(rep(0, 3*TimeT*CR*1*num_sims), c(3, TimeT, CR, 1, num_sims))
-sims_SSB <- array(rep(0, 3*TimeT*CR*1*num_sims), c(3, TimeT, CR, 1, num_sims))
+sims_N <- array(rep(0, n*MPA*TimeT*CR*1*num_sims), 
+                c(n, MPA, TimeT, CR, 1, num_sims))
+sims_biomass <- array(rep(0, MPA*TimeT*CR*1*num_sims), 
+                      c(MPA, TimeT, CR, 1, num_sims))
+sims_SSB <- array(rep(0, MPA*TimeT*CR*1*num_sims), 
+                  c(MPA, TimeT, CR, 1, num_sims))
+sims_yield <- array(rep(0, (MPA - 1)*TimeT*CR*num_sims), 
+                    c((MPA - 1), TimeT, CR, num_sims))
+sims_Effort <- array(rep(0, (MPA - 1)*TimeT*CR*num_sims), 
+                     c(MPA - 1, TimeT, CR, num_sims))
 sims_DR <- array(rep(0, (Time2 + 1)*CR*num_sims), c(Time2 + 1, CR, num_sims))
-sims_N <- array(rep(0, 38*3*TimeT*CR*1*num_sims), c(38, 3, TimeT, CR, 1, num_sims))
 
 # run the model for each simulation
 for (i in 1:num_sims) {
   
-  output <- densityratio::base_model(Species, R0, A, MPAs, Time1, Time2, 
-                                     Recruitment_mode, Error, Stochasticity, 
-                                     Surveys, Fishery_management, Fishing, 
-                                     Transects, Adult_movement, Plotting, 
-                                     Final_DR, Years_sampled, Areas_sampled, 
-                                     Ind_sampled, Allocation, BM, Control_rules)
+  output <- base_model(Species, R0, A, MPA, Time1, Time2, Recruitment_mode, 
+                       Error, Stochasticity, Surveys, Fishery_management, 
+                       Fishing, Transects, Adult_movement, Plotting, Final_DR, 
+                       Years_sampled, Areas_sampled, Ind_sampled, Allocation, 
+                       BM, Control_rules, Output.N = TRUE, Output.Biomass = TRUE, 
+                       Output.SSB = TRUE, Output.Yield = TRUE, 
+                       Output.Effort = TRUE, Output.Density.Ratio = TRUE)
   
   # save the relative yield and biomasses for all areas, times after reserve
   # implementation, and control rules
-  sims_yield[, , , , i] <- output[[1]]
-  sims_biomass[, , , , i] <- output[[2]]
-  sims_SSB[, , , , i] <- output[[3]]
-  sims_DR[, , i] <- output[[4]]
-  sims_N[, , , , , i] <- output[[5]]
-  Rec_age <- output[[6]]
-  Max_age <- output[[7]]
+  sims_N[, , , , , i]     <- output$N
+  sims_biomass[, , , , i] <- output$Biomass
+  sims_SSB[, , , , i]     <- output$SSB
+  sims_yield[, , , i]     <- output$Yield
+  sims_Effort[, , , i]    <- output$Effort
+  sims_DR[, , i]          <- output$Density_ratio
 
-  print(i)
-  
+  if (i %% (num_sims/10) == 0) {
+    percent <- 100*i/num_sims
+    thing <- paste('Final DR ', Final_DR, ': ', percent, '% done.', sep = '')
+    print(thing) 
+    }  
 }
 
-q <- ifelse(num_sims < 1000, num_sims,  paste("1e", log10(num_sims), sep = ''))
+Q <- ifelse(num_sims < 1000, num_sims,  paste("1e", log10(num_sims), sep = ''))
 
-filepath1 = paste('home/quennessenv/ExpanDrive/Box/data/', Species, '/', q, "_", 
-                  Final_DR, "_yield.Rda", sep = '')
-filepath2 = paste('home/quennessenv/ExpanDrive/Box/data/', Species, '/', q, "_", 
-                  Final_DR, "_biomass.Rda", sep = '')
-filepath3 = paste('home/quennessenv/ExpanDrive/Box/data/', Species, '/', q, "_", 
-                  Final_DR, "_SSB.Rda", sep = '')
-filepath4 = paste('home/quennessenv/ExpanDrive/Box/data/', Species, '/', q, "_", 
-                  Final_DR, "_DR.Rda", sep = '')
-filepath5 = paste('home/quennessenv/ExpanDrive/Box/data/', Species, '/', q, '-', 
-                  Final_DR, '_N.Rda', sep = '')
+filepath1 = paste('../data/', Species, '/E_', Q, "_", Final_DR, "_yield.Rda", 
+                  sep = '')
+filepath2 = paste('../data/', Species, '/E_', Q, "_", Final_DR, 
+                  "_biomass.Rda", sep = '')
+filepath3 = paste('../data/', Species, '/E_', Q, "_", Final_DR, "_SSB.Rda", 
+                  sep = '')
+filepath4 = paste('../data/', Species, '/E_', Q, "_", Final_DR, "_DR.Rda", 
+                  sep = '')
+filepath5 = paste('../data/', Species, '/E_', Q, '-', Final_DR, '_N.Rda', 
+                  sep = '')
+
+# filepath1 = paste('home/quennessenv/ExpanDrive/Box/Quennessen_Thesis/data/', 
+#                   Species, '/ E_', Q, "_", Final_DR, "_yield.Rda", sep = '')
+# filepath2 = paste('home/quennessenv/ExpanDrive/Box/Quennessen_Thesis/data/', 
+#                   Species, '/ E_', Q, "_", Final_DR, "_biomass.Rda", sep = '')
+# filepath3 = paste('home/quennessenv/ExpanDrive/Box/Quennessen_Thesis/data/', 
+#                   Species, '/ E_', Q, "_", Final_DR, "_SSB.Rda", sep = '')
+# filepath4 = paste('home/quennessenv/ExpanDrive/Box/Quennessen_Thesis/data/', 
+#                   Species, '/ E_', Q, "_", Final_DR, "_DR.Rda", sep = '')
+# filepath5 = paste('home/quennessenv/ExpanDrive/Box/Quennessen_Thesis/data/', 
+#                   Species, '/ E_', Q, '-', Final_DR, '_N.Rda', sep = '')
 
 save(sims_yield, file = filepath1)
 save(sims_biomass, file = filepath2)
