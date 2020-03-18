@@ -5,7 +5,7 @@ cluster <- function(Species, Final_DR, num_sims) {
   A = 5
   MPA = 3
   Time1 = 50
-  Time2 = 20
+  Time2 = 50
   Error = 0.05
   Transects = 24
   Plotting = FALSE
@@ -49,7 +49,7 @@ cluster <- function(Species, Final_DR, num_sims) {
                     c(MPA, TimeT, CR, 1, num_sims))
   sims_yield <- array(rep(0, (MPA - 1)*TimeT*CR*num_sims), 
                       c((MPA - 1), TimeT, CR, num_sims))
-  sims_Effort <- array(rep(0, (MPA - 1)*TimeT*CR*num_sims), 
+  sims_effort <- array(rep(0, (MPA - 1)*TimeT*CR*num_sims), 
                        c(MPA - 1, TimeT, CR, num_sims))
   sims_DR <- array(rep(0, (Time2 + 1)*CR*num_sims), c(Time2 + 1, CR, num_sims))
   
@@ -70,7 +70,7 @@ cluster <- function(Species, Final_DR, num_sims) {
     sims_biomass[, , , , i] <- output$Biomass
     sims_SSB[, , , , i]     <- output$SSB
     sims_yield[, , , i]     <- output$Yield
-    sims_Effort[, , , i]    <- output$Effort
+    sims_effort[, , , i]    <- output$Effort
     sims_DR[, , i]          <- output$Density_ratio
     
     if (i %% (num_sims/10) == 0) {
@@ -82,15 +82,17 @@ cluster <- function(Species, Final_DR, num_sims) {
   
   Q <- ifelse(num_sims < 1000, num_sims,  paste("1e", log10(num_sims), sep = ''))
   
-  filepath1 = paste('../data/', Species, '/E_', Q, "_", Final_DR, "_yield.Rda",
+  filepath1 = paste('../data/', Species, '/E50_', Q, "_", Final_DR, "_yield.Rda",
                     sep = '')
-  filepath2 = paste('../data/', Species, '/E_', Q, "_", Final_DR,
+  filepath2 = paste('../data/', Species, '/E50_', Q, "_", Final_DR,
                     "_biomass.Rda", sep = '')
-  filepath3 = paste('../data/', Species, '/E_', Q, "_", Final_DR, "_SSB.Rda",
+  filepath3 = paste('../data/', Species, '/E50_', Q, "_", Final_DR, "_SSB.Rda",
                     sep = '')
-  filepath4 = paste('../data/', Species, '/E_', Q, "_", Final_DR, "_DR.Rda",
+  filepath4 = paste('../data/', Species, '/E50_', Q, "_", Final_DR, "_DR.Rda",
                     sep = '')
-  filepath5 = paste('../data/', Species, '/E_', Q, '-', Final_DR, '_N.Rda',
+  filepath5 = paste('../data/', Species, '/E50_', Q, '_', Final_DR, '_N.Rda',
+                    sep = '')
+  filepath6 = paste('../data/', Species, '/E50_', Q, '_', Final_DR, '_effort.Rda',
                     sep = '')
   
   # filepath1 = paste('home/quennessenv/ExpanDrive/Box/Quennessen_Thesis/data/',
@@ -102,12 +104,15 @@ cluster <- function(Species, Final_DR, num_sims) {
   # filepath4 = paste('home/quennessenv/ExpanDrive/Box/Quennessen_Thesis/data/',
   #                   Species, '/ E_', Q, "_", Final_DR, "_DR.Rda", sep = '')
   # filepath5 = paste('home/quennessenv/ExpanDrive/Box/Quennessen_Thesis/data/',
-  #                   Species, '/ E_', Q, '-', Final_DR, '_N.Rda', sep = '')
+  #                   Species, '/ E_', Q, '_', Final_DR, '_N.Rda', sep = '')
+  # filepath6 = paste('home/quennessenv/ExpanDrive/Box/Quennessen_Thesis/data/',
+  #                   Species, '/ E_', Q, '_', Final_DR, '_effort.Rda', sep = '')
   
   save(sims_yield, file = filepath1)
   save(sims_biomass, file = filepath2)
   save(sims_SSB, file = filepath3)
   save(sims_DR, file = filepath4)
   save(sims_N, file = filepath5)
+  save(sims_effort, file = filepath6)
 
 }
