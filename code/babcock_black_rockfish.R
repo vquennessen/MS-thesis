@@ -10,7 +10,7 @@ num_sims <- 10
 Species = 'BR_CA_2003'
 R0 = 1e+5
 A = 5
-MPAs = c(3)
+MPA = 3
 Time1 = 50
 Time2 = 50
 Recruitment_mode = 'closed'
@@ -22,12 +22,13 @@ Fishing = TRUE
 Transects = 24
 Adult_movement = TRUE
 Plotting = FALSE
-Final_DR = 0.6
+Final_DRs = 0.6
 Years_sampled = NULL
 Areas_sampled = NULL
 Ind_sampled = NULL
 Allocation = 'IFD'
 BM = TRUE
+LDP = 0.1
 Control_rules = c(1:8)
 CR <- length(Control_rules)
 Plot_individual_runs = FALSE
