@@ -10,9 +10,10 @@ profvis({
   Error = 0.05
   Transects = 24
   Plotting = FALSE
-  Final_DRs = c(0.2, 0.6, 1.0)
+  Final_DRs = c(0.2, 0.4, 0.6, 0.8, 1.0)
   Control_rules = c(1:6)
   Plot_individual_runs <- F
+  LDP = 0.1
   BM <- FALSE
   Output.Yield = TRUE
   Output.Biomass = TRUE
@@ -20,6 +21,9 @@ profvis({
   Output.N = TRUE
   Output.Density.Ratio = TRUE
   Output.Effort = TRUE
+  Output.FM = FALSE
+  Output.Catch = FALSE
+  Output.Abundance = FALSE
   Surveys = TRUE
   Fishing = TRUE
   Stochasticity = TRUE
