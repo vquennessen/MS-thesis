@@ -82,7 +82,8 @@ run_base_model <- function(Species, num_sims) {
     sims_DR[, , , i]          <- output$Density_ratio
     
     if (i %% (num_sims/100) == 0) {
-      update <- paste(Sys.time(), ' - ', i/num_sims*100, '% done!', sep = '')
+      update <- paste(Sys.time(), ' - ', Species, ' - ', i/num_sims*100, 
+                      '% done!', sep = '')
       write(update, file = 'progress.txt', append = TRUE)
     }
     
