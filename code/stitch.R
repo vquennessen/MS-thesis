@@ -41,15 +41,15 @@ stitch <- function(Species, x, y) {
   load(file12); DR2      <- sims_DR
   
   # combine objects into new ones
-  N       <- abind(N1, N2, along = 6)
-  biomass <- abind(biomass1, biomass2, along = 5)
-  SSB     <- abind(SSB1, SSB2, along = 5)
-  yield   <- abind(yield1, yield2, along = 5)
-  effort  <- abind(effort1, effort2, along = 4)
-  DR      <- abind(DR1, DR2, along = 4)
+  sims_N       <- abind(N1, N2, along = 6)
+  sims_biomass <- abind(biomass1, biomass2, along = 5)
+  sims_SSB     <- abind(SSB1, SSB2, along = 5)
+  sims_yield   <- abind(yield1, yield2, along = 5)
+  sims_effort  <- abind(effort1, effort2, along = 4)
+  sims_DR      <- abind(DR1, DR2, along = 4)
   
   # new number of sims
-  # z = x + y
+  z = x + y
   
   # create new filepaths
   file13 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Species, '/', 
@@ -66,11 +66,11 @@ stitch <- function(Species, x, y) {
                   z, '_DR.Rda', sep = '')
   
   # save new objects to new filepaths
-  save(N, file = file13)
-  save(biomass, file = file14)
-  save(SSB, file = file15)
-  save(yield, file = file16)
-  save(effort, file = file17)
-  save(DR, file = file18)
+  save(sims_N, file = file13)
+  save(sims_biomass, file = file14)
+  save(sims_SSB, file = file15)
+  save(sims_yield, file = file16)
+  save(sims_effort, file = file17)
+  save(sims_DR, file = file18)
   
 }
