@@ -15,82 +15,113 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
   load(filepath4)
   load(filepath5)
   
+  # set variables
+  A = 5
+  MPA = 3
+  Time1 = 50
+  Time2 = 20
+  Final_DRs = c(0.2, 0.4, 0.6, 0.8, 1)
+  Control_rules = c(1:6)
+  
+  # dimensions
+  TimeT <- Time1 + Time2
+  CR <- length(Control_rules)
+  FDR <- length(Final_DRs)
+  Rec_age <- parameters(Species)[[3]]
+  Max_age <- parameters(Species)[[1]]
+  ages <- Rec_age:Max_age
+  n <- length(ages)
+  
+  # plotting variables
+  num_sims = 1
+  sample_size = num_sims
+  PD = 0.25
+  plot_individual_runs = FALSE
+  Final_DRs = c(0.2, 0.4, 0.6, 0.8, 1)
+  Nat_mortality <- parameters(Species)[[2]]
+  Error = 0.05
+  ENM = 2
+  
   # sample from simulations
   indices <- sample(1:num_sims, sample_size, replace = FALSE)
   
-  ##### relative yield, biomass, and SSB #####
+  ##### relative yield, biomass, SSB, and effort + median, upper, and lower limits  #####
   
   # pull out sample sims
-  Y_sample   <- sims_yield[, , , indices]
-  B_sample   <- sims_biomass[, , , , indices]
-  SSB_sample <- sims_SSB[, , , , indices]
-  DR_sample  <- sims_DR[, , indices]
-  
+  Y_sample   <- sims_yield[, , , , indices]
+  B_sample   <- sims_biomass[, , , , , indices]
+  SSB_sample <- sims_SSB[, , , , , indices]
+  E_sample   <- effort[, , , indices]
+  DR_sample  <- sims_DR[, , , indices]
+
   # initialize relative arrays
-  Rel_biomass <- array(rep(0, MPA*(Time2 + 1)*CR*num_sims), c(MPA, Time2 + 1, CR, num_sims))
-  Rel_yield <- array(rep(0, MPA*(Time2 + 1)*CR*num_sims), c(MPA, Time2 + 1, CR, num_sims))
-  Rel_SSB <- array(rep(0, MPA*(Time2 + 1)*CR*num_sims), c(MPA, Time2 + 1, CR, num_sims))
-  
-  # total time
-  TimeT <- Time1 + Time2
+  Rel_biomass <- array(rep(0, MPA*(Time2 + 1)*CR*FDR*num_sims), 
+                       c(MPA, Time2 + 1, CR, FDR, num_sims))
+  Rel_yield <- array(rep(0, MPA*(Time2 + 1)*CR*FDR*num_sims), 
+                     c(MPA, Time2 + 1, CR, FDR, num_sims))
+  Rel_SSB <- array(rep(0, MPA*(Time2 + 1)*CR*FDR*num_sims), 
+                   c(MPA, Time2 + 1, CR, FDR, num_sims))
+  Rel_effort <- array(rep(0, (Time2 + 1)*CR*FDR*num_sims), 
+                      c(Time2 + 1, CR, FDR, num_sims))
   
   # calculate relative arrays after reserve implementation
   for (a in 1:MPA) {
     for (cr in 1:CR) {
-      for (sim in indices) {
-        Rel_biomass[a, , cr, sim] <- sims_biomass[a, Time1:TimeT, cr, 1, sim]/sims_biomass[a, Time1, cr, 1, sim]
-        Rel_SSB[a, , cr, sim] <- sims_SSB[a, Time1:TimeT, cr, 1, sim]/sims_SSB[a, Time1, cr, 1, sim]        
-      }
-    }
-  }
-  
-  for (a in 1:(MPA - 1)) {
-    for (cr in 1:CR) {
-      for (sim in indices) {
-        Rel_yield[a, , cr, sim] <- sims_yield[a, Time1:TimeT, cr, sim]/sims_yield[a, Time1, cr, sim]
+      for (fdr in 1:FDR) {
+        for (sim in indices) {
+          Rel_biomass[a, , cr, fdr, sim] <- B_sample[a, Time1:TimeT, cr, fdr, sim] / 
+            B_sample[a, Time1, cr, fdr, sim]
+          Rel_SSB[a, , cr, fdr, sim] <- SSB_sample[a, Time1:TimeT, cr, fdr, sim] / 
+            SSB_sample[a, Time1, cr, fdr, sim] 
+          Rel_effort[ , cr, fdr, sim] <- E_sample[Time1:TimeT, cr, fdr, sim] /
+            E_sample[Time1, cr, fdr, sim]
+          Rel_yield[a, , cr, fdr, sim] <- Y_sample[a, , cr, fdr, sim] / 
+            Y_sample[a, 1, cr, fdr, sim]
+        }
       }
     }
   }
   
   # initialize median, lowerIQR, and upperIQR arrays
-  Y_medians <- Y_lower <- Y_upper <- array(rep(NA, (MPA - 1)*(Time2 + 1)*CR), 
-                                           c(MPA - 1, Time2 + 1, CR))
-  B_medians <- B_lower <- B_upper <- array(rep(NA, MPA*(Time2 + 1)*CR), 
-                                           c(MPA, Time2 + 1, CR))
-  SSB_medians <- SSB_lower <- SSB_upper <- array(rep(NA, MPA*(Time2 + 1)*CR), 
-                                                 c(MPA, Time2 + 1, CR))
-  DR_medians <- array(rep(NA, (Time2 + 1)*CR), c(Time2 + 1, CR))
-  
-  # extract data from files and plot medians + interquartile ranges
+  Y_medians <- Y_lower <- Y_upper <- array(rep(NA, (MPA - 1)*(Time2 + 1)*CR*FDR), 
+                                           c(MPA - 1, Time2 + 1, CR, FDR))
+  B_medians <- B_lower <- B_upper <- array(rep(NA, MPA*(Time2 + 1)*CR*FDR), 
+                                           c(MPA, Time2 + 1, CR, FDR))
+  SSB_medians <- SSB_lower <- SSB_upper <- array(rep(NA, MPA*(Time2 + 1)*CR*FDR), 
+                                                 c(MPA, Time2 + 1, CR, FDR))
+  DR_medians <- array(rep(NA, (Time2 + 1)*CR*FDR), c(Time2 + 1, CR, FDR))
+  E_medians <- E_lower <- E_upper <- array(rep(NA, (Time2 + 1)*CR*FDR), 
+                                           c(Time2 + 1, CR, FDR))
+# calculate medians, upper limits, and lower limits  
   for (t in 1:(Time2 + 1)) {
     for (cr in 1:CR) {
-      
-      DR_medians[t, cr] <- median(DR_sample[t, cr, ])
-      
-      for (a in 1:MPA) {
+      for (fdr in 1:FDR) {        
         
-        B_medians[a, t, cr] <- median(Rel_biomass[a, t, cr, ])
-        SSB_medians[a, t, cr] <- median(Rel_SSB[a, t, cr, ])
+        DR_medians[t, cr, fdr] <- median(DR_sample[t, cr, fdr, ])
+
+        E_medians[t, cr, fdr] <- median(Rel_effort[t, cr, fdr, ])
+        E_lower[t, cr, fdr] <- quantile(Rel_effort[t, cr, fdr, ], 0.5 - PD)
+        E_upper[t, cr, fdr] <- quantile(Rel_effort[t, cr, fdr, ], 0.5 + PD)        
         
-        B_lower[a, t, cr] <- quantile(Rel_biomass[a, t, cr, ], 0.5 - PD)
-        SSB_lower[a, t, cr] <- quantile(Rel_SSB[a, t, cr, ], 0.5 - PD)
-        
-        B_upper[a, t, cr] <- quantile(Rel_biomass[a, t, cr, ], 0.5 + PD)
-        SSB_upper[a, t, cr] <- quantile(Rel_SSB[a, t, cr, ], 0.5 + PD)
-        
+        for (a in 1:MPA) {
+          + me
+          B_medians[a, t, cr, fdr] <- median(Rel_biomass[a, t, cr, fdr, ])
+          SSB_medians[a, t, cr, fdr] <- median(Rel_SSB[a, t, cr, fdr, ])
+          Y_medians[a, t, cr, fdr] <- median(Rel_yield[a, t, cr, fdr, ])
+          
+          B_lower[a, t, cr, fdr] <- quantile(Rel_biomass[a, t, cr, fdr, ], 0.5 - PD)
+          SSB_lower[a, t, cr, fdr] <- quantile(Rel_SSB[a, t, cr, fdr, ], 0.5 - PD)
+          Y_lower[a, t, cr, fdr] <- quantile(Rel_yield[a, t, cr, fdr, ], 0.5 - PD)
+          
+          B_upper[a, t, cr, fdr] <- quantile(Rel_biomass[a, t, cr, fdr, ], 0.5 + PD)
+          SSB_upper[a, t, cr, fdr] <- quantile(Rel_SSB[a, t, cr, fdr, ], 0.5 + PD)
+          Y_upper[a, t, cr, fdr] <- quantile(Rel_yield[a, t, cr, fdr, ], 0.5 + PD)
+          
+        }
       }
     }
   } 
   
-  for (t in 1:(Time2 + 1)) {
-    for (cr in 1:CR) {
-      for (a in 1:(MPA - 1)) {
-        Y_medians[a, t, cr] <- median(Rel_yield[a, t, cr, ])
-        Y_lower[a, t, cr] <- quantile(Rel_yield[a, t, cr, ], 0.5 - PD)
-        Y_upper[a, t, cr] <- quantile(Rel_yield[a, t, cr, ], 0.5 + PD)
-      }
-    }
-  } 
   
   ##### Plotting parameters #####
   
@@ -224,6 +255,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
             lty = (cr %% 3) + 1)}                # set line type
     
     # add a gray dotted line at target_DR over time
+    y_DR <- transient_DR(Time1, TimeT, Final_DRs, Nat_mortality, nm = ENM, fdr)
     lines(0:Time2, y_DR, col = 'gray', lty = 3, lwd = 2)
     
     # add a legend
@@ -327,6 +359,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
             lty = (cr %% 3) + 1)}              # set line type
     
     # add a gray dotted line at target_DR over time
+    y_DR <- transient_DR(Time1, TimeT, Final_DRs, Nat_mortality, nm = ENM, fdr)
     lines(0:Time2, y_DR, col = 'gray', lty = 3, lwd = 2)
     
     # add a legend
@@ -430,6 +463,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
             lty = (cr %% 3) + 1)}              # set line type
     
     # add a gray dotted line at target_DR over time
+    y_DR <- transient_DR(Time1, TimeT, Final_DRs, Nat_mortality, nm = ENM, fdr)
     lines(0:Time2, y_DR, col = 'gray', lty = 3, lwd = 2)
     
     # add a legend
@@ -788,42 +822,6 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
          bty = 'n') 
   
   
-  ##### relative effort #####
-  
-  # pull out sample sims
-  Effort_sample   <- sims_effort[, , , indices]
-  
-  # initialize relative arrays
-  Rel_effort <- array(rep(0, (MPA - 1)*(Time2 + 1)*CR*num_sims), 
-                      c(MPA - 1, Time2 + 1, CR, num_sims))
-  
-  # total time
-  TimeT <- Time1 + Time2
-  
-  # calculate relative arrays after reserve implementation
-  for (a in 1:(MPA - 1)) {
-    for (cr in 1:CR) {
-      for (sim in indices) {
-        Rel_effort[a, , cr, sim] <- sims_yield[a, Time1:TimeT, cr, sim]/sims_yield[a, Time1, cr, sim]
-      }
-    }
-  }
-  
-  # initialize median, lowerIQR, and upperIQR arrays
-  E_medians <- E_lower <- E_upper <- array(rep(NA, (MPA - 1)*(Time2 + 1)*CR), 
-                                           c(MPA - 1, Time2 + 1, CR))
-  
-  # extract data from files and plot medians + interquartile ranges
-  for (t in 1:(Time2 + 1)) {
-    for (cr in 1:CR) {
-      for (a in 1:(MPA - 1)) {
-        E_medians[a, t, cr] <- median(Rel_effort[a, t, cr, ])
-        E_lower[a, t, cr] <- quantile(Rel_effort[a, t, cr, ], 0.5 - PD)
-        E_upper[a, t, cr] <- quantile(Rel_effort[a, t, cr, ], 0.5 + PD)
-      }
-    }
-  } 
-  
   ##### plotting parameters #####
   
   # use red-blue color palette
@@ -839,7 +837,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
   h1 <- 3; h2 <- 2
   
   # set main title
-  main_title <- paste(Species, ", Target DR = ", Final_DR, sep = '')
+  main_title <- paste(Species, ", Target DR = ", Final_DR[fdr], sep = '')
   
   # set legend title and text and position
   legend_title <- expression(bold('Control Rule'))
@@ -955,6 +953,7 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
             lty = (cr %% 3) + 1)}                # set line type
     
     # add a gray dotted line at target_DR over time
+    y_DR <- transient_DR(Time1, TimeT, Final_DRs, Nat_mortality, nm = ENM, fdr)
     lines(0:Time2, y_DR, col = 'gray', lty = 3, lwd = 2)
     
     # add a legend
@@ -973,6 +972,8 @@ plot_stuff <- function(filepath1, filepath2, filepath3, filepath4, filepath5,
   }
   
   
-
   
-  }
+  
+
+}
+
