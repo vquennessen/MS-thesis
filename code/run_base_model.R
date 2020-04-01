@@ -4,6 +4,10 @@ run_base_model <- function(Species, num_sims) {
   remotes::install_github('vquennessen/densityratio')
   library(densityratio)
   
+  start_time <- paste('Start time: ', Sys.time(), ' - ', Species, ' - ',
+                      num_sims, ' sims', sep = '')
+  write(start_time, file = 'progress.txt', append = TRUE)
+  
   # set arguments
   R0 = 1e+5
   A = 5
@@ -11,8 +15,9 @@ run_base_model <- function(Species, num_sims) {
   Time1 = 50
   Time2 = 20
   Recruitment_mode = 'pool'
-  Error = 0.05
-  Stochasticity = TRUE
+  M_Error = 0.05
+  Sampling_Error = FALSE
+  Stochasticity = FALSE
   Surveys = TRUE
   Fishery_management = TRUE
   Fishing = TRUE
@@ -23,13 +28,14 @@ run_base_model <- function(Species, num_sims) {
   Years_sampled = 1
   Areas_sampled = 'all'
   Ind_sampled = 'all'
+  Floor_DR = 0.2
   Allocation = 'IFD'
   BM = FALSE
   LDP = 0.1
   Control_rules = c(1:6)
   Output.FM = FALSE
   Output.N = TRUE
-  Output.Abundance = FALSE
+  Output.Abundance = TRUE
   Output.Biomass = TRUE
   Output.SSB = TRUE
   Output.Catch = FALSE
@@ -47,30 +53,32 @@ run_base_model <- function(Species, num_sims) {
   n <- length(ages)
   
   # initialize yield and biomass arrays
-  sims_N <- array(rep(0, n*MPA*TimeT*CR*FDR*num_sims),
-                  c(n, MPA, TimeT, CR, FDR, num_sims))
-  sims_biomass <- array(rep(0, MPA*TimeT*CR*FDR*num_sims),
-                        c(MPA, TimeT, CR, FDR, num_sims))
-  sims_SSB <- array(rep(0, MPA*TimeT*CR*FDR*num_sims),
-                    c(MPA, TimeT, CR, FDR, num_sims))
-  sims_yield <- array(rep(0, (MPA - 1)*TimeT*CR*FDR*num_sims),
-                      c((MPA - 1), TimeT, CR, FDR, num_sims))
+  sims_N <- array(rep(0, n*MPA*(Time2 + 1)*CR*FDR*num_sims),
+                  c(n, MPA, Time2 + 1, CR, FDR, num_sims))
+  sims_biomass <- array(rep(0, MPA*(Time2 + 1)*CR*FDR*num_sims),
+                        c(MPA, Time2 + 1, CR, FDR, num_sims))
+  sims_SSB <- array(rep(0, MPA*(Time2 + 1)*CR*FDR*num_sims),
+                    c(MPA, Time2 + 1, CR, FDR, num_sims))
+  sims_yield <- array(rep(0, (MPA - 1)*(Time2 + 1)*CR*FDR*num_sims),
+                      c((MPA - 1), Time2 + 1, CR, FDR, num_sims))
   sims_effort <- array(rep(0, TimeT*CR*FDR*num_sims),
                        c(TimeT, CR, FDR, num_sims))
   sims_DR <- array(rep(0, TimeT*CR*FDR*num_sims),
                    c(TimeT, CR, FDR, num_sims))
+  sims_abundance <- array(rep(0, MPA*(Time2 + 1)*CR*FDR*num_sims),
+                    c(MPA, Time2 + 1, CR, FDR, num_sims))
   
   # run the model for each simulation
   for (i in 1:num_sims) {
     
     output <- base_model(Species, R0, A, MPA, Time1, Time2, Recruitment_mode, 
-                         Error, Stochasticity, Surveys, Fishery_management, 
-                         Fishing, Transects, Adult_movement, Plotting, Final_DRs, 
-                         Years_sampled, Areas_sampled, Ind_sampled, Allocation, 
-                         BM, LDP, Control_rules, Output.FM, Output.N, 
-                         Output.Abundance, Output.Biomass, Output.SSB, 
-                         Output.Catch, Output.Yield, Output.Effort, 
-                         Output.Density.Ratio)
+                         M_Error, Sampling_Error, Stochasticity, Surveys, 
+                         Fishery_management, Fishing, Transects, Adult_movement, 
+                         Plotting, Final_DRs, Years_sampled, Areas_sampled, 
+                         Ind_sampled, Floor_DR, Allocation, BM, LDP, 
+                         Control_rules, Output.FM, Output.N, Output.Abundance, 
+                         Output.Biomass, Output.SSB, Output.Catch, Output.Yield, 
+                         Output.Effort, Output.Density.Ratio)
     
     # save the relative yield and biomasses for all areas, times after reserve
     # implementation, control rules, and final density ratios
@@ -80,6 +88,7 @@ run_base_model <- function(Species, num_sims) {
     sims_yield[, , , , i]     <- output$Yield
     sims_effort[, , , i]      <- output$Effort
     sims_DR[, , , i]          <- output$Density_ratio
+    sims_abundance[, , , , i] <- output$Abundance
     
     if (i %% (num_sims/100) == 0) {
       update <- paste(Sys.time(), ' - ', Species, ' - ', i/num_sims*100, 
@@ -92,11 +101,12 @@ run_base_model <- function(Species, num_sims) {
   Q <- ifelse(num_sims < 1000, num_sims,  paste("1e", log10(num_sims), sep = ''))
   
   filepath1 = paste('../data/', Species, '/', Q, '_N.Rda', sep = '')
-  filepath2 = paste('../data/', Species, '/', Q, "_biomass.Rda", sep = '')
-  filepath3 = paste('../data/', Species, '/', Q, "_SSB.Rda", sep = '')
-  filepath4 = paste('../data/', Species, '/', Q, "_yield.Rda", sep = '')
-  filepath5 = paste('../data/', Species, '/', Q, "_effort.Rda", sep = '')
-  filepath6 = paste('../data/', Species, '/', Q, "_DR.Rda", sep = '')
+  filepath2 = paste('../data/', Species, '/', Q, '_biomass.Rda', sep = '')
+  filepath3 = paste('../data/', Species, '/', Q, '5_SSB.Rda', sep = '')
+  filepath4 = paste('../data/', Species, '/', Q, '_yield.Rda', sep = '')
+  filepath5 = paste('../data/', Species, '/', Q, '_effort.Rda', sep = '')
+  filepath6 = paste('../data/', Species, '/', Q, '_DR.Rda', sep = '')
+  filepath7 = paste('../data/', Species, '/', Q, '_abundance.Rda', sep = '')
   
   save(sims_N, file = filepath1)
   save(sims_biomass, file = filepath2)
@@ -104,5 +114,6 @@ run_base_model <- function(Species, num_sims) {
   save(sims_yield, file = filepath4)
   save(sims_effort, file = filepath5)
   save(sims_DR, file = filepath6)
+  save(sims_abundance, file = filepath7)
   
 }
