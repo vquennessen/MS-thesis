@@ -1,8 +1,9 @@
   ##### set up #####
   # setwd("C:/Users/Vic/Documents/Projects/DensityRatio/code/R")  
   library(densityratio)
+  library(plyr)
   
-  # set variables
+   # set variables
   Species = 'CAB_OR_2019'
   num_sims = 2
 
@@ -27,13 +28,39 @@
   Time2 = 20
   Final_DRs = c(0.2, 0.4, 0.6, 0.8, 1)
   Control_rules = c(1:6)
+  R0 = 1e+5
+  
+  # life history parameters
+  par <- parameters(Species)
+  
+  Max_age                <- par[[1]]        # maximum age
+  M                      <- par[[2]]        # natural mortality
+  Rec_age                <- par[[3]]        # age at recruitment
+  WA <- par[[4]];  WB    <- par[[5]]        # weight at length parameters (f)
+  A1 <- par[[6]];  L1    <- par[[7]]        # growth parameters (f)
+  A2 <- par[[8]];  L2    <- par[[9]]
+  K                      <- par[[10]]
+  L50                    <- par[[11]]       # length at 50% maturity
+  K_mat                  <- par[[12]]       # slope of maturity curve
+  H                      <- par[[13]]       # steepness
+  Phi                    <- par[[14]]       # unfished recruits per spawner
+  Sigma_R                <- par[[15]]       # recruitment standard deviation
+  Rho_R                  <- par[[16]]       # recruitment autocorrelation
+  AMP                    <- par[[17]]       # adult movement proportion
+  D                      <- par[[18]]       # depletion
+  Fb                     <- par[[19]]       # fishing mortality to cause D
+  Fleets                 <- par[[23]]       # fishery fleet names
+  Alpha                  <- par[[24]]       # slope for upcurve
+  Beta                   <- par[[25]]       # slope for downcurve
+  F_fin                  <- par[[26]]       # F_fin for fishery, 0 if asymptotic
+  A50_up                 <- par[[27]]       # A50 for upcurve
+  A50_down               <- par[[28]]       # A50 for downcurve
+  Cf                     <- par[[29]]       # fraction of fishery caught / fleet
   
   # dimensions
   TimeT <- Time1 + Time2
   CR <- length(Control_rules)
   FDR <- length(Final_DRs)
-  Rec_age <- parameters(Species)[[3]]
-  Max_age <- parameters(Species)[[1]]
   ages <- Rec_age:Max_age
   n <- length(ages)
   
@@ -918,55 +945,65 @@
   #####
   ##### Plot age structure over time after reserve implementation #####
   N_sample <- sims_N[, , , , , indices]
-  ages <- Rec_age:Max_age
-  n <- length(ages)
   
   # initialize median age structures
   control_rules <- c(2, 5)
-  N_medians <- array(rep(0, n*3*(Time2 + 1)*length(control_rules)), 
-                     c(n, 3, Time2 + 1, length(control_rules)))
+  N_medians <- array(rep(0, n*MPA*(Time2 + 1)*length(control_rules*FDR)), 
+                     c(n, MPA, Time2 + 1, length(control_rules), FDR))
+  N_props <- array(rep(0, n*MPA*(Time2 + 1)*length(control_rules*FDR)), 
+                     c(n, MPA, Time2 + 1, length(control_rules), FDR))
   
   # fill in median age structure
-  for (i in 1:n) {
-    for (a in 1:3) {
+    for (a in 1:MPA) {
       for (t in 1:(Time2 + 1)) {
         for (cr in 1:length(control_rules)) {
-          N_medians[i, a, t, cr] <- median(N_sample[i, a, Time1 + t - 1, control_rules[cr], ])
+          for (fdr in 1:FDR) {
+            for (i in 1:n) {
+            
+              N_medians[i, a, t, cr, fdr] <- median(N_sample[i, a, t, 
+                                                           control_rules[cr], 
+                                                           fdr, ])
+            }
+            
+            N_props[, a, t, cr, fdr] <- N_medians[, a, t, cr, fdr] / sum(N_medians[, a, t, cr, fdr])
         }
       }     
     }
   }
   
+  ##### Stable age distribution #####
+  
+  L <- length_age(Rec_age, Max_age, A1, L1, A2, L2, K, All_ages = FALSE)
+  W <- weight(L, WA, WB)
+  Mat <- maturity(Rec_age, Max_age, K_mat, L, L50)
+  S <- selectivity(Rec_age, Max_age, A1, L1, A2, L2, K, Fleets, A50_up,
+                   A50_down, Alpha, F_fin, Beta, Cf)
+  B0 <- R0 / Phi
+  A50_mat <- ages[min(which(Mat > 0.5))]
+  SAD <- stable_AD(Rec_age, Max_age, W, R0, Mat, H, B0, Sigma_R, Fb, S, M, 
+                   eq_time = 150, A50_mat, Stochasticity = FALSE, Rho_R, 
+                   Recruitment_mode = 'pool', A)
+  prop_SAD <- SAD / sum(SAD)
+  
   ##### Plotting parameters (age structure) #####
   
-  # SAD
-  SAD <- N_sample[, 1, 1, 1, 1]
-  years <- seq(20, 0, by = -5)
-  
-  # set main titles
-  CRules <- ifelse(cr == 2, 'Static', 'Transient')
-  main_title1 <- paste(Species, ', ', CRules, 'Control rule \n Target DR = ', 
-                       Final_DR, sep = '')
-  main_title2 <- paste(Species, ', Target DR = ', Final_DR, sep = '')
+  # x-axis
+  years <- seq(0, 20, by = 5)
   
   # use red-blue color palettes
   palette <- colorRampPalette(c('red', 'blue'))
-  color1 <- palette(length(years) + 1)
-  color2 <- palette(length(years))
+  color <- palette(FDR)
   
   # set line types - solid for correct M, dashed for high M, dotted for low M
-  line_type1 <- 1:(length(years) + 1)
-  line_type2 <- 1:length(years)
+  line_type <- 1:(length(years) + 1)
   
   # set legend title and text and position
-  legend_title <- expression(bold('Control Rule'))
-  legend_text1  <- c("SAD", paste('Year', years))
-  legend_text2  <- paste('Year', years)
+  legend_title <- expression(bold('Final DR'))
+  legend_text  <- Final_DRs
   position <- 'topright'
   
   # plot margins
-  plot_margins1 = c(4.5, 5, 6, 1)
-  plot_margins2 = c(4.5, 6.25, 4, 1)
+  plot_margins = c(4.5, 5, 6, 1)
   
   # text sizes
   mt <- 1.75    # main title for main plot
@@ -974,86 +1011,87 @@
   ax <- 1.25    # axis tick labels
   leg <- 1.25   # legend text
   
-  
-  ##### TODO: troubleshoot plotting one for each area for age distributions
+  # y axis margins
+  y1 <- 0
+  y2 <- 0.25
+  y_by <- y2 / 2
+    
+  # x axis margins
+  x1 <- Rec_age
+  x2 <- Max_age
+  x_by <- round((x2 - x1)/4, 0)
   
   ##### Plot age distributions separately with SAD #####
   
-  for (a in 1:3) {
+  for (cr in 1:length(control_rules)) {
     
-    area <- ifelse(a < 2, 'far from', ifelse(a == 3, 'in', 'near'))
-    sub_title <- sprintf("%s reserve", area)
+    # set main titles
+    CRules <- if (cr == 1) { CRules <- 'Static' } else { CRules <- 'Transient' }
+    main_title <- paste(Species, ', ', CRules, ' CR', sep = '')
     
-    # y axis margins
-    yy1 <- 0
-    high_point <- max(N_medians[1, a, , ])
-    yy2 <- round_any(high_point, 5000, f = ceiling)
-    yy_by <- yy2 / 2
-    
-    # x axis margins
-    xx1 <- Rec_age
-    xx2 <- Max_age
-    xx_by <- round((xx2 - xx1)/4, 0)
-    
-    for (cr in 1:length(control_rules)) {
+    for (a in 1:3) {
       
-      # set main title
-      CRules <- ifelse(cr == 2, 'Static', 'Transient')
-      main_title1 <- paste(Species, ', ', CRules, 
-                           ' control rule \n Target DR = ', Final_DR, sep = '')
-      
-      # empty plot + axes + labels + titles
-      par(mar = plot_margins1)
-      plot(1, type = 'l',                          # make an empty line graph
-           main = main_title1,                      # title of plot
-           ylab = 'Median Numbers at Age', 
-           xlab = 'Age',
-           yaxt = 'n', xaxt = 'n',                 # get rid of y-axis
-           xlim = c(xx1, xx2),                       # set x-axis limits
-           ylim = c(yy1, yy2), 
-           cex.main = mt, cex.lab = lab, cex.axis = ax)
-      
-      # set specific y-axis
-      yytick <- seq(yy1, yy2, by = yy_by)              # set yaxis tick marks
-      axis(side = 2,                               # specify y axis
-           at = yytick,                             # apply tick marks
-           labels = T,                             # apply appropriate labels
-           las = 0,                                # set text horizontal
-           cex.axis = ax)
-      
-      # set specific y-axis
-      xxtick <- seq(xx1, xx2, by = xx_by)              # set yaxis tick marks
-      axis(side = 1,                               # specify y axis
-           at = xxtick,                             # apply tick marks
-           labels = T,                             # apply appropriate labels
-           las = 0,                                # set text horizontal
-           cex.axis = ax) # set axis text size 
-      
-      # plot SAD, then add lines for 5, 10, 15, 20 years
-      lines(ages, SAD, col = color1[1], lty = line_type1[1], lwd = 2)
+      area <- ifelse(a < 2, 'far from', ifelse(a == 3, 'in', 'near'))
+      sub_title <- sprintf("%s reserve", area)
       
       for (y in 1:length(years)) {
-        lines(ages, N_medians[, a, years[y] + 1, cr], 
-              lty = line_type1[y + 1], 
-              col = color1[y + 1], 
-              lwd = 2)
+        
+        sub_title2 <- paste(sub_title, ' - ', years[y], ' years', sep = '')
+        
+        # empty plot + axes + labels + titles
+        par(mar = plot_margins)
+        plot(1, type = 'l',                          # make an empty line graph
+             main = paste(main_title, '\n', sub_title2, sep = ''),                      # title of plot
+             ylab = 'Median Proportion at Age', 
+             xlab = 'Age (years)',
+             yaxt = 'n', xaxt = 'n',                 # get rid of y-axis
+             xlim = c(x1, x2),                       # set x-axis limits
+             ylim = c(y1, y2), 
+             cex.main = mt, cex.lab = lab, cex.axis = ax)
+        
+        # set specific y-axis
+        ytick <- seq(y1, y2, by = y_by)              # set yaxis tick marks
+        axis(side = 2,                               # specify y axis
+             at = ytick,                             # apply tick marks
+             labels = T,                             # apply appropriate labels
+             las = 0,                                # set text horizontal
+             cex.axis = ax)
+        
+        # set specific y-axis
+        xtick <- seq(x1, x2, by = x_by)              # set yaxis tick marks
+        axis(side = 1,                               # specify y axis
+             at = xtick,                             # apply tick marks
+             labels = T,                             # apply appropriate labels
+             las = 0,                                # set text horizontal
+             cex.axis = ax) # set axis text size 
+        
+        # plot SAD, then add lines for 5, 10, 15, 20 years
+        lines(ages, prop_SAD, col = color[1], lty = line_type[1], lwd = 2)
+        
+        for (fdr in 1:FDR) {
+            lines(ages, N_props[, a, years[y] + 1, cr, fdr], 
+                  lty = line_type[fdr + 1], 
+                  col = color[fdr + 1], 
+                  lwd = 2)
+        }
+        
+        legend(x = position, inset = 0.01, horiz = F,   # position
+               col = color,                          # apply color palette
+               lwd = 2,                              # apply line thicknesses
+               lty = line_type,                      # apply line patterns
+               title = legend_title,                 # add legend title
+               legend = legend_text,                 # add legend labels
+               seg.len = 2,                          # adjust length of lines
+               cex = leg,                            # adjust legend text size
+               bty = 'n') 
+        
       }
-      
-      legend(x = position, inset = 0.01, horiz = F,   # position
-             col = color1,                          # apply color palette
-             lwd = 2,                              # apply line thicknesses
-             lty = line_type1,                      # apply line patterns
-             title = legend_title,                 # add legend title
-             legend = legend_text1,                 # add legend labels
-             seg.len = 3,                          # adjust length of lines
-             cex = leg,                            # adjust legend text size
-             bty = 'n') 
       
     }
     
   }
   
-  
+  #####
   ##### Plot individual runs ###################################################
   
   if (plot_individual_runs == T) {
@@ -1107,7 +1145,7 @@
         
         for (cr in c(2, 5)) {
           lines(x1:x2, Y_sample_runs[a, , cr, k],
-                col = color[cr],                  # use pre-defined color palette
+                col = color[cr],                # use pre-defined color palette
                 lwd = 2,                     # set line width
                 lty = line_type[cr])                  # set line type
         }
@@ -1176,7 +1214,7 @@
         
         for (cr in c(2, 5)) {
           lines(x1:x2, B_sample_runs[a, , cr, k],
-                col = color[cr],                  # use pre-defined color palette
+                col = color[cr],                # use pre-defined color palette
                 lwd = 2,                     # set line width
                 lty = line_type[cr])                  # set line type
         }
@@ -1197,11 +1235,10 @@
     
   }
   
-  
-
-  plots.dir.path <- list.files(tempdir(), pattern="rs-graphics", full.names = TRUE); 
-  plots.png.paths <- list.files(plots.dir.path, pattern=".png", full.names = TRUE)
-  
+  plots.dir.path <- list.files(tempdir(), pattern="rs-graphics", 
+                               full.names = TRUE); 
+  plots.png.paths <- list.files(plots.dir.path, pattern=".png", 
+                                full.names = TRUE)
   file.copy(from=plots.png.paths, 
-            to="C:/Users/Vic/Google Drive/OSU/Thesis/figures/troubleshooting/no_stochasticity")
+            to="C:/Users/Vic/Google Drive/OSU/Thesis/figures/troubleshooting/no_stochasticity/age_structure")
   
