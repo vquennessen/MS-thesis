@@ -992,14 +992,14 @@
   
   # use red-blue color palettes
   palette <- colorRampPalette(c('red', 'blue'))
-  color <- palette(FDR)
+  color <- palette(FDR + 1)
   
   # set line types - solid for correct M, dashed for high M, dotted for low M
-  line_type <- 1:(length(years) + 1)
+  line_type <- 1:(FDR + 1)
   
   # set legend title and text and position
   legend_title <- expression(bold('Final DR'))
-  legend_text  <- Final_DRs
+  legend_text  <- c('SAD', Final_DRs)
   position <- 'topright'
   
   # plot margins
