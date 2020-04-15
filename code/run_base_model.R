@@ -16,8 +16,8 @@ run_base_model <- function(Species, num_sims) {
   Time2 = 20
   Recruitment_mode = 'pool'
   M_Error = 0.05
-  Sampling_Error = FALSE
-  Stochasticity = FALSE
+  Sampling_Error = TRUE
+  Stochasticity = TRUE
   Surveys = TRUE
   Fishery_management = TRUE
   Fishing = TRUE
@@ -102,7 +102,7 @@ run_base_model <- function(Species, num_sims) {
   
   filepath1 = paste('../data/', Species, '/', Q, '_N.Rda', sep = '')
   filepath2 = paste('../data/', Species, '/', Q, '_biomass.Rda', sep = '')
-  filepath3 = paste('../data/', Species, '/', Q, '5_SSB.Rda', sep = '')
+  filepath3 = paste('../data/', Species, '/', Q, '_SSB.Rda', sep = '')
   filepath4 = paste('../data/', Species, '/', Q, '_yield.Rda', sep = '')
   filepath5 = paste('../data/', Species, '/', Q, '_effort.Rda', sep = '')
   filepath6 = paste('../data/', Species, '/', Q, '_DR.Rda', sep = '')
