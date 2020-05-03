@@ -1,0 +1,12 @@
+library(remotes)
+remotes::install_github('vquennessen/densityratio')
+library(densityratio)
+library(parallel)
+source('variance_runs.R')
+
+lapply(50, variance_runs)
+lapply(100, variance_runs)
+lapply(105, variance_runs)
+lapply(110, variance_runs)
+lapply(115, variance_runs)
+lapply(120, variance_runs)
