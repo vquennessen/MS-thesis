@@ -1,4 +1,4 @@
-# plot relative biomass for static vs. transient DRs for each area
+# plot difference in biomass (transient - static) 
 
 # load any necessary libraries
 # library(plyr)
@@ -11,7 +11,7 @@ library(densityratio)
 # CHECK THESE EVERY TIME
 num_sims <- 2
 data_folder <- 'None'
-figures_folder <- 'None/relative'
+figures_folder <- 'None/difference'
 ###############################################################################
 
 # species to compare
@@ -43,13 +43,12 @@ nC <- length(Control_rules)
 nS <- length(species_list)
 nF <- length(Final_DRs)
 
-base <- data.frame(Type = rep(c('Static', 'Transient'), each = nE*nF*nT),
-                   Estimate = rep(estimates, times = 2, each = nF*nT),
-                   FDR = rep(Final_DRs, each = nT, times = 2*nE), 
-                   Time = rep(0:Time2, times = 2*nE*nF),
-                   Value = rep(0, 2*nE*nT*nF), 
-                   Lower = rep(0, 2*nE*nT*nF), 
-                   Upper = rep(0, 2*nE*nT*nF))
+base <- data.frame(Estimate = rep(estimates, each = nF*nT), 
+                   FDR = rep(Final_DRs, times = nE, each = nT), 
+                   Time = rep(0:Time2, times = nE*nF),
+                   Difference = rep(0, nE*nF*nT), 
+                   Lower = rep(0, nE*nF*nT), 
+                   Upper = rep(0, nE*nF*nT))
 
 for (s in 1:length(species_list)) {
   
@@ -61,7 +60,6 @@ for (s in 1:length(species_list)) {
   Max_age <- parameters(species_list[s])[[1]]
   ages <- Rec_age:Max_age
   n <- length(ages)
-  M <- parameters(species_list[s])[[2]]
 
   # sample from simulations
   indices <- sample(1:num_sims, sample_size, replace = FALSE)
@@ -108,72 +106,74 @@ for (s in 1:length(species_list)) {
   # make copies of base data frame called far, near, and inside
   far <- base; near <- base; inside <- base
   
-  for (type in 1:2) {
-    for (e in 1:nE) {
-      for (fdr in 1:nF) {
-        for (t in 1:nT) {
-          index <- (type - 1)*nE*nF*nT + (e - 1)*nF*nT + (fdr - 1)*nT + t
-          far$Value[index] <- B_medians[1, t, (type - 1)*3 + e, fdr]
-          far$Lower[index] <- B_lower[1, t, (type - 1)*3 + e, fdr]
-          far$Upper[index] <- B_upper[1, t, (type - 1)*3 + e, fdr]
-          near$Value[index] <- B_medians[2, t, (type - 1)*3 + e, fdr]
-          near$Lower[index] <- B_lower[2, t, (type - 1)*3 + e, fdr]
-          near$Upper[index] <- B_upper[2, t, (type - 1)*3 + e, fdr]
-          inside$Value[index] <- B_medians[3, t, (type - 1)*3 + e, fdr]
-          inside$Lower[index] <- B_lower[3, t, (type - 1)*3 + e, fdr]
-          inside$Upper[index] <- B_upper[3, t, (type - 1)*3 + e, fdr]
-        }
+  for (e in 1:nE) {
+    for (fdr in 1:nF) {
+      for (t in 1:nT) {
+        index <- (e - 1)*nF*nT + (fdr - 1)*nT + t
+        
+        far$Difference[index] <- (B_medians[1, t, e + 3, fdr] - 
+                                    B_medians[1, t, e, fdr]) / B_medians[1, t, e, fdr]
+        far$Lower[index] <- (B_lower[1, t, e + 3, fdr] - 
+                               B_lower[1, t, e, fdr]) / B_lower[1, t, e, fdr]
+        far$Upper[index] <- (B_upper[1, t, e + 3, fdr] - 
+                               B_upper[1, t, e, fdr]) / B_upper[1, t, e, fdr]
+        
+        near$Difference[index] <- (B_medians[2, t, e + 3, fdr] - 
+                                     B_medians[2, t, e, fdr]) / B_medians[2, t, e, fdr]
+        near$Lower[index] <- (B_lower[2, t, e + 3, fdr] - 
+                                B_lower[2, t, e, fdr]) / B_lower[2, t, e, fdr]
+        near$Upper[index] <- (B_upper[2, t, e + 3, fdr] - 
+                                B_upper[2, t, e, fdr]) / B_upper[2, t, e, fdr]
+        
+        inside$Difference[index] <- (B_medians[3, t, e + 3, fdr] - 
+                                       B_medians[3, t, e, fdr]) / B_medians[3, t, e, fdr]
+        inside$Lower[index] <- (B_lower[3, t, e + 3, fdr] - 
+                                  B_lower[3, t, e, fdr]) / B_lower[3, t, e, fdr]
+        inside$Upper[index] <- (B_upper[3, t, e + 3, fdr] - 
+                                  B_upper[3, t, e, fdr]) / B_upper[3, t, e, fdr]
+        
       }
     }
   }
   
   ##### plotting parameters #####
-  y1 <- 0.35
-  y2 <- 1.4
-  y1.1 <- 0.99
-  y2.1 <- 1.75
-  jitter_height <- 0.005
-  size1 <- 1.5
-  size2 <- 0.75
-  
+  y1 <- -0.15
+  y2 <- 2.1
+  y1.5 <- y1/10
+  y2.5 <- y2/10
+  jitter_height1 <- 0.01
+  jitter_height2 <- jitter_height1/10
   ##### plot far #####
   
-  # FAR <- ggplot(data = far, aes(x = Time, y = Value,
-  #                               color = as.factor(FDR),
-  #                               linetype = as.factor(Type))) +
+  # FAR <- ggplot(data = far, aes(x = Time, y = Difference,
+  #                               color = as.factor(FDR), 
+  #                               linetype = as.factor(Estimate))) +
   #   geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-  #   scale_linetype_manual(values = c(ltype1, ltype2)) +
-  #   geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
-  #   labs(color = 'FDR', linetype = 'Type') +
+  #   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') +
   #   ggtitle('Far From Reserve') +
-  #   ylab('Relative Biomass') +
+  #   ylab('Difference in Relative Biomass') +
   #   theme(legend.position = 'none') +
   #   theme(axis.title.x = element_blank()) +
   #   ylim(y1, y2)
   
-  OUTSIDE <- ggplot(data = far, aes(x = Time, y = Value, 
-                                    color = as.factor(FDR), 
-                                    linetype = as.factor(Estimate), 
-                                    size = as.factor(Type))) +
-    geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-    scale_size_manual(values = c(size1, size2)) +
-    geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
-    labs(color = 'FDR', linetype = 'Estimate', size = 'Type') +
+  OUTSIDE <- ggplot(data = far, aes(x = Time, y = Difference,
+                                color = as.factor(FDR), 
+                                linetype = Estimate)) +
+    geom_line(position = position_jitter(w = 0, h = jitter_height1)) +
+    geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') +
     ggtitle('Outside Reserve') +
-    ylab('Relative Biomass') +
+    ylab('Difference in Relative Biomass') +
     xlab('Years since reserve implementation') +
     theme(legend.position = 'none') +
     ylim(y1, y2)
   
   ##### plot near #####
   
-  # NEAR <- ggplot(data = near, aes(x = Time, y = Value,
-  #                                 color = as.factor(FDR),
-  #                                 linetype = as.factor(Type))) +
-  #   geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-  #   scale_linetype_manual(values = c(ltype1, ltype2)) +
-  #   geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
-  #   labs(color = 'FDR', linetype = 'Type') +
+  # NEAR <- ggplot(data = near, aes(x = Time, y = Difference,
+  #                                color = as.factor(FDR))) +
+  #   geom_line() +
+  #   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') +
+  #   labs(color = 'FDR') +
   #   ggtitle('Near Reserve') +
   #   theme(axis.title.y = element_blank()) +
   #   theme(axis.text.y = element_blank()) +
@@ -182,26 +182,27 @@ for (s in 1:length(species_list)) {
   
   ##### plot inside #####
   
-  INSIDE <- ggplot(data = inside, aes(x = Time, y = Value,
-                                      color = as.factor(FDR),
-                                      linetype = as.factor(Estimate), 
-                                      size = as.factor(Type))) +
-    geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-    scale_size_manual(values = c(size1, size2)) +
-    geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
+  INSIDE <- ggplot(data = inside, aes(x = Time, y = Difference,
+                                      color = as.factor(FDR), 
+                                      linetype = Estimate)) +
+    geom_line(position = position_jitter(w = 0, h = jitter_height2)) +
+    geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') +
+    labs(color = 'FDR') +
     ggtitle('Inside Reserve') +
+    # ylab('Difference in Relative Biomass') +
     theme(axis.title.y = element_blank()) +
     xlab('Years since reserve implementation') +
-    ylim(y1.1, y2.1) +
-    labs(color = 'FDR', linetype = 'Type')
+    # theme(legend.position = c(1.5, 0.4))  +
+    ylim(y1.5, y2.5) +
+    labs(color = 'FDR', linetype = 'Estimate')
   
   ##### patch all the figures together #####
   # patch <- (FAR + NEAR) / (INSIDE + plot_spacer())
   patch <- OUTSIDE + INSIDE
   thing <- patch + plot_annotation(
-    title = paste(Names[s], ': Relative Biomass', sep = ''))
+    title = paste(Names[s], ': Difference in Biomass', sep = ''))
   
-  ggsave(thing, filename = paste( 'M_biomass_relative', Names[s], '.png', sep = ''),
+  ggsave(thing, filename = paste('M_biomass_difference_', Names[s], '.png', sep = ''),
          path = paste('C:/Users/Vic/Box/Quennessen_Thesis/figures/', 
                       figures_folder, sep = ''))
   
