@@ -1,15 +1,15 @@
-stitch <- function(Species, x, y) {
+stitch <- function(Species, Scenario, x, y) {
   
   library(abind)
   
   # put together filepaths for first set of sims
-  file1 <- paste('~/Projects/MS-thesis/data/', Species, '/', x, '_N.Rda', sep = '')
-  file2 <- paste('~/Projects/MS-thesis/data/', Species, '/', x, '_biomass.Rda', sep = '')
-  # file3 <- paste('~/Projects/MS-thesis/data/', Species, '/', x, '_SSB.Rda', sep = '')
-  file4 <- paste('~/Projects/MS-thesis/data/', Species, '/', x, '_yield.Rda', sep = '')
-  # file5 <- paste('~/Projects/MS-thesis/data/', Species, '/', x, '_effort.Rda', sep = '')
-  # file6 <- paste('~/Projects/MS-thesis/data/', Species, '/', x, '_DR.Rda', sep = '')
-  # file7 <- paste('~/Projects/MS-thesis/data/', Species, '/', x, '_abundance.Rda', sep = '')
+  file1 <- paste('~/Projects/MS-thesis/data/', Scenario, '/', Species, '/', x, '_N.Rda', sep = '')
+  file2 <- paste('~/Projects/MS-thesis/data/', Scenario, '/', Species, '/', x, '_biomass.Rda', sep = '')
+  # file3 <- paste('~/Projects/MS-thesis/data/', Scenario, '/', Species, '/', x, '_SSB.Rda', sep = '')
+  file4 <- paste('~/Projects/MS-thesis/data/', Scenario, '/', Species, '/', x, '_yield.Rda', sep = '')
+  # file5 <- paste('~/Projects/MS-thesis/data/', Scenario, '/', Species, '/', x, '_effort.Rda', sep = '')
+  # file6 <- paste('~/Projects/MS-thesis/data/', Scenario, '/', Species, '/', x, '_DR.Rda', sep = '')
+  # file7 <- paste('~/Projects/MS-thesis/data/', Scenario, '/', Species, '/', x, '_abundance.Rda', sep = '')
   
   # load them as objects
   load(file1); N1          <- sims_N  
@@ -21,20 +21,13 @@ stitch <- function(Species, x, y) {
   # load(file7); abundance1  <- sims_abundance
   
   # put together filepaths for second set of sims
-  file8 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Species, '/', 
-                 y, '_N.Rda', sep = '')
-  file9 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Species, '/', 
-                 y, '_biomass.Rda', sep = '')
-  # file10 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Species, '/', 
-  #                y, '_SSB.Rda', sep = '')
-  file11 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Species, '/', 
-                 y, '_yield.Rda', sep = '')
-  # file12 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Species, '/', 
-  #                y, '_effort.Rda', sep = '')
-  # file13 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Species, '/', 
-  #                y, '_DR.Rda', sep = '')
-  # file14 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Species, '/', 
-  #                y, '_abundance.Rda', sep = '')
+  file8 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Scenario, '/', Species, '/', y, '_N.Rda', sep = '')
+  file9 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Scenario, '/', Species, '/', y, '_biomass.Rda', sep = '')
+  # file10 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Scenario, '/', Species, '/', y, '_SSB.Rda', sep = '')
+  file11 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Scenario, '/', Species, '/', y, '_yield.Rda', sep = '')
+  # file12 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Scenario, '/', Species, '/', y, '_effort.Rda', sep = '')
+  # file13 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Scenario, '/', Species, '/', y, '_DR.Rda', sep = '')
+  # file14 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Scenario, '/', Species, '/', y, '_abundance.Rda', sep = '')
   
   # load them as objects
   load(file8);  N2          <- sims_N  
@@ -58,20 +51,13 @@ stitch <- function(Species, x, y) {
   z = x + y
   
   # create new filepaths
-  file15 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Species, '/', 
-                  z, '_N.Rda', sep = '')
-  file16 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Species, '/', 
-                  z, '_biomass.Rda', sep = '')
-  # file17 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Species, '/', 
-  #                 z, '_SSB.Rda', sep = '')
-  file18 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Species, '/', 
-                  z, '_yield.Rda', sep = '')
-  # file19 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Species, '/', 
-  #                 z, '_effort.Rda', sep = '')
-  # file20 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Species, '/', 
-  #                 z, '_DR.Rda', sep = '')
-  # file21 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Species, '/', 
-  #                 z, '_abundance.Rda', sep = '')
+  file15 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Scenario, '/', Species, '/', z, '_N.Rda', sep = '')
+  file16 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Scenario, '/', Species, '/', z, '_biomass.Rda', sep = '')
+  # file17 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Scenario, '/', Species, '/', z, '_SSB.Rda', sep = '')
+  file18 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Scenario, '/', Species, '/', z, '_yield.Rda', sep = '')
+  # file19 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Scenario, '/', Species, '/', z, '_effort.Rda', sep = '')
+  # file20 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Scenario, '/', Species, '/', z, '_DR.Rda', sep = '')
+  # file21 <- paste('C:/Users/Vic/Documents/Projects/MS-thesis/data/', Scenario, '/', Species, '/', z, '_abundance.Rda', sep = '')
   
   # save new objects to new filepaths
   save(sims_N, file = file15)
