@@ -2,57 +2,62 @@ library(ggplot2)
 
 setwd("C:/Users/Vic/Documents/Projects/MS-thesis/code/variance")
 
-num_sims <- 21425
-num_runs <- 10
-times <- c(5, 10, 15, 20)
+num_sims <- 20000
+num_medians <- 100
+num_variances <- 100
 
 load(paste('../../data/variance_runs/', num_sims, '_biomass.Rda', sep = ''))
 load(paste('../../data/variance_runs/', num_sims, '_yield.Rda', sep = ''))
 
 # set different sample sizes
-sample_size <- seq(1e2, num_sims, by = 1e2)
+sample_size <- seq(1e3, num_sims, by = 1e2)
 
+# initialize variance dataframe 
+variance_df <- data.frame(Sample.Size = sample_size,
+                          B.Variance = rep(NA, length(sample_size)), 
+                          Y.Variance = rep(NA, length(sample_size)))
 
-for (t in 1:length(times)) {
+  B_variance <- rep(0, num_variances)
+  Y_variance <- rep(0, num_variances)
   
-  # initialize variance dataframe 
-  variance_df <- data.frame(Run = rep(1:num_runs, each = length(sample_size)),
-                            Sample.Size = rep(sample_size, times = num_runs),
-                            B.Variance = rep(NA, length(sample_size)*num_runs), 
-                            Y.Variance = rep(NA, length(sample_size)*num_runs))
+  B_medians1 <- rep(0, num_medians)
+  Y_medians1 <- rep(0, num_medians)
+
+for (i in 1:length(sample_size)) {
   
-  for (j in 1:num_runs) {
+  for (j in 1:num_variances) {
     
-    for (i in 1:length(sample_size)) {
+    for (k in 1:num_medians) {
       
       indices <- sample(1:num_sims, sample_size[i])
-      sampled_biomass <- sims_biomass[, , , , indices]
-      sampled_yield <- sims_yield[, , , , indices]
+      sampled_biomass <- sims_biomass[1, 21, 1, 1, indices]
+      sampled_yield <- sims_yield[1, 21, 1, 1, indices]
       
-      # calculate variance 
-      index <- (j - 1)*length(sample_size) + i
-      variance_df$B.Variance[index] <- var(sampled_biomass[1, times[t], 1, ])
-      variance_df$Y.Variance[index] <- var(sampled_yield[1, times[t], 1, ])
+      # calculate medians 
+      B_medians1[k] <- median(sampled_biomass)
+      Y_medians1[k] <- median(sampled_yield)
     }
+    
+    B_variance[j] <- var(B_medians1)
+    Y_variance[j] <- var(Y_medians1)
     
   }
   
-  B <- ggplot(data = variance_df, aes(x = Sample.Size, y = B.Variance, 
-                                      color = as.factor(Run))) +
-    geom_line() +
-    ggtitle('Biomass Variance') +
-    labs(color = 'Run')
-  
-  Y <- ggplot(data = variance_df, aes(x = Sample.Size, y = Y.Variance, 
-                                      color = as.factor(Run))) +
-    geom_line() +
-    ggtitle('Yield Variance') +
-    labs(color = 'Run')
-  
-  ggsave(paste('Biomass_variance_year', times[t], '.png', sep = ''), B, 
-         path = 'C:/Users/Vic/Google Drive/OSU/Thesis/figures/variance')
-  
-  ggsave(paste('Yield_variance_year', times[t], '.png', sep = ''), Y, 
-         path = 'C:/Users/Vic/Google Drive/OSU/Thesis/figures/variance')
+  variance_df$B.Variance[i] <- median(B_variance)
+  variance_df$Y.Variance[i] <- median(Y_variance)
   
 }
+
+B <- ggplot(data = variance_df, aes(x = Sample.Size, y = B.Variance)) +
+  geom_point() +
+  ggtitle('Biomass Variance')
+
+Y <- ggplot(data = variance_df, aes(x = Sample.Size, y = Y.Variance)) +
+  geom_line() +
+  ggtitle('Yield Variance')
+
+ggsave(filename = paste('Biomass_variance.png', sep = ''), plot = B, 
+       path = 'C:/Users/Vic/Google Drive/OSU/Thesis/figures/variance')
+
+ggsave(filename = paste('Yield_variance.png', sep = ''), plot = Y, 
+       path = 'C:/Users/Vic/Google Drive/OSU/Thesis/figures/variance')
