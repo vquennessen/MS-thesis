@@ -10,8 +10,8 @@ library(densityratio)
 ###############################################################################
 # CHECK THESE EVERY TIME
 num_sims <- 2
-data_folder <- 'None'
-figures_folder <- 'None/difference'
+data_folder <- 'Test'
+figures_folder <- 'Test/difference'
 ###############################################################################
 
 # species to compare
@@ -34,7 +34,7 @@ sample_size = num_sims
 PD = 0.25
 plot_individual_runs = FALSE
 Error = 0.05
-estimates <- c('Low', 'True', 'High')
+estimates <- c('True', 'Low', 'High')
 ENM = 2
 
 nT <- Time2 + 1
@@ -110,37 +110,67 @@ for (s in 1:length(species_list)) {
     for (fdr in 1:nF) {
       for (t in 1:nT) {
         index <- (e - 1)*nF*nT + (fdr - 1)*nT + t
-        
-        far$Difference[index] <- (B_medians[1, t, e + 3, fdr] - 
-                                    B_medians[1, t, e, fdr]) / B_medians[1, t, e, fdr]
-        far$Lower[index] <- (B_lower[1, t, e + 3, fdr] - 
-                               B_lower[1, t, e, fdr]) / B_lower[1, t, e, fdr]
-        far$Upper[index] <- (B_upper[1, t, e + 3, fdr] - 
-                               B_upper[1, t, e, fdr]) / B_upper[1, t, e, fdr]
-        
-        near$Difference[index] <- (B_medians[2, t, e + 3, fdr] - 
-                                     B_medians[2, t, e, fdr]) / B_medians[2, t, e, fdr]
-        near$Lower[index] <- (B_lower[2, t, e + 3, fdr] - 
-                                B_lower[2, t, e, fdr]) / B_lower[2, t, e, fdr]
-        near$Upper[index] <- (B_upper[2, t, e + 3, fdr] - 
-                                B_upper[2, t, e, fdr]) / B_upper[2, t, e, fdr]
-        
-        inside$Difference[index] <- (B_medians[3, t, e + 3, fdr] - 
-                                       B_medians[3, t, e, fdr]) / B_medians[3, t, e, fdr]
-        inside$Lower[index] <- (B_lower[3, t, e + 3, fdr] - 
-                                  B_lower[3, t, e, fdr]) / B_lower[3, t, e, fdr]
-        inside$Upper[index] <- (B_upper[3, t, e + 3, fdr] - 
-                                  B_upper[3, t, e, fdr]) / B_upper[3, t, e, fdr]
-        
+
+        far$Difference[index] <- (B_medians[1, t, 2*e, fdr] -
+                                    B_medians[1, t, 2*e - 1, fdr]) / B_medians[1, t, 2*e - 1, fdr]
+        far$Lower[index] <- (B_lower[1, t, 2*e, fdr] -
+                               B_lower[1, t, 2*e - 1, fdr]) / B_lower[1, t, 2*e - 1, fdr]
+        far$Upper[index] <- (B_upper[1, t, 2*e, fdr] -
+                               B_upper[1, t, 2*e - 1, fdr]) / B_upper[1, t, 2*e - 1, fdr]
+
+        near$Difference[index] <- (B_medians[2, t, 2*e, fdr] -
+                                     B_medians[2, t, 2*e - 1, fdr]) / B_medians[2, t, 2*e - 1, fdr]
+        near$Lower[index] <- (B_lower[2, t, 2*e, fdr] -
+                                B_lower[2, t, 2*e - 1, fdr]) / B_lower[2, t, 2*e - 1, fdr]
+        near$Upper[index] <- (B_upper[2, t, 2*e, fdr] -
+                                B_upper[2, t, 2*e - 1, fdr]) / B_upper[2, t, 2*e - 1, fdr]
+
+        inside$Difference[index] <- (B_medians[3, t, 2*e, fdr] -
+                                       B_medians[3, t, 2*e - 1, fdr]) / B_medians[3, t, 2*e - 1, fdr]
+        inside$Lower[index] <- (B_lower[3, t, 2*e, fdr] -
+                                  B_lower[3, t, 2*e - 1, fdr]) / B_lower[3, t, 2*e - 1, fdr]
+        inside$Upper[index] <- (B_upper[3, t, 2*e, fdr] -
+                                  B_upper[3, t, 2*e - 1, fdr]) / B_upper[3, t, 2*e - 1, fdr]
+
       }
     }
   }
   
+  # for (e in 1:nE) {
+  #   for (fdr in 1:nF) {
+  #     for (t in 1:nT) {
+  #       index <- (e - 1)*nF*nT + (fdr - 1)*nT + t
+  # 
+  #       far$Difference[index] <- (B_medians[1, t, e + 3, fdr] -
+  #                                   B_medians[1, t, e, fdr]) / B_medians[1, t, e, fdr]
+  #       far$Lower[index] <- (B_lower[1, t, e + 3, fdr] -
+  #                              B_lower[1, t, e, fdr]) / B_lower[1, t, e, fdr]
+  #       far$Upper[index] <- (B_upper[1, t, e + 3, fdr] -
+  #                              B_upper[1, t, e, fdr]) / B_upper[1, t, e, fdr]
+  # 
+  #       near$Difference[index] <- (B_medians[2, t, e + 3, fdr] -
+  #                                    B_medians[2, t, e, fdr]) / B_medians[2, t, e, fdr]
+  #       near$Lower[index] <- (B_lower[2, t, e + 3, fdr] -
+  #                               B_lower[2, t, e, fdr]) / B_lower[2, t, e, fdr]
+  #       near$Upper[index] <- (B_upper[2, t, e + 3, fdr] -
+  #                               B_upper[2, t, e, fdr]) / B_upper[2, t, e, fdr]
+  # 
+  #       inside$Difference[index] <- (B_medians[3, t, e + 3, fdr] -
+  #                                      B_medians[3, t, e, fdr]) / B_medians[3, t, e, fdr]
+  #       inside$Lower[index] <- (B_lower[3, t, e + 3, fdr] -
+  #                                 B_lower[3, t, e, fdr]) / B_lower[3, t, e, fdr]
+  #       inside$Upper[index] <- (B_upper[3, t, e + 3, fdr] -
+  #                                 B_upper[3, t, e, fdr]) / B_upper[3, t, e, fdr]
+  # 
+  #     }
+  #   }
+  # }
+  
   ##### plotting parameters #####
   y1 <- -0.15
-  y2 <- 2.1
-  y1.5 <- y1/10
-  y2.5 <- y2/10
+  y2 <- 2.25
+  y1.1 <- y1/10
+  y2.1 <- y2/10
   jitter_height1 <- 0.01
   jitter_height2 <- jitter_height1/10
   ##### plot far #####
@@ -156,7 +186,7 @@ for (s in 1:length(species_list)) {
   #   theme(axis.title.x = element_blank()) +
   #   ylim(y1, y2)
   
-  OUTSIDE <- ggplot(data = far, aes(x = Time, y = Difference,
+  OUTSIDE <- ggplot(data = near, aes(x = Time, y = Difference,
                                 color = as.factor(FDR), 
                                 linetype = Estimate)) +
     geom_line(position = position_jitter(w = 0, h = jitter_height1)) +
@@ -193,7 +223,7 @@ for (s in 1:length(species_list)) {
     theme(axis.title.y = element_blank()) +
     xlab('Years since reserve implementation') +
     # theme(legend.position = c(1.5, 0.4))  +
-    ylim(y1.5, y2.5) +
+    ylim(y1.1, y2.1) +
     labs(color = 'FDR', linetype = 'Estimate')
   
   ##### patch all the figures together #####

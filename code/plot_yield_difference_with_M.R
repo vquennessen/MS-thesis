@@ -10,8 +10,8 @@ library(densityratio)
 ###############################################################################
 # CHECK THESE EVERY TIME
 num_sims <- 2
-data_folder <- 'None'
-figures_folder <- 'None/difference'
+data_folder <- 'Test'
+figures_folder <- 'Test/difference'
 ###############################################################################
 
 # species to compare
@@ -35,7 +35,7 @@ sample_size = num_sims
 PD = 0.25
 plot_individual_runs = FALSE
 Error = 0.05
-estimates <- c('Low', 'True', 'High')
+estimates <- c('True', 'Low', 'High')
 ENM = 2
 
 nT <- Time2 + 1
@@ -72,7 +72,7 @@ for (s in 1:length(species_list)) {
   ##### relative biomass and median, upper, and lower limits  #####
   
   # pull out sample sims
-  Y_sample   <- colSums(sims_yield[, , , , indices])
+  Y_sample   <- sims_yield[, , , indices]
   
   # initialize relative arrays
   Rel_yield <- array(rep(0, nT*nC*nF*num_sims), c(nT, nC, nF, num_sims))
@@ -107,15 +107,29 @@ for (s in 1:length(species_list)) {
       for (fdr in 1:nF) {
         for (t in 1:nT) {
           index <- (s-1)*nE*nT*nF + (nm - 1)*nT*nF + (fdr - 1)*nT + t
-          difference <- Y_medians[t, nm + 3, fdr] - Y_medians[t, nm, fdr]
-          diff_L <- Y_lower[t, nm + 3, fdr] - Y_lower[t, nm, fdr]
-          diff_U <- Y_upper[t, nm + 3, fdr] - Y_upper[t, nm, fdr]
-          yield_df$Difference[index] <- difference / Y_medians[t, nm, fdr]
-          yield_df$Lower[index] <- diff_L / Y_lower[t, nm, fdr]
-          yield_df$Upper[index] <- diff_U / Y_upper[t, nm, fdr]
+          difference <- Y_medians[t, 2*nm, fdr] - Y_medians[t, 2*nm - 1, fdr]
+          diff_L <- Y_lower[t, 2*nm, fdr] - Y_lower[t, 2*nm - 1, fdr]
+          diff_U <- Y_upper[t, 2*nm, fdr] - Y_upper[t, 2*nm - 1, fdr]
+          yield_df$Difference[index] <- difference / Y_medians[t, 2*nm - 1, fdr]
+          yield_df$Lower[index] <- diff_L / Y_lower[t, 2*nm - 1, fdr]
+          yield_df$Upper[index] <- diff_U / Y_upper[t, 2*nm - 1, fdr]
         }
       }
     }
+  
+  # for (nm in 1:nE) {
+  #   for (fdr in 1:nF) {
+  #     for (t in 1:nT) {
+  #       index <- (s-1)*nE*nT*nF + (nm - 1)*nT*nF + (fdr - 1)*nT + t
+  #       difference <- Y_medians[t, nm + 3, fdr] - Y_medians[t, nm, fdr]
+  #       diff_L <- Y_lower[t, nm + 3, fdr] - Y_lower[t, nm, fdr]
+  #       diff_U <- Y_upper[t, nm + 3, fdr] - Y_upper[t, nm, fdr]
+  #       yield_df$Difference[index] <- difference / Y_medians[t, nm, fdr]
+  #       yield_df$Lower[index] <- diff_L / Y_lower[t, nm, fdr]
+  #       yield_df$Upper[index] <- diff_U / Y_upper[t, nm, fdr]
+  #     }
+  #   }
+  # }
 
 }
 

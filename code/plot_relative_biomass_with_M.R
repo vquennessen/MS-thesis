@@ -10,8 +10,8 @@ library(densityratio)
 ###############################################################################
 # CHECK THESE EVERY TIME
 num_sims <- 2
-data_folder <- 'None'
-figures_folder <- 'None/relative'
+data_folder <- 'Test_all'
+figures_folder <- 'Test_all/relative'
 ###############################################################################
 
 # species to compare
@@ -34,7 +34,7 @@ sample_size = num_sims
 PD = 0.25
 plot_individual_runs = FALSE
 Error = 0.05
-estimates <- c('Low', 'True', 'High')
+estimates <- c('True', 'Low', 'High')
 ENM = 2
 
 nT <- Time2 + 1
@@ -113,15 +113,15 @@ for (s in 1:length(species_list)) {
       for (fdr in 1:nF) {
         for (t in 1:nT) {
           index <- (type - 1)*nE*nF*nT + (e - 1)*nF*nT + (fdr - 1)*nT + t
-          far$Value[index] <- B_medians[1, t, (type - 1)*3 + e, fdr]
-          far$Lower[index] <- B_lower[1, t, (type - 1)*3 + e, fdr]
-          far$Upper[index] <- B_upper[1, t, (type - 1)*3 + e, fdr]
-          near$Value[index] <- B_medians[2, t, (type - 1)*3 + e, fdr]
-          near$Lower[index] <- B_lower[2, t, (type - 1)*3 + e, fdr]
-          near$Upper[index] <- B_upper[2, t, (type - 1)*3 + e, fdr]
-          inside$Value[index] <- B_medians[3, t, (type - 1)*3 + e, fdr]
-          inside$Lower[index] <- B_lower[3, t, (type - 1)*3 + e, fdr]
-          inside$Upper[index] <- B_upper[3, t, (type - 1)*3 + e, fdr]
+          far$Value[index] <- B_medians[1, t, 2*e - type %% 2, fdr]
+          far$Lower[index] <- B_lower[1, t, 2*e - type %% 2, fdr]
+          far$Upper[index] <- B_upper[1, t, 2*e - type %% 2, fdr]
+          near$Value[index] <- B_medians[2, t, 2*e - type %% 2, fdr]
+          near$Lower[index] <- B_lower[2, t, 2*e - type %% 2, fdr]
+          near$Upper[index] <- B_upper[2, t, 2*e - type %% 2, fdr]
+          inside$Value[index] <- B_medians[3, t, 2*e - type %% 2, fdr]
+          inside$Lower[index] <- B_lower[3, t, 2*e - type %% 2, fdr]
+          inside$Upper[index] <- B_upper[3, t, 2*e - type %% 2, fdr]
         }
       }
     }
@@ -130,9 +130,11 @@ for (s in 1:length(species_list)) {
   ##### plotting parameters #####
   y1 <- 0.35
   y2 <- 1.4
-  y1.1 <- 0.99
-  y2.1 <- 1.75
-  jitter_height <- 0.005
+  y1.1 <- 0.35
+  y2.1 <- 1.4
+  # y1.1 <- 0.99
+  # y2.1 <- 1.75
+  jitter_height <- 0.00
   size1 <- 1.5
   size2 <- 0.75
   

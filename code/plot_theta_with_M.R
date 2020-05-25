@@ -136,6 +136,12 @@ dfB <- theta_df[(nI + 1):(2*nI), ]
 dfC <- theta_df[(2*nI + 1):(3*nI), ]
 dfD <- theta_df[(3*nI + 1):(4*nI), ]
 
+dfA <- subset(dfA, FDR < 0.7)
+dfB <- subset(dfB, FDR < 0.7)
+dfC <- subset(dfC, FDR < 0.7)
+dfD <- subset(dfD, FDR < 0.7)
+
+
 # plotting parameters
 y1 <- 0
 y2 <- 0.7
