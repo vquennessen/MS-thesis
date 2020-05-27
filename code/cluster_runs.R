@@ -4,23 +4,40 @@ library(densityratio)
 library(parallel)
 source('run_base_model.R')
 
-species_list = c('BR_OR_2015', 'CAB_OR_2019', 'LING_OW_2017', 'CR_OR_2015')
-
 Scenario = 'Both'
 
-Final_DRs <- c(0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
+species_list_1 = c('BR_OR_2015', 'LING_OW_2017', 'CR_OR_2015')
+species_list_2 = c('CAB_OR_2019')
 
-mclapply(species_list, run_base_model, mc.cores = 12, num_sims = 101,
-         Scenario, Final_DRs)
+Final_DRs_1 <- c(0.6, 0.7, 0.8, 0.9)
+Final_DRs_2 <- c(0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
 
-mclapply(species_list, run_base_model, mc.cores = 12, num_sims = 102,
-         Scenario, Final_DRs)
+mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 109,
+         Scenario, Final_DRs_1)
 
-mclapply(species_list, run_base_model, mc.cores = 12, num_sims = 103,
-         Scenario, Final_DRs)
+mclapply(species_list_2, run_base_model, mc.cores = 12, num_sims = 109,
+         Scenario, Final_DRs_2)
 
-mclapply(species_list, run_base_model, mc.cores = 12, num_sims = 104,
-         Scenario, Final_DRs)
+mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 110,
+         Scenario, Final_DRs_1)
 
-mclapply(species_list, run_base_model, mc.cores = 12, num_sims = 106,
-         Scenario, Final_DRs)
+mclapply(species_list_2, run_base_model, mc.cores = 12, num_sims = 110,
+         Scenario, Final_DRs_2)
+
+mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 111,
+         Scenario, Final_DRs_1)
+
+mclapply(species_list_2, run_base_model, mc.cores = 12, num_sims = 111,
+         Scenario, Final_DRs_2)
+
+mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 112,
+         Scenario, Final_DRs_1)
+
+mclapply(species_list_2, run_base_model, mc.cores = 12, num_sims = 112,
+         Scenario, Final_DRs_2)
+
+mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 113,
+         Scenario, Final_DRs_1)
+
+mclapply(species_list_2, run_base_model, mc.cores = 12, num_sims = 113,
+         Scenario, Final_DRs_2)
