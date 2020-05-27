@@ -68,7 +68,6 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
   Fishery_management = TRUE
   Fishing = TRUE
   Adult_movement = TRUE
-  Plotting = FALSE
   Years_sampled = 1
   Areas_sampled = 'all'
   Ind_sampled = 'all'
@@ -109,9 +108,9 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
     output <- base_model(Species, R0, A, MPA, Time1, Time2, Recruitment_mode, 
                          M_Error, Sampling_Error, Stochasticity, Surveys, 
                          Fishery_management, Fishing, Transects, Adult_movement, 
-                         Plotting, Final_DRs, Years_sampled, Areas_sampled, 
-                         Ind_sampled, Floor_DR, Allocation, BM, LDP, 
-                         Output.N, Output.Abundance, Output.Biomass, Output.SSB, 
+                         Final_DRs, Years_sampled, Areas_sampled, Ind_sampled, 
+                         Floor_DR, Allocation, BM, LDP, Output.N, 
+                         Output.Abundance, Output.Biomass, Output.SSB, 
                          Output.Yield, Output.Effort, Output.Density.Ratio)
     
     # save the relative yield and biomasses for all areas, times after reserve
