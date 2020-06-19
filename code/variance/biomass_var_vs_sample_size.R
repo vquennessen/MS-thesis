@@ -6,8 +6,8 @@ num_sims <- 20000
 num_medians <- 100
 num_variances <- 100
 
-load(paste('../../data/variance_runs/', num_sims, '_biomass.Rda', sep = ''))
-load(paste('../../data/variance_runs/', num_sims, '_yield.Rda', sep = ''))
+load(paste('../../data/Variance/CAB_OR_2019/', num_sims, '_biomass.Rda', sep = ''))
+load(paste('../../data/Variance/CAB_OR_2019/', num_sims, '_yield.Rda', sep = ''))
 
 # set different sample sizes
 sample_size <- seq(1e3, num_sims, by = 1e2)
@@ -30,8 +30,8 @@ for (i in 1:length(sample_size)) {
     for (k in 1:num_medians) {
       
       indices <- sample(1:num_sims, sample_size[i])
-      sampled_biomass <- sims_biomass[1, 21, 1, 1, indices]
-      sampled_yield <- sims_yield[1, 21, 1, 1, indices]
+      sampled_biomass <- colSums(sims_biomass[, 21, 1, 1, indices])
+      sampled_yield <- sims_yield[21, 1, 1, indices]
       
       # calculate medians 
       B_medians1[k] <- median(sampled_biomass)
@@ -57,7 +57,7 @@ Y <- ggplot(data = variance_df, aes(x = Sample.Size, y = Y.Variance)) +
   ggtitle('Yield Variance')
 
 ggsave(filename = paste('Biomass_variance.png', sep = ''), plot = B, 
-       path = 'C:/Users/Vic/Google Drive/OSU/Thesis/figures/variance')
+       path = 'C:/Users/Vic/Box/Quennessen_Thesis/figures/Variance')
 
 ggsave(filename = paste('Yield_variance.png', sep = ''), plot = Y, 
-       path = 'C:/Users/Vic/Google Drive/OSU/Thesis/figures/variance')
+       path = 'C:/Users/Vic/Box/Quennessen_Thesis/figures/Variance')
