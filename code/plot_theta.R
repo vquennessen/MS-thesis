@@ -9,49 +9,79 @@ library(densityratio)
 
 ###############################################################################
 # CHECK THESE EVERY TIME
-num_sims <- 2
-data_folder <- 'None'
-figures_folder <- 'None/relative'
+num_sims <- 6193
+data_folder <- 'Both'
+figures_folder <- 'Both/relative'
+cluster <- TRUE
+png_width <- 7
+png_height <- 6
+y1 = 0.75
+y2 = 1.4
 ###############################################################################
 
 # species to compare
-species_list <- c('BR_OR_2015', 'CAB_OR_2019', 'LING_OW_2017', 'CR_OR_2015')
-Names <- c('Black Rockfish', 'Cabezon', 'Lingcod', 'Canary Rockfish')
+species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
+Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
 
 # set variables
 A = 5
 MPA = 3
 Time2 = 20
-Final_DRs <- c(0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
+Final_DRs1 <- c(0.6, 0.7, 0.8, 0.9)
+Final_DRs2 <- c(0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
 Control_rules <- 1:6
 R0 <- 1e5
 
 # dimensions
 PD = 0.25
 Error = 0.05
-estimates <- c('Low', 'True', 'High')
+estimates <- c('True', 'Low', 'High')
 ENM = 2
+types <- c('Static', 'Transient')
 sample_size = num_sims
 
 nC <- length(Control_rules)
 nT <- Time2 + 1
 nE <- length(estimates)
 nS <- length(species_list)
-nF <- length(Final_DRs)
+nF1 <- length(Final_DRs1)
+nF2 <- length(Final_DRs2)
+nFall <- nF2 + 3*nF1
 
-theta_df <- data.frame(Species = rep(Names, each = nE*2*nF*nT),
-                       Type = rep(c('Static', 'Transient'), 
-                                  each = nE*nF*nT, times = nS),
-                       Estimate = rep(estimates, times = nS*2, each = nF*nT), 
-                       FDR = rep(Final_DRs, each = nT, times = 2*nS), 
-                       Time = rep(0:Time2, times = nF*2*nS),
-                       Theta = rep(0, nS*2*nF*nT))
+theta_df <- data.frame(Species = c(rep(Names[1], each = 2*nE*nF1*nT),
+                                   rep(Names[2], each = 2*nE*nF1*nT),
+                                   rep(Names[3], each = 2*nE*nF1*nT),
+                                   rep(Names[4], each = 2*nE*nF2*nT)), 
+                       Estimate = c(rep(estimates, each = 2*nF1*nT), 
+                                    rep(estimates, each = 2*nF1*nT), 
+                                    rep(estimates, each = 2*nF1*nT), 
+                                    rep(estimates, each = 2*nF2*nT)),
+                       Type = c(rep(types, each = nF1*nT, times = nE), 
+                                rep(types, each = nF1*nT, times = nE), 
+                                rep(types, each = nF1*nT, times = nE), 
+                                rep(types, each = nF2*nT, times = nE)), 
+                       FDR = c(rep(Final_DRs1, each = nT, times = 2*nE), 
+                               rep(Final_DRs1, each = nT, times = 2*nE), 
+                               rep(Final_DRs1, each = nT, times = 2*nE), 
+                               rep(Final_DRs2, each = nT, times = 2*nE)), 
+                       Time = c(rep(0:Time2, times = 2*nF1*nE), 
+                                rep(0:Time2, times = 2*nF1*nE), 
+                                rep(0:Time2, times = 2*nF1*nE), 
+                                rep(0:Time2, times = 2*nF2*nE)), 
+                       Theta = rep(0, 2*nE*nFall*nT), 
+                       Lower = rep(0, 2*nE*nFall*nT), 
+                       Upper = rep(0, 2*nE*nFall*nT))
 
 for (s in 1:length(species_list)) {
   
   # load objects
-  load(paste('~/Projects/MS-thesis/data/', data_folder, '/', 
-             species_list[s], '/', num_sims, '_N.Rda', sep = ''))
+  if (cluster == TRUE) {
+    load(paste('~/Documents/MS-thesis/data/', data_folder, '/', 
+               species_list[s], '/', num_sims, '_N.Rda', sep = ''))
+  } else {
+    load(paste('~/Projects/MS-thesis/data/', data_folder, '/', 
+               species_list[s], '/', num_sims, '_N.Rda', sep = ''))
+  }
   
   ##### relative biomass and median, upper, and lower limits  #####
   
@@ -95,9 +125,14 @@ for (s in 1:length(species_list)) {
                    eq_time = 150, A50_mat, Stochasticity = FALSE, Rho_R, 
                    Recruitment_mode = 'pool', A)
   
+  ##### set nF value for species #####
+  nF <- ifelse(s == 4, nF2, nF1)
+  
   # pull out sample sims and calculate median across num_sims
   A_sample <- array(rep(0, n*nT*nC*nF*num_sims), c(n, nT, nC, nF, num_sims))
   A_medians <- array(rep(0, n*nT*nC*nF), c(n, nT, nC, nF))
+  A_lower <- array(rep(0, n*nT*nC*nF), c(n, nT, nC, nF))
+  A_upper <- array(rep(0, n*nT*nC*nF), c(n, nT, nC, nF))
   
   for (i in 1:n) {
     A_sample[i, , , , ] <- colSums(sims_N[i, , , , , ])
@@ -105,23 +140,39 @@ for (s in 1:length(species_list)) {
       for (cr in 1:nC) {
         for (fdr in 1:nF) {
           A_medians[i, t, cr, fdr] <- median(A_sample[i, t, cr, fdr, ])
+          A_lower[a, t, cr, fdr] <- quantile(A_sample[a, t, cr, fdr, ], 0.5 - PD)
+          A_upper[a, t, cr, fdr] <- quantile(A_sample[a, t, cr, fdr, ], 0.5 + PD)
         }
       }
     }
   }
   
-  for (type in 1:2) {
-    for (e in 1:nE) {
+   for (e in 1:nE) {
+     for (type in 1:2) {
       for (fdr in 1:nF) {
         for (t in 1:nT) {
-          num <- SAD %*% A_medians[, t, (type - 1)*3 + e, fdr]
+          
+          cr <- 2*e - type %% 2
+          
+          num <- SAD %*% A_medians[, t, cr, fdr]
+          num_L <- SAD %*% A_lower[, t, cr, fdr]
+          num_U <- SAD %*% A_upper[, t, cr, fdr]
           norm1 <- norm(matrix(SAD), type = 'F')
-          norm2 <- norm(matrix(A_medians[, t, (type - 1)*3 + e, fdr]), 
-                        type = 'F')
+          norm2 <- norm(matrix(A_medians[, t, cr, fdr]), type = 'F')
+          norm2_L <- norm(matrix(A_lower[, t, cr, fdr]), type = 'F')
+          norm2_U <- norm(matrix(A_upper[, t, cr, fdr]), type = 'F')
+          
           denom <- norm1 * norm2
-          i <- (s - 1)*2*nE*nF*nT + (type - 1)*nE*nF*nT + (e - 1)*nF*nT + 
+          denom_L <- norm1 * norm2_L
+          denom_U <- norm1 * norm2_U
+          
+          i <- (s - 1)*2*nE*nF1*nT + (e - 1)*2*nF*nT + (type - 1)*nF*nT + 
             (fdr - 1)*nT + t
+          # print(i)
           theta_df$Theta[i] <- as.numeric(acos(num / denom))
+          theta_df$Lower[i] <- as.numeric(acos(num_L / denom_L))
+          theta_df$Upper[i] <- as.numeric(acos(num_U / denom_U))
+          
         }
       }
     }
@@ -129,18 +180,10 @@ for (s in 1:length(species_list)) {
   
 }
 
-nI <- 2*nE*nF*nT
-
-dfA <- theta_df[1:nI, ]
-dfB <- theta_df[(nI + 1):(2*nI), ]
-dfC <- theta_df[(2*nI + 1):(3*nI), ]
-dfD <- theta_df[(3*nI + 1):(4*nI), ]
-
-dfA <- subset(dfA, FDR < 0.7)
-dfB <- subset(dfB, FDR < 0.7)
-dfC <- subset(dfC, FDR < 0.7)
-dfD <- subset(dfD, FDR < 0.7)
-
+dfA <- subset(theta_df, Species == Names[1])
+dfB <- subset(theta_df, Species == Names[2])
+dfC <- subset(theta_df, Species == Names[3])
+dfD <- subset(theta_df, Species == Names[4])
 
 # plotting parameters
 y1 <- 0
@@ -154,10 +197,14 @@ A <- ggplot(data = dfA, aes(x = Time, y = Theta,
                             color = as.factor(FDR), 
                             linetype = as.factor(Estimate), 
                             size = Type)) +
+  geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR), 
+                  colour = NA), show.legend = FALSE) +  
+  scale_fill_manual(values = alpha(c(colors), 0.25), guide = FALSE) +
   geom_line(position = position_jitter(w = 0, h = jitter_height)) +
   scale_size_manual(values = c(size1, size2)) +
+  scale_color_manual(values = c("#00BA38", "#00BFC4", "#619CFF", "#F564E3")) +
   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') + 
-  ggtitle('Black Rockfish') +
+  ggtitle(Names[1]) +
   ylab('Theta') +
   ylim(y1, y2) +
   theme(legend.position = 'none') +
@@ -168,10 +215,14 @@ B <- ggplot(data = dfB, aes(x = Time, y = Theta,
                             color = as.factor(FDR), 
                             linetype = as.factor(Estimate), 
                             size = Type)) +
+  geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR), 
+                  colour = NA), show.legend = FALSE) +  
+  scale_fill_manual(values = alpha(c(colors), 0.25), guide = FALSE) +
   geom_line(position = position_jitter(w = 0, h = jitter_height)) +
   scale_size_manual(values = c(size1, size2)) +
+  scale_color_manual(values = c("#00BA38", "#00BFC4", "#619CFF", "#F564E3")) +
   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') + 
-  ggtitle('Cabezon') +
+  ggtitle(Names[2]) +
   ylim(y1, y2) +
   theme(axis.text = element_blank()) +
   theme(axis.title = element_blank()) +
@@ -181,11 +232,16 @@ C <- ggplot(data = dfC, aes(x = Time, y = Theta,
                             color = as.factor(FDR), 
                             linetype = as.factor(Estimate), 
                             size = Type)) +
+  geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR), 
+                  colour = NA), show.legend = FALSE) +  
+  scale_fill_manual(values = alpha(c(colors), 0.25), guide = FALSE) +
   geom_line(position = position_jitter(w = 0, h = jitter_height)) +
   scale_size_manual(values = c(size1, size2)) +
+  scale_color_manual(values = c("#00BA38", "#00BFC4", "#619CFF", "#F564E3")) +
   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') + 
-  ggtitle('Lingcod') +
+  ggtitle(Names[3]) +
   xlab('Years since reserve implemented') +
+  theme(axis.title.x = element_blank()) +
   ylab('Theta') +
   ylim(y1, y2) +
   theme(legend.position = 'none')
@@ -194,23 +250,39 @@ D <- ggplot(data = dfD, aes(x = Time, y = Theta,
                             color = as.factor(FDR), 
                             linetype = as.factor(Estimate), 
                             size = Type)) +
+  geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR), 
+                  colour = NA), show.legend = FALSE) +  
+  scale_fill_manual(values = alpha(c(colors), 0.25), guide = FALSE) +
   geom_line(position = position_jitter(w = 0, h = jitter_height)) +
   scale_size_manual(values = c(size1, size2)) +
+  scale_color_manual(values = c("#F8766D", "#B79F00", "#00BA38", "#00BFC4", 
+                                "#619CFF", "#F564E3")) +
   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') + 
-  ggtitle('Copper Rockfish') +
+  ggtitle(Names[4]) +
   theme(axis.text.y = element_blank()) +
   theme(axis.title.y = element_blank()) +
   ylim(y1, y2) +
   xlab('Years since reserve implemented') +
+  theme(axis.title.x = element_text(hjust = -4.5)) +
   theme(plot.margin = unit(c(0, 80, 0, 0), 'pt')) +
   labs(linetype = 'Type', color = 'FDR') +
-  theme(legend.position = c(1.25, 1))
+  theme(legend.position = c(1.25, 1.1)) +
+  guides(color = guide_legend(order = 1), linetype = guide_legend(order = 2), 
+         size = guide_legend(order = 3))
 
 ##### patch all the figures together #####
 patch2 <- (A + B) / (C + D)
 thing2 <- patch2 + plot_annotation(
   title = 'Distance of total population from stable age distribution')
 
-ggsave(thing2, filename = 'M_relative_theta.png',
-       path = paste('C:/Users/Vic/Box/Quennessen_Thesis/figures/', 
-                    figures_folder, sep = ''))
+if (cluster == TRUE) {
+  ggsave(thing2, filename = 'M_relative_theta.png',
+         path = paste('~/Documents/MS-thesis/figures/', figures_folder, sep = ''),
+         width = png_width, height = png_height)
+} else {
+  ggsave(thing2, filename = 'M_relative_theta.png',
+         path = paste('C:/Users/Vic/Box/Quennessen_Thesis/figures/', 
+                      figures_folder, sep = ''),
+         width = png_width, height = png_height)
+}
+
