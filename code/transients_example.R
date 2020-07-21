@@ -68,7 +68,14 @@ DF$Species <- factor(DF$Species, levels = species_names)
 DF$Estimate <- factor(DF$Estimate, levels = estimates)
 
 # plot it
-ggplot(data = DF, aes(x = Time, y = Target, linetype = Estimate, size = Type)) +
+example <- ggplot(data = DF, aes(x = Time, y = Target, linetype = Estimate, size = Type)) +
   geom_line() +
   scale_size_manual(values = c(2, 1)) +
+  ylab('Target Density Ratio') +
+  xlab('Years Since Reserve Implementation') +
+  scale_x_continuous(breaks = c(0, 10, 20)) +
   facet_grid(~ Species)
+
+ggsave(example, filename = 'transients_example.png', 
+       path = paste('C:/Users/Vic/Box/Quennessen_Thesis/figures/', sep = ''), 
+       width = 7, height = 2.5)
