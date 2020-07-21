@@ -8,7 +8,7 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
                       num_sims, ' sims', sep = '')
   write(start_time, file = 'progress.txt', append = TRUE)
   
-  if (Scenario == 'None' | Scenario == 'Test') {
+  if (Scenario == 'None' | Scenario == 'Test' | Scenario == 'Areas') {
     Sampling_Error = FALSE
     Transects = 24
     Stochasticity = FALSE
@@ -69,7 +69,7 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
   }
   
   R0 = 1e+5
-  A = 5
+  A = 21
   MPA = 3
   Time1 = 50
   Time2 = 20
@@ -151,15 +151,15 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
   # get filepaths to save objects to
   # Q <- ifelse(num_sims < 1000, num_sims,  paste("1e", log10(num_sims), sep = ''))
   Q <- num_sims
-  filepath1 = paste('../data/', Scenario, '/', Species, '/', Q, '_biomass.Rda', sep = '')
-  filepath2 = paste('../data/', Scenario, '/', Species, '/', Q, '_yield.Rda', sep = '')
+  filepath1 = paste('../data/', Scenario, '/', Species, '/', A, 'A_biomass.Rda', sep = '')
+  filepath2 = paste('../data/', Scenario, '/', Species, '/', A, 'A_yield.Rda', sep = '')
   
   if (Scenario != 'Variance') {
-    filepath3 = paste('../data/', Scenario, '/', Species, '/', Q, '_N.Rda', sep = '')
-    filepath4 = paste('../data/', Scenario, '/', Species, '/', Q, '_DR.Rda', sep = '')
-    filepath5 = paste('../data/', Scenario, '/', Species, '/', Q, '_effort.Rda', sep = '')
-    filepath6 = paste('../data/', Scenario, '/', Species, '/', Q, '_SSB.Rda', sep = '')
-    filepath7 = paste('../data/', Scenario, '/', Species, '/', Q, '_abundance.Rda', sep = '')
+    filepath3 = paste('../data/', Scenario, '/', Species, '/', A, 'A_N.Rda', sep = '')
+    filepath4 = paste('../data/', Scenario, '/', Species, '/', A, 'A_DR.Rda', sep = '')
+    filepath5 = paste('../data/', Scenario, '/', Species, '/', A, 'A_effort.Rda', sep = '')
+    filepath6 = paste('../data/', Scenario, '/', Species, '/', A, 'A_SSB.Rda', sep = '')
+    filepath7 = paste('../data/', Scenario, '/', Species, '/', A, 'A_abundance.Rda', sep = '')
   }
   
   # save objects
