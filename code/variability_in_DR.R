@@ -51,10 +51,15 @@ years <- sort(unique(BlueRockfish$year), decreasing = FALSE)
 
 ##### calculate density ratios for each site #####
 
-DF <- data.frame(Site = rep(sites, each = length(years)), 
+DR <- data.frame(Site = rep(sites, each = length(years)), 
                  Year = rep(years, times = length(sites)), 
                  DR = rep(NA, times = length(sites)*length(years)),
                  SD = rep(NA, times = length(sites)*length(years)))
+
+Transects <- data.frame(Site = rep(sites, each = length(years)), 
+                        Year = rep(years, times = length(sites)), 
+                        Transects.Inside = rep(NA, length(years)*length(sites)), 
+                        Transects.Outside = rep(NA, length(years)*length(sites)))
 
 for (s in 1:length(sites)) {
   
@@ -83,6 +88,11 @@ for (s in 1:length(sites)) {
       T_out <- split(seq_along(YEAR_OUT$transect), with(rle(YEAR_OUT$transect), 
                                                         rep(seq_along(values), 
                                                             lengths)))
+      
+      # record number of transects
+      index <- (s - 1)*length(years) + y
+      Transects$Transects.Inside[index]  <- length(T_in)
+      Transects$Transects.Outside[index] <- length(T_out)
       
       # initialize count vector
       T_counts_in <- rep(NA, length(T_in))      
@@ -124,8 +134,8 @@ for (s in 1:length(sites)) {
        
       # record observed density ratio and SD in dataframe
       index <- (s - 1)*length(years) + y
-      DF$DR[index] <- Density_out / Density_in
-      DF$SD[index] <- sd(DR_simulated)
+      DR$DR[index] <- Density_out / Density_in
+      DR$SD[index] <- sd(DR_simulated)
       
     }
     
@@ -134,14 +144,23 @@ for (s in 1:length(sites)) {
 }
 
 # trim useless years off
-DF <- na.omit(DF)
+DR <- na.omit(DR)
 
 # plot DR over time by site
-ggplot(DF, aes(x = Year, y = DR)) +
+BR <- ggplot(DR, aes(x = Year, y = DR)) +
   geom_line() +
   geom_hline(yintercept = 1, linetype = 2) +
   geom_errorbar(aes(ymin = DR - SD, ymax = DR + SD), width = 0.25) +
   scale_x_continuous(breaks = seq(2005, 2020, by = 5)) +
   xlim(2004, 2020) +
-  facet_grid(cols = vars(Site)) +
-  ggtitle('Observed Density Ratio Over Time')
+  facet_grid(rows = vars(Site)) +
+  ylab('Observed Density Ratio') +
+  ggtitle('Blue Rockfish')
+
+ggsave(BR, filename = 'Blue_Rockfish_data.png', 
+       path = paste('C:/Users/Vic/Box/Quennessen_Thesis/figures/', sep = ''), 
+       width = 4, height = 6)
+
+# table of number of transects inside and outside for each SMR
+Transects
+summary(Transects)
