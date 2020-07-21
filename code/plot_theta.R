@@ -9,15 +9,17 @@ library(densityratio)
 
 ###############################################################################
 # CHECK THESE EVERY TIME
-num_sims <- 6193
-data_folder <- 'Both'
-figures_folder <- 'Both/relative'
-cluster <- TRUE
+folder <- 'None'
+cluster <- FALSE
 png_width <- 7
 png_height <- 6
 y1 = 0.75
 y2 = 1.4
 ###############################################################################
+
+# determine num_sims based on data folder
+num_sims <- ifelse(folder == 'None', 3, 
+                   ifelse(folder == 'Both', 6193, 5000))
 
 # species to compare
 species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
@@ -38,7 +40,6 @@ Error = 0.05
 estimates <- c('True', 'Low', 'High')
 ENM = 2
 types <- c('Static', 'Transient')
-sample_size = num_sims
 
 nC <- length(Control_rules)
 nT <- Time2 + 1
@@ -76,10 +77,10 @@ for (s in 1:length(species_list)) {
   
   # load objects
   if (cluster == TRUE) {
-    load(paste('~/Documents/MS-thesis/data/', data_folder, '/', 
+    load(paste('~/Documents/MS-thesis/data/', folder, '/', 
                species_list[s], '/', num_sims, '_N.Rda', sep = ''))
   } else {
-    load(paste('~/Projects/MS-thesis/data/', data_folder, '/', 
+    load(paste('~/Projects/MS-thesis/data/', folder, '/', 
                species_list[s], '/', num_sims, '_N.Rda', sep = ''))
   }
   
@@ -135,7 +136,7 @@ for (s in 1:length(species_list)) {
   A_upper <- array(rep(0, n*nT*nC*nF), c(n, nT, nC, nF))
   
   for (i in 1:n) {
-    A_sample[i, , , , ] <- colSums(sims_N[i, , , , , ])
+    A_sample[i, , , , ] <- sims_N[MPA, , , , , ]
     for (t in 1:nT) {
       for (cr in 1:nC) {
         for (fdr in 1:nF) {
@@ -273,16 +274,16 @@ D <- ggplot(data = dfD, aes(x = Time, y = Theta,
 ##### patch all the figures together #####
 patch2 <- (A + B) / (C + D)
 thing2 <- patch2 + plot_annotation(
-  title = 'Distance of total population from stable age distribution')
+  title = 'Distance of population from stable age distribution')
 
 if (cluster == TRUE) {
   ggsave(thing2, filename = 'M_relative_theta.png',
-         path = paste('~/Documents/MS-thesis/figures/', figures_folder, sep = ''),
+         path = paste('~/Documents/MS-thesis/figures/', folder, sep = ''),
          width = png_width, height = png_height)
 } else {
   ggsave(thing2, filename = 'M_relative_theta.png',
          path = paste('C:/Users/Vic/Box/Quennessen_Thesis/figures/', 
-                      figures_folder, sep = ''),
+                      folder, sep = ''),
          width = png_width, height = png_height)
 }
 
