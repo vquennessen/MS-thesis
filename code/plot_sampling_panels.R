@@ -12,8 +12,7 @@ library(densityratio)
 ###############################################################################
 # CHECK THESE EVERY TIME
 folders <- c('Sampling', 'Both')
-FDRs1 <- c(0.6, 0.9)
-FDRs2 <- c(0.4, 0.9)
+max_FDRs <- c(0.8, 0.7, 0.8, 0.5)
 cluster <- TRUE
 png_width <- 7
 png_height <- 6
@@ -142,21 +141,20 @@ for (s in 1:length(species_list)) {
     }
     
     ##### plotting parameters #####
-    jitter_height <- ifelse(f == 1, 0.0025, 0)
+    jitter_height <- 0
     if (s != 4) {
       colors <- c("#00BA38", "#00BFC4", "#619CFF", "#F564E3")
     } else {
       colors <- c("#F8766D", "#B79F00", "#00BA38", "#00BFC4", "#619CFF", "#F564E3")
     }
     
-    # set FDRs for minimum and maximum biomass and yields and extract indices to 
-    # get colors
-    if (s == 4) { 
-      FDRs <- FDRs2
-      ind <- which(Final_DRs2 %in% FDRs)
-    } else { 
-      FDRs <- FDRs1
+    # set FDRs for maximum difference in biomass and/or yield
+    FDRs <- max_FDRs[s]
+  
+    if (s != 4) { 
       ind <- which(Final_DRs1 %in% FDRs)
+    } else if (s == 4) {
+      ind <- which(Final_DRs2 %in% FDRs)
     }
     
     # pull colors out for scenarios that are not 'None'
