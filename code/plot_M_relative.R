@@ -13,8 +13,8 @@ library(viridisLite)
 folder <- 'None'
 cluster <- FALSE
 Years <- c(10)
-png_width <- 4
-png_height <- 4
+png_width <- 8
+png_height <- 3
 ###############################################################################
 
 # species to compare
@@ -38,6 +38,7 @@ Control_rules = c(1:6)
 sample_size = num_sims
 PD = 0.25
 Error = 0.05
+types <- c('Static', 'Transient')
 estimates <- c('True', 'Low', 'High')
 metrics <- c('Biomass', 'Yield')
 
@@ -133,6 +134,9 @@ for (y in 1:nY) {
                       levels = c('Static Biomass', 'Static Yield', 
                                  'Transient Biomass', 'Transient Yield'))
     
+    # remove static biomass and yield for low and high estimates
+    new_DF <- subset(DF, Estimate == 'True' | Type == 'Transient')
+    
     # plotting parameters
     if (s == 4) {
       colors <- c("#F8766D", "#B79F00", "#00BA38", "#00BFC4", 
@@ -140,10 +144,10 @@ for (y in 1:nY) {
     } else { colors <- c("#00BA38", "#00BFC4", "#619CFF", "#F564E3") }
     
     # plot difference results
-    thing1 <- ggplot(DF, aes(x = Estimate, y = Value, color = FDR, 
+    thing1 <- ggplot(new_DF, aes(x = Estimate, y = Value, color = FDR, 
                              shape = Type.Metric)) +
       geom_hline(yintercept = 1, linetype = 2) +
-      geom_point(position = position_jitter(w = 0.3, h = 0), size = 2, 
+      geom_point(position = position_jitter(w = 0.4, h = 0), size = 2, 
                  alpha = 0.8, stroke = 1) +
       scale_shape_manual(values = c(1, 2, 16, 17), 
                          labels = c('SB', 'SY', 'TB', 'TY')) +
