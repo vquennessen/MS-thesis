@@ -44,7 +44,7 @@ for (s in 1:length(species_list)) {
   
   for (f in 1:length(folders)) {
     
-    scenarios <- paste(folders[f], c('.LowT', '', '.HighT'), sep = '')
+    scenarios <- paste(folders[f], c('', '.HighT'), sep = '')
     nS <- length(scenarios)
     
     base1 <- data.frame(Scenario = rep(scenarios, each = nM*2*nF1*nT),
@@ -148,8 +148,13 @@ for (s in 1:length(species_list)) {
       colors <- c("#F8766D", "#B79F00", "#00BA38", "#00BFC4", "#619CFF", "#F564E3")
     }
     
-    # set FDRs for maximum difference in biomass and/or yield
-    FDRs <- max_FDRs[s]
+    # set FDRs for maximum difference in biomass and/or yield for Both
+    if (f == 2) {
+      FDRs <- max_FDRs[s]
+    } else if (f == 1 & s != 4) {
+      FDRs <- Final_DRs1
+    } else { FDRs <- Final_DRs2 }
+    
   
     if (s != 4) { 
       ind <- which(Final_DRs1 %in% FDRs)
@@ -162,7 +167,7 @@ for (s in 1:length(species_list)) {
     } else { new_colors <- colors }
     
     # process DF
-    levels(DF$Scenario) <- c('12 Transects', '24 Transects', '36 Transects')
+    levels(DF$Scenario) <- c('24 Transects', '36 Transects')
     DF$Metric <- factor(DF$Metric, levels = metrics)
     DF$FDR <- as.factor(DF$FDR)
     DF$Type <- as.factor(DF$Type)
