@@ -11,10 +11,10 @@ library(densityratio)
 
 ###############################################################################
 # CHECK THESE EVERY TIME
-folder <- 'Recruitment'
+folder <- 'None'
 FDRs1 <- c(0.6, 0.9)
 FDRs2 <- c(0.4, 0.9)
-cluster <- TRUE
+cluster <- FALSE
 png_width <- 4
 png_height <- 6
 y1 <- 0.25
