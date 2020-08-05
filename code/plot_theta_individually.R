@@ -13,7 +13,7 @@ folder <- 'None'
 cluster <- FALSE
 png_width <- 5
 png_height <- 4
-with_M <- TRUE
+with_M <- FALSE
 FDRs1 <- c(0.6, 0.9)
 FDRs2 <- c(0.4, 0.9)
 ###############################################################################
@@ -188,16 +188,18 @@ for (s in 1:length(species_list)) {
     colors <- c("#F8766D", "#B79F00", "#00BA38", "#00BFC4", "#619CFF", "#F564E3")
   } else { colors <- c("#00BA38", "#00BFC4", "#619CFF", "#F564E3") }
   
-  # set FDRs for minimum and maximum biomass and yields and extract indices to 
-  # get colors
-  if (s == 4) { 
-    ind <- which(Final_DRs2 %in% FDRs2)
-  } else { 
-    ind <- which(Final_DRs1 %in% FDRs1)
-  }
-  
-  # pull colors out for scenarios that are not 'None'
-  if (folder != 'None') {new_colors <- colors[ind]} else {new_colors <- colors}
+  # # set FDRs for minimum and maximum biomass and yields and extract indices to 
+  # # get colors
+  # if (s == 4) { 
+  #   FDRs <- FDRs2
+  #   ind <- which(Final_DRs2 %in% FDRs)
+  # } else { 
+  #   FDRs <- FDRs1
+  #   ind <- which(Final_DRs1 %in% FDRs)
+  # }
+  # 
+  # # pull colors out for scenarios that are not 'None'
+  # if (folder != 'None') {new_colors <- colors[ind]} else {new_colors <- colors}
   
   # take out M or keep it
   if (with_M == FALSE) { 
@@ -205,20 +207,19 @@ for (s in 1:length(species_list)) {
     theta_df <- subset(theta_df, Estimate == 'True')
     
     # plot it with only true estimate of M
-    thing1 <- ggplot(data = subset(theta_df, FDR %in% FDRs), 
+    thing1 <- ggplot(data = theta_df, 
                      aes(x = Time, y = Theta, color = as.factor(FDR), 
                          linetype = as.factor(Type))) +
       geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR), 
                       colour = NA), show.legend = FALSE) +  
-      scale_fill_manual(values = alpha(c(new_colors), 0.25), guide = FALSE) +
+      scale_fill_manual(values = alpha(c(colors), 0.25), guide = FALSE) +
       geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-      scale_color_manual(values = new_colors) +
+      scale_color_manual(values = colors) +
       geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') + 
-      ggtitle(paste(Names[s], ': Theta over time', sep = '')) +
       ylab('Distance from stable age distribution') +
       xlab('Years since reserve implemented') +
       theme(plot.margin = unit(c(0, 80, 0, 0), 'pt')) +
-      labs(linetype = 'Type', color = 'FDR') +
+      labs(linetype = 'Type', color = expression('D'[final])) +
       theme(legend.position = c(1.15, 0.5)) +
       guides(color = guide_legend(order = 1), linetype = guide_legend(order = 2), 
              size = guide_legend(order = 3)) 
@@ -246,13 +247,10 @@ for (s in 1:length(species_list)) {
       scale_size_manual(values = c(size1, size2)) +
       scale_color_manual(values = colors) +
       geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') + 
-      ggtitle(paste(Names[s], 
-                    ': Theta over time', 
-                    sep = '')) +
       ylab('Distance from stable age distribution') +
       xlab('Years since reserve implemented') +
-      theme(plot.margin = unit(c(0, 80, 0, 0), 'pt')) +
-      labs(linetype = 'Type', color = 'FDR') +
+      theme(plot.margin = unit(c(20, 80, 0, 0), 'pt')) +
+      labs(linetype = 'Type', color = expression('D'[final])) +
       theme(legend.position = c(1.15, 0.5)) +
       guides(color = guide_legend(order = 1), linetype = guide_legend(order = 2), 
              size = guide_legend(order = 3))
