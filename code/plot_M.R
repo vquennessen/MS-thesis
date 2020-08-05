@@ -1,3 +1,5 @@
+# plot M panels - both relative and difference - in single multi-panel figure
+
 # plot differences in biomass, yield, and effort by species
 
 # load any necessary libraries
@@ -13,11 +15,14 @@ library(viridisLite)
 folder <- 'None'
 cluster <- FALSE
 Years <- c(10)
-png_width <- 6
-png_height <- 4
+png_width <- 8
+png_height <- 6
 ###############################################################################
 
 # species to compare
+# species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
+# Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
+
 species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
 Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
 
@@ -42,6 +47,7 @@ types <- c('Static', 'Transient')
 estimates <- c('True', 'Low', 'High')
 metrics <- c('Biomass', 'Yield')
 
+nTy <- length(types)
 nY <- length(Years)
 nM <- length(metrics)
 nE <- length(estimates)
@@ -50,19 +56,28 @@ nS <- length(species_list)
 s1 <- 3; s2 <- 1
 nF1 <- length(Final_DRs1)
 nF2 <- length(Final_DRs2)
-nFall <- nF2 + 3*nF1
 
-DF1 <- data.frame(Metric = rep(metrics, each = 2*nE*nF1),
+DF1 <- data.frame(Metric = rep(metrics, each = nTy*nE*nF1),
                   Type = rep(types, times = nM, each = nE*nF1),
-                  Estimate = rep(estimates, each = nF1, times = nM*2),
-                  FDR = rep(Final_DRs1, times = nM*2*nE), 
-                  Value = rep(NA, nM*2*nE*nF1))
+                  Estimate = rep(estimates, each = nF1, times = nM*nTy),
+                  FDR = rep(Final_DRs1, times = nM*nTy*nE), 
+                  Value = rep(NA, nM*nTy*nE*nF1))
 
-DF2 <- data.frame(Metric = rep(metrics, each = 2*nE*nF2),
+DF2 <- data.frame(Metric = rep(metrics, each = nTy*nE*nF2),
                   Type = rep(types, times = nM, each = nE*nF2),
-                  Estimate = rep(estimates, each = nF2, times = nM*2),
-                  FDR = rep(Final_DRs2, times = nM*2*nE), 
-                  Value = rep(NA, nM*2*nE*nF2))
+                  Estimate = rep(estimates, each = nF2, times = nM*nTy),
+                  FDR = rep(Final_DRs2, times = nM*nTy*nE), 
+                  Value = rep(NA, nM*nTy*nE*nF2))
+
+diff1 <- data.frame(Metric = rep(metrics, each = nE*nF1),
+                  Estimate = rep(estimates, each = nF1, times = 2),
+                  FDR = rep(Final_DRs1, times = 2*nE), 
+                  Value = rep(NA, 2*nE*nF1))
+
+diff2 <- data.frame(Metric = rep(metrics, each = nE*nF2),
+                  Estimate = rep(estimates, each = nF2, times = 2),
+                  FDR = rep(Final_DRs2, times = 2*nE), 
+                  Value = rep(NA, 2*nE*nF2))
 
 for (y in 1:nY) {
   
@@ -90,7 +105,7 @@ for (y in 1:nY) {
     # pull out sample sims as sums across all areas for particular years
     B_sample   <- colSums(sims_biomass) 
     Y_sample <- sims_yield
-
+    
     # initialize relative arrays
     Rel_biomass <- array(rep(0, nC*nF*num_sims), c(nC, nF, num_sims))
     Rel_yield <- array(rep(0, nC*nF*num_sims), c(nC, nF, num_sims))
@@ -110,32 +125,74 @@ for (y in 1:nY) {
     # DF based on species
     if (s == 4) { DF <- DF2 } else { DF <- DF1 }
     
-    ##### fill in data frames with median and quantile values #####
+    ##### fill in data frames with median relative values #####
     for (ty in 1:2) {
       for (e in 1:nE) {
         for (fdr in 1:nF) {
           cr <- 2*e - ty %% 2
+          
           index <- (ty - 1)*nE*nF + (e - 1)*nF + fdr 
           # print(index)
+          
           all_biomass <- nrow(subset(DF, Metric == 'Biomass'))
           # relative biomass
           DF$Value[index] <- median(Rel_biomass[cr, fdr, ])
           # relative yield
           DF$Value[index + all_biomass] <- median(Rel_yield[cr, fdr, ])
+          
         }
       }
     }
+    
+    # DF based on species
+    if (s == 4) { diff_DF <- diff2 } else { diff_DF <- diff1 }
+    
+    ##### initialize difference array #####
+    Difference_B <- array(rep(0, nE*nF*num_sims), c(nE, nF, num_sims))
+    Difference_Y <- array(rep(0, nE*nF*num_sims), c(nE, nF, num_sims))
+    
+    ##### calculate differences between transient and static DRs #####
+    for (e in 1:nE) {
+      for (fdr in 1:nF) {     
+        for (sim in 1:num_sims) {
+          # biomass
+          diff_B <- Rel_biomass[2*e, fdr, sim] - Rel_biomass[2*e - 1, fdr, sim]
+          Difference_B[e, fdr, sim] <- diff_B / Rel_biomass[2*e - 1, fdr, sim]
+          # yield
+          diff_Y <- Rel_yield[2*e, fdr, sim] - Rel_yield[2*e - 1, fdr, sim]
+          Difference_Y[e, fdr, sim] <- diff_Y / Rel_yield[2*e - 1, fdr, sim]
+        }
+      }
+    }
+    
+    ##### fill in data frames with median and quantile values #####
+    for (e in 1:nE) {
+      for (fdr in 1:nF) {
+        index <- (e - 1)*nF + fdr         
+        # print(index)
+        all_biomass <- nrow(subset(diff_DF, Metric == 'Biomass'))
+        # relative biomass
+        diff_DF$Value[index] <- median(Difference_B[e, fdr, ])
+        # relative yield
+        diff_DF$Value[index + all_biomass] <- median(Difference_Y[e, fdr, ])
+      }
+    }
+    
     
     # make FDR and Estimate factor variables
     DF$FDR <- factor(DF$FDR)
     DF$Estimate <- factor(DF$Estimate, levels = c('Low', 'True', 'High'))
     DF$Type.Metric <- paste(DF$Type, DF$Metric, sep = ' ')
     DF$Type.Metric <- factor(DF$Type.Metric, 
-                      levels = c('Static Biomass', 'Static Yield', 
-                                 'Transient Biomass', 'Transient Yield'))
+                             levels = c('Static Biomass', 'Static Yield', 
+                                        'Transient Biomass', 'Transient Yield'))
     
     # remove static biomass and yield for low and high estimates
     new_DF <- subset(DF, Estimate == 'True' | Type == 'Transient')
+    
+    # panel labels
+    panel.labels <- c('(a) Biomass', '(b) Yield')
+    names(panel.labels) <- c('Biomass', 'Yield')
     
     # plotting parameters
     if (s == 4) {
@@ -143,34 +200,56 @@ for (y in 1:nY) {
                   "#619CFF", "#F564E3")
     } else { colors <- c("#00BA38", "#00BFC4", "#619CFF", "#F564E3") }
     
-    # plot difference results
+    # plot relative results
     thing1 <- ggplot(new_DF, aes(x = Estimate, y = Value, color = FDR, 
-                             shape = Type.Metric)) +
+                                 shape = Type.Metric)) +
       geom_hline(yintercept = 1, linetype = 2) +
-      geom_point(position = position_jitter(w = 0.25, h = 0), size = 2, 
+      geom_point(position = position_jitter(w = 0.25, h = 0), size = 3, 
                  alpha = 0.8, stroke = 1) +
       scale_shape_manual(values = c(16, 17, 1, 2), 
                          labels = c('SB', 'SY', 'TB', 'TY')) +
+      scale_color_manual(values = colors, guide = FALSE) +
+      ylab('Median relative value') +
+      theme(axis.title.x = element_blank()) +
+      labs(shape = 'Relative \n Type & \n Metric', color = expression('D'[final])) +
+      facet_grid(cols = vars(Metric), labeller = labeller(Metric = panel.labels))
+    
+    # make FDR and Estimate factor variables
+    diff_DF$FDR <- factor(diff_DF$FDR)
+    diff_DF$Estimate <- factor(diff_DF$Estimate, 
+                               levels = c('Low', 'True', 'High'))
+    
+    # panel labels
+    panel.labels <- c('(c) Biomass', '(d) Yield')
+    names(panel.labels) <- c('Biomass', 'Yield')
+    
+    # plot difference results
+    thing2 <- ggplot(diff_DF, aes(x = Estimate, y = Value, color = FDR, 
+                             shape = Metric)) +
+      geom_hline(yintercept = 0, linetype = 2) +
+      geom_point(position = position_jitter(w = 0.3, h = 0), size = 3, stroke = 1) +
+      scale_shape_manual(values = c(1, 2)) +
       scale_color_manual(values = colors) +
-      ylab('Relative Value') +
-      xlab('Estimate of Natural Mortality (M)') +
-      labs(shape = 'Type & \n Metric', color = expression('D'[final])) +
+      ylab('Median difference') +
+      xlab('Estimate of natural mortality (M)') +
+      labs(shape = 'Difference \n Metric', color = expression('D'[final])) +
       guides(color = guide_legend(order = 1), shape = guide_legend(order = 2)) +
-      facet_grid(cols = vars(Metric))
+      facet_grid(cols = vars(Metric), labeller = labeller(Metric = panel.labels))
+    
+    final_plot <- thing1 / thing2
     
     # save results to figures folder
     if (cluster == TRUE) {
-      ggsave(thing1, filename = paste(Names[s], '_year', Years[y], 
-                                      '_relative.png', sep = ''),
-             path = paste('~/Documents/MS-thesis/figures/', folder, 
-                          '/relative', sep = ''),
+      ggsave(final_plot, filename = paste(Names[s], '_year', Years[y], 
+                                      '_M.png', sep = ''),
+             path = paste('~/Documents/MS-thesis/figures/', folder, sep = ''),
              width = png_width, height = png_height)
       
     } else {
-      ggsave(thing1, filename = paste(Names[s], '_year', Years[y], 
-                                      '_relative.png', sep = ''),
+      ggsave(final_plot, filename = paste(Names[s], '_year', Years[y], 
+                                      '_M.png', sep = ''),
              path = paste('C:/Users/Vic/Box/Quennessen_Thesis/figures/', 
-                          folder, '/relative', sep = ''),
+                          folder, sep = ''),
              width = png_width, height = png_height)
     }
     

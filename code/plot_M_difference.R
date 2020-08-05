@@ -12,8 +12,8 @@ library(viridisLite)
 # CHECK THESE EVERY TIME
 folder <- 'None'
 cluster <- FALSE
-Years <- c(10, 20)
-png_width <- 4
+Years <- c(10)
+png_width <- 6
 png_height <- 4
 ###############################################################################
 
@@ -150,13 +150,14 @@ for (y in 1:nY) {
     thing1 <- ggplot(DF, aes(x = Estimate, y = Value, color = FDR, 
                              shape = Metric)) +
       geom_hline(yintercept = 0, linetype = 2) +
-      geom_point(position = position_jitter(w = 0.3, h = 0), size = 3) +
-      scale_shape_manual(values = c(1, 3)) +
+      geom_point(position = position_jitter(w = 0.3, h = 0), size = 3, stroke = 1) +
+      scale_shape_manual(values = c(1, 2)) +
       scale_color_manual(values = colors) +
       ylab('Median Difference') +
       xlab('Estimate of Natural Mortality (M)') +
-      ggtitle(Names[s]) + 
-      guides(color = guide_legend(order = 1), shape = guide_legend(order = 2))
+      guides(color = guide_legend(order = 1), shape = guide_legend(order = 2)) +
+      labs(color = expression('D'[final])) +
+      facet_grid(cols = vars(Metric))
     
     # save results to figures folder
     if (cluster == TRUE) {
