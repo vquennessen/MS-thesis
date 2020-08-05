@@ -74,6 +74,7 @@ example <- ggplot(data = DF, aes(x = Time, y = Target, linetype = Estimate, size
   ylab('Target Density Ratio') +
   xlab('Years Since Reserve Implementation') +
   scale_x_continuous(breaks = c(0, 10, 20)) +
+  ylim(0.5, 1) +
   facet_grid(~ Species)
 
 ggsave(example, filename = 'transients_example.png', 
