@@ -11,10 +11,10 @@ library(densityratio)
 
 ###############################################################################
 # CHECK THESE EVERY TIME
-folder <- 'None'
+folder <- 'Recruitment'
 FDRs1 <- c(0.6, 0.9)
 FDRs2 <- c(0.4, 0.9)
-cluster <- FALSE
+cluster <- TRUE
 png_width <- 4
 png_height <- 6
 y1 <- 0.25
@@ -158,72 +158,79 @@ for (s in 1:length(species_list)) {
   # set FDRs for minimum and maximum biomass and yields and extract indices to 
   # get colors
   if (s == 4) { 
-    ind <- which(Final_DRs2 %in% FDRs2)
+    FDRs <- FDRs2
+    ind <- which(Final_DRs2 %in% FDRs)
   } else { 
-    ind <- which(Final_DRs1 %in% FDRs1)
+    FDRs <- FDRs1
+    ind <- which(Final_DRs1 %in% FDRs)
   }
   
   # pull colors out for scenarios that are not 'None'
-  if (folder != 'None') {new_colors <- colors[ind]} else {new_colors <- colors}
+  if (folder != 'None') {
+    new_colors <- colors[ind]
+    BIOMASS <- subset(BIOMASS, FDR %in% FDRs)
+    YIELD <- subset(YIELD, FDR %in% FDRs)
+    EFFORT <- subset(EFFORT, FDR %in% FDRs)
+  } else {
+      new_colors <- colors}
 
   ##### plot total biomass #####
-  biomass <- ggplot(data = subset(BIOMASS, FDR %in% FDRs), 
-                    aes(x = Year, y = Value, color = as.factor(FDR), 
-                        linetype = as.factor(Type))) +
+  biomass <- ggplot(data = BIOMASS, aes(x = Year, y = Value, 
+                                        color = as.factor(FDR), 
+                                        linetype = as.factor(Type))) +
     geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR),
                     colour = NA), show.legend = FALSE) +
     scale_fill_manual(values = alpha(c(new_colors), alfa)) +
     geom_line(position = position_jitter(w = 0, h = jitter_height)) +
     scale_color_manual(values = new_colors) +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
-    ylab('Relative Biomass') +
+    ylab('Relative biomass') +
     theme(axis.title.x = element_blank()) +
+    labs(tag = 'a') +
     theme(legend.position = 'none')
   
   ##### plot total yield #####
-  yield <- ggplot(data = subset(YIELD, FDR %in% FDRs), 
-                  aes(x = Year, y = Value, color = as.factor(FDR), 
-                      linetype = as.factor(Type))) +
+  yield <- ggplot(data = YIELD, aes(x = Year, y = Value, color = as.factor(FDR), 
+                                    linetype = as.factor(Type))) +
     geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR),
                     colour = NA), show.legend = FALSE) +
     scale_fill_manual(values = alpha(c(new_colors), alfa)) +
     geom_line(position = position_jitter(w = 0, h = jitter_height)) +
     scale_color_manual(values = new_colors) +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
-    ylab('Relative Yield') +
+    ylab('Relative yield') +
     theme(legend.position = 'none') +
+    labs(tag = 'b') +
     theme(axis.title.x = element_blank())
   
   ##### plot total effort #####
-  effort <- ggplot(data = subset(EFFORT, FDR %in% FDRs), 
-                   aes(x = Year, y = Value, color = as.factor(FDR), 
-                       linetype = as.factor(Type))) +
+  effort <- ggplot(data = EFFORT, aes(x = Year, y = Value, 
+                                      color = as.factor(FDR), 
+                                      linetype = as.factor(Type))) +
     geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR),
                     colour = NA), show.legend = FALSE) +
     scale_fill_manual(values = alpha(c(new_colors), alfa)) +
     geom_line(position = position_jitter(w = 0, h = jitter_height)) +
     scale_color_manual(values = new_colors) +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
-    ylab('Relative Effort') +
-    labs(color = 'FDR', linetype = 'Type') +
-    theme(plot.margin = unit(c(0, 60, 0, 0), 'pt')) +
-    theme(legend.position = c(1.17, 1.5)) + 
+    ylab('Relative effort') +
+    xlab('Years since reserve implemented') +
+    labs(color = expression('D'[final]), linetype = 'Type', tag = 'c') +
+    theme(plot.margin = unit(c(0, 70, 0, 0), 'pt')) +
+    theme(legend.position = c(1.22, 1.5)) + 
     guides(color = guide_legend(order = 1), linetype = guide_legend(order = 2))
   
   ##### patch all the figures together #####
   patch <- biomass / yield / effort
-  thing <- patch + plot_annotation(
-    title = paste(Names[s], ': Relative Biomass, Yield, and Effort', sep = '')) &
-    theme(text = element_text(size = 9))
-  
+
   if (cluster == TRUE) {
-    ggsave(thing, 
+    ggsave(patch, 
            filename = paste(Names[s], '_relative.png', sep = ''),
            path = paste('~/Documents/MS-thesis/figures/', folder, sep = ''),
            width = png_width, height = png_height)
     
   } else {
-    ggsave(thing, filename = paste(Names[s], '_relative.png', sep = ''),
+    ggsave(patch, filename = paste(Names[s], '_relative.png', sep = ''),
            path = paste('C:/Users/Vic/Box/Quennessen_Thesis/figures/', 
                         folder, '/relative', sep = ''),
            width = png_width, height = png_height)
