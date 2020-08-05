@@ -69,7 +69,7 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
   }
   
   R0 = 1e+5
-  A = 21
+  A = 5
   MPA = 3
   Time1 = 50
   Time2 = 20
