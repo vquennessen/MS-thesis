@@ -8,6 +8,8 @@ library(ggplot2)
 library(patchwork)
 remotes::install_github('vquennessen/densityratio')
 library(densityratio)
+# install.packages('egg')
+library(egg)
 
 ###############################################################################
 # CHECK THESE EVERY TIME
@@ -182,8 +184,12 @@ for (s in 1:length(species_list)) {
       geom_line(position = position_jitter(w = 0, h = jitter_height)) +
       scale_color_manual(values = new_colors) +
       geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
-      facet_grid(Metric ~ Scenario, scales = 'free')
-      labs(color = 'FDR', linetype = 'Type')
+      facet_grid(Metric ~ Scenario, scales = 'free') +
+      labs(color = expression('D'[final]), linetype = 'Type')
+    
+    final_plot <- tag_facet(final_plot)
+    final_plot <- final_plot +
+      theme(strip.text = element_text(), strip.background = element_rect())
       
       
     # save plot
