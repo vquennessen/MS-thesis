@@ -13,7 +13,9 @@ library(egg)
 
 ###############################################################################
 # CHECK THESE EVERY TIME
-folders <- c('Sampling', 'Both')
+
+# folders <- c('Sampling', 'Both')
+folders <- c('New.Sampling')
 max_FDRs <- c(0.8, 0.7, 0.8, 0.5)
 cluster <- TRUE
 png_width <- 7
@@ -22,8 +24,11 @@ alfa <- 0.25
 ###############################################################################
 
 # species to compare
-species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
-Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
+# species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
+# Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
+
+species_list <- c('BR_OR_2015')
+Names <- c('Black Rockfish')
 
 # set variables
 A = 5
@@ -46,7 +51,9 @@ for (s in 1:length(species_list)) {
   
   for (f in 1:length(folders)) {
     
-    scenarios <- paste(folders[f], c('', '.HighT'), sep = '')
+    # scenarios <- paste(folders[f], c('', '.HighT'), sep = '')
+    scenarios <- paste(folders[f], c(''), sep = '')
+    
     nS <- length(scenarios)
     
     base1 <- data.frame(Scenario = rep(scenarios, each = nM*2*nF1*nT),
@@ -72,8 +79,9 @@ for (s in 1:length(species_list)) {
     
     for (scen in 1:nS) {
       
-      # determine num_sims based on data folder
-      num_sims <- ifelse(scenarios[scen] == 'Both', 6193, 5000)
+      # # determine num_sims based on data folder
+      # num_sims <- ifelse(scenarios[scen] == 'Both', 6193, 5000)
+      num_sims <- 90
       
       # load biomass, yield, and effort files
       load(paste('~/Documents/MS-thesis/data/', scenarios[scen], '/', 
@@ -185,6 +193,7 @@ for (s in 1:length(species_list)) {
       scale_color_manual(values = new_colors) +
       geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
       facet_grid(Metric ~ Scenario, scales = 'free') +
+      xlab('Years since reserve implemented') +
       labs(color = expression('D'[final]), linetype = 'Type')
     
     final_plot <- tag_facet(final_plot)
