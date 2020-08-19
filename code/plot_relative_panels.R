@@ -11,10 +11,10 @@ library(densityratio)
 
 ###############################################################################
 # CHECK THESE EVERY TIME
-folder <- 'Recruitment'
+folder <- 'None'
 FDRs1 <- c(0.6, 0.9)
 FDRs2 <- c(0.4, 0.9)
-cluster <- TRUE
+cluster <- FALSE
 png_width <- 4
 png_height <- 6
 y1 <- 0.25
@@ -67,7 +67,9 @@ base2 <- data.frame(Type = rep(types, each = nF2*nT),
                     Lower = rep(NA, 2*nF2*nT), 
                     Upper = rep(NA, 2*nF2*nT))
 
-for (s in 1:length(species_list)) {
+# for (s in 1:length(species_list)) {
+
+for (s in 2:2) {
   
   # load biomass, yield, and effort files
   if (cluster == TRUE) {
@@ -173,6 +175,11 @@ for (s in 1:length(species_list)) {
     EFFORT <- subset(EFFORT, FDR %in% FDRs)
   } else {
       new_colors <- colors}
+  
+  ##### single dfinal value plot #####
+  BIOMASS <- subset(BIOMASS, FDR == 0.9)
+  YIELD <- subset(YIELD, FDR == 0.9)
+  EFFORT <- subset(EFFORT, FDR == 0.9)
 
   ##### plot total biomass #####
   biomass <- ggplot(data = BIOMASS, aes(x = Year, y = Value, 
@@ -182,7 +189,8 @@ for (s in 1:length(species_list)) {
                     colour = NA), show.legend = FALSE) +
     scale_fill_manual(values = alpha(c(new_colors), alfa)) +
     geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-    scale_color_manual(values = new_colors) +
+    # scale_color_manual(values = new_colors) +
+    scale_color_manual(values = "#F564E3") +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
     ylab('Relative biomass') +
     theme(axis.title.x = element_blank()) +
@@ -196,7 +204,8 @@ for (s in 1:length(species_list)) {
                     colour = NA), show.legend = FALSE) +
     scale_fill_manual(values = alpha(c(new_colors), alfa)) +
     geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-    scale_color_manual(values = new_colors) +
+    # scale_color_manual(values = new_colors) +
+    scale_color_manual(values = "#F564E3") +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
     ylab('Relative yield') +
     theme(legend.position = 'none') +
@@ -211,7 +220,8 @@ for (s in 1:length(species_list)) {
                     colour = NA), show.legend = FALSE) +
     scale_fill_manual(values = alpha(c(new_colors), alfa)) +
     geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-    scale_color_manual(values = new_colors) +
+    # scale_color_manual(values = new_colors) +
+    scale_color_manual(values = "#F564E3") +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
     ylab('Relative effort') +
     xlab('Years since reserve implemented') +
@@ -223,17 +233,21 @@ for (s in 1:length(species_list)) {
   ##### patch all the figures together #####
   patch <- biomass / yield / effort
 
-  if (cluster == TRUE) {
-    ggsave(patch, 
-           filename = paste(Names[s], '_relative.png', sep = ''),
-           path = paste('~/Documents/MS-thesis/figures/', folder, sep = ''),
-           width = png_width, height = png_height)
-    
-  } else {
-    ggsave(patch, filename = paste(Names[s], '_relative.png', sep = ''),
-           path = paste('C:/Users/Vic/Box/Quennessen_Thesis/figures/', 
-                        folder, '/relative', sep = ''),
-           width = png_width, height = png_height)
-  }
+  # if (cluster == TRUE) {
+  #   ggsave(patch, 
+  #          filename = paste(Names[s], '_relative.png', sep = ''),
+  #          path = paste('~/Documents/MS-thesis/figures/', folder, sep = ''),
+  #          width = png_width, height = png_height)
+  #   
+  # } else {
+  #   ggsave(patch, filename = paste(Names[s], '_relative.png', sep = ''),
+  #          path = paste('C:/Users/Vic/Box/Quennessen_Thesis/figures/', 
+  #                       folder, '/relative', sep = ''),
+  #          width = png_width, height = png_height)
+  # }
+  # 
   
+  ggsave(patch, filename = paste(Names[s], '_relative_Dfinal09.png', sep = ''),
+         path = 'C:/Users/Vic/Box/Quennessen_Thesis/presentations/MS defense', 
+         width = png_width, height = png_height)
 }
