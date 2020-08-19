@@ -204,14 +204,13 @@ for (y in 1:nY) {
     thing1 <- ggplot(new_DF, aes(x = Estimate, y = Value, color = FDR, 
                                  shape = Type.Metric)) +
       geom_hline(yintercept = 1, linetype = 2) +
-      geom_point(position = position_jitter(w = 0.25, h = 0), size = 3, 
-                 alpha = 0.8, stroke = 1) +
+      geom_point(position = position_jitter(w = 0.25, h = 0), size = 3, stroke = 1) +
       scale_shape_manual(values = c(16, 17, 1, 2), 
-                         labels = c('SB', 'SY', 'TB', 'TY')) +
+                         labels = c('Static', 'Static', 'Transient', 'Transient')) +
       scale_color_manual(values = colors, guide = FALSE) +
       ylab('Median relative value') +
       theme(axis.title.x = element_blank()) +
-      labs(shape = 'Relative \n Type & \n Metric', color = expression('D'[final])) +
+      labs(shape = 'Type', color = expression('D'[final])) +
       facet_grid(cols = vars(Metric), labeller = labeller(Metric = panel.labels))
     
     # make FDR and Estimate factor variables
@@ -228,12 +227,12 @@ for (y in 1:nY) {
                              shape = Metric)) +
       geom_hline(yintercept = 0, linetype = 2) +
       geom_point(position = position_jitter(w = 0.3, h = 0), size = 3, stroke = 1) +
-      scale_shape_manual(values = c(1, 2)) +
+      scale_shape_manual(values = c(1, 2), guide = FALSE) +
       scale_color_manual(values = colors) +
       ylab('Median difference') +
       xlab('Estimate of natural mortality (M)') +
       labs(shape = 'Difference \n Metric', color = expression('D'[final])) +
-      guides(color = guide_legend(order = 1), shape = guide_legend(order = 2)) +
+      guides(color = guide_legend(order = 1)) +
       facet_grid(cols = vars(Metric), labeller = labeller(Metric = panel.labels))
     
     final_plot <- thing1 / thing2
