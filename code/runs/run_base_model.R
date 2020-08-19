@@ -9,44 +9,44 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
   write(start_time, file = 'progress.txt', append = TRUE)
   
   if (Scenario == 'None' | Scenario == 'Test' | Scenario == 'Areas') {
-    Sampling_Error = FALSE
+    Sampling_Var = FALSE
     Transects = 24
-    Stochasticity = FALSE
+    Recruitment_Var = FALSE
     
   } else if (Scenario == 'Sampling.LowT') {
-    Sampling_Error = TRUE
+    Sampling_Var = TRUE
     Transects = 12
-    Stochasticity = FALSE
+    Recruitment_Var = FALSE
     
-  } else if (Scenario == 'Sampling') {
-    Sampling_Error = TRUE
+  } else if (Scenario == 'New.Sampling') {
+    Sampling_Var = TRUE
     Transects = 24
-    Stochasticity = FALSE
+    Recruitment_Var = FALSE
     
   } else if (Scenario == 'Sampling.HighT') {
-    Sampling_Error = TRUE
+    Sampling_Var = TRUE
     Transects = 36
-    Stochasticity = FALSE
+    Recruitment_Var = FALSE
     
   } else if (Scenario == 'Recruitment') {
-    Sampling_Error = FALSE
+    Sampling_Var = FALSE
     Transects = 24
-    Stochasticity = TRUE
+    Recruitment_Var = TRUE
     
   } else if (Scenario == 'Both.LowT') {
-    Sampling_Error = TRUE
+    Sampling_Var = TRUE
     Transects = 12
-    Stochasticity = TRUE
+    Recruitment_Var = TRUE
     
   } else if (Scenario == 'Both' | Scenario == 'Variance') {
-    Sampling_Error = TRUE
+    Sampling_Var = TRUE
     Transects = 24
-    Stochasticity = TRUE
+    Recruitment_Var = TRUE
     
   } else if (Scenario == 'Both.HighT') {
-    Sampling_Error = TRUE
+    Sampling_Var = TRUE
     Transects = 36
-    Stochasticity = TRUE
+    Recruitment_Var = TRUE
   } 
   
   # set arguments
@@ -120,7 +120,7 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
   for (i in 1:num_sims) {
     
     output <- base_model(Species, R0, A, MPA, Time1, Time2, Recruitment_mode, 
-                         M_Error, Sampling_Error, Stochasticity, Surveys, 
+                         M_Error, Sampling_Var, Recruitment_Var, Surveys, 
                          Fishery_management, Fishing, Transects, Adult_movement, 
                          Final_DRs, Years_sampled, Areas_sampled, Ind_sampled, 
                          Floor_DR, Allocation, BM, LDP, Output.N, 
@@ -151,15 +151,16 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
   # get filepaths to save objects to
   # Q <- ifelse(num_sims < 1000, num_sims,  paste("1e", log10(num_sims), sep = ''))
   Q <- num_sims
-  filepath1 = paste('../data/', Scenario, '/', Species, '/', A, 'A_biomass.Rda', sep = '')
-  filepath2 = paste('../data/', Scenario, '/', Species, '/', A, 'A_yield.Rda', sep = '')
+  
+  filepath1 = paste('../data/', Scenario, '/', Species, '/', Q, '_biomass.Rda', sep = '')
+  filepath2 = paste('../data/', Scenario, '/', Species, '/', Q, '_yield.Rda', sep = '')
   
   if (Scenario != 'Variance') {
-    filepath3 = paste('../data/', Scenario, '/', Species, '/', A, 'A_N.Rda', sep = '')
-    filepath4 = paste('../data/', Scenario, '/', Species, '/', A, 'A_DR.Rda', sep = '')
-    filepath5 = paste('../data/', Scenario, '/', Species, '/', A, 'A_effort.Rda', sep = '')
-    filepath6 = paste('../data/', Scenario, '/', Species, '/', A, 'A_SSB.Rda', sep = '')
-    filepath7 = paste('../data/', Scenario, '/', Species, '/', A, 'A_abundance.Rda', sep = '')
+    filepath3 = paste('../data/', Scenario, '/', Species, '/', Q, '_N.Rda', sep = '')
+    filepath4 = paste('../data/', Scenario, '/', Species, '/', Q, '_DR.Rda', sep = '')
+    filepath5 = paste('../data/', Scenario, '/', Species, '/', Q, '_effort.Rda', sep = '')
+    filepath6 = paste('../data/', Scenario, '/', Species, '/', Q, '_SSB.Rda', sep = '')
+    filepath7 = paste('../data/', Scenario, '/', Species, '/', Q, '_abundance.Rda', sep = '')
   }
   
   # save objects
