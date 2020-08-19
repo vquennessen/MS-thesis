@@ -38,7 +38,7 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
     Transects = 12
     Recruitment_Var = TRUE
     
-  } else if (Scenario == 'Both' | Scenario == 'Variance') {
+  } else if (Scenario == 'New.Both' | Scenario == 'Variance') {
     Sampling_Var = TRUE
     Transects = 24
     Recruitment_Var = TRUE
