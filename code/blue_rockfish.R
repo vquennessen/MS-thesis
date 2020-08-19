@@ -146,10 +146,16 @@ for (s in 1:length(sites)) {
 # trim useless years off
 DR <- na.omit(DR)
 
+# order sites by variability
+DR$Site <- factor(DR$Site, levels = c('Point Lobos', 'South Point', 
+                                      'Harris Point'), labels = levels)
+
 # plot DR over time by site
 BR <- ggplot(DR, aes(x = Year, y = DR)) +
   geom_line() +
-  geom_hline(yintercept = 1, linetype = 2) +
+  # geom_hline(yintercept = 1, linetype = 2) +
+  geom_hline(yintercept = 0, linetype = 2) +
+  geom_hline(yintercept = 2, linetype = 2) +
   geom_errorbar(aes(ymin = DR - SD, ymax = DR + SD), width = 0.25) +
   scale_x_continuous(breaks = seq(2005, 2020, by = 5)) +
   xlim(2004, 2020) +
