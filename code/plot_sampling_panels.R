@@ -15,8 +15,10 @@ library(egg)
 # CHECK THESE EVERY TIME
 
 # folders <- c('Sampling', 'Both')
-folders <- c('New.Sampling')
+folders <- c('New.Sampling', 'New.Both')
 max_FDRs <- c(0.8, 0.7, 0.8, 0.5)
+FDRs1 <- c(0.6, 0.9)
+FDRs2 <- c(0.4, 0.9)
 cluster <- TRUE
 png_width <- 7
 png_height <- 6
@@ -81,7 +83,7 @@ for (s in 1:length(species_list)) {
       
       # # determine num_sims based on data folder
       # num_sims <- ifelse(scenarios[scen] == 'Both', 6193, 5000)
-      num_sims <- 90
+      if (f == 1) {num_sims = 2185} else {num_sims = 2460}
       
       # load biomass, yield, and effort files
       load(paste('~/Documents/MS-thesis/data/', scenarios[scen], '/', 
@@ -162,8 +164,8 @@ for (s in 1:length(species_list)) {
     if (f == 2) {
       FDRs <- max_FDRs[s]
     } else if (f == 1 & s != 4) {
-      FDRs <- Final_DRs1
-    } else { FDRs <- Final_DRs2 }
+      FDRs <- FDRs1
+    } else { FDRs <- FDRs2 }
     
   
     if (s != 4) { 
