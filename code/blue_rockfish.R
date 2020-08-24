@@ -37,7 +37,7 @@ sites_DR <- read.csv(paste('C:/Users/Vic/Box/Quennessen_Thesis/data/',
 # sites <- c('Point Lobos SMR', 'Big Creek SMR', 'Vandenberg SMR',
 #            'Harris Point SMR', 'South Point SMR')
 
-sites <- c('Point Lobos SMR', 'Harris Point SMR', 'South Point SMR')
+sites <- c('Point Lobos SMR', 'South Point SMR', 'Big Creek SMR')
 
 num_samples <- 1000
 
@@ -147,8 +147,7 @@ for (s in 1:length(sites)) {
 DR <- na.omit(DR)
 
 # order sites by variability
-DR$Site <- factor(DR$Site, levels = c('Point Lobos', 'South Point', 
-                                      'Harris Point'), labels = levels)
+DR$Site <- factor(DR$Site, levels = sites)
 
 # plot DR over time by site
 BR <- ggplot(DR, aes(x = Year, y = DR)) +
