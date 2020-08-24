@@ -4,8 +4,8 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
   remotes::install_github('vquennessen/densityratio')
   library(densityratio)
   
-  start_time <- paste('Start time: ', Sys.time(), ' - ', Species, ' - ',
-                      num_sims, ' sims', sep = '')
+  start_time <- paste('Start time: ', Sys.time(), ' - ', Scenario, ' - ', 
+                      Species, ': ', num_sims, ' sims', sep = '')
   write(start_time, file = 'progress.txt', append = TRUE)
   
   if (Scenario == 'None' | Scenario == 'Test' | Scenario == 'Areas') {
@@ -13,7 +13,7 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
     Transects = 24
     Recruitment_Var = FALSE
     
-  } else if (Scenario == 'Sampling.LowT') {
+  } else if (Scenario == 'New.Sampling.LowT') {
     Sampling_Var = TRUE
     Transects = 12
     Recruitment_Var = FALSE
