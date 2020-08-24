@@ -16,29 +16,29 @@ Final_DRs_2 <- c(0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
 mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 75,
          Scenario, Final_DRs_1)
 
-mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 125,
+mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 100,
          Scenario, Final_DRs_1)
 
 mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 110,
          Scenario, Final_DRs_1)
 
-# mclapply(species_list_2, run_base_model, mc.cores = 12, num_sims = 100,
-#          Scenario, Final_DRs_2)
-# 
 mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 150,
          Scenario, Final_DRs_1)
 
-# mclapply(species_list_2, run_base_model, mc.cores = 12, num_sims = 100,
-#          Scenario, Final_DRs_2)
-# 
 mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 200,
          Scenario, Final_DRs_1)
 
-# mclapply(species_list_2, run_base_model, mc.cores = 12, num_sims = 200,
-#          Scenario, Final_DRs_2)
-# 
 mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 250,
          Scenario, Final_DRs_1)
 
-# mclapply(species_list_2, run_base_model, mc.cores = 12, num_sims = 300,
-#          Scenario, Final_DRs_2)
+mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 300,
+         Scenario, Final_DRs_1)
+
+mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 350,
+         Scenario, Final_DRs_1)
+
+mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 400,
+         Scenario, Final_DRs_1)
+
+mclapply(species_list_1, run_base_model, mc.cores = 12, num_sims = 450,
+         Scenario, Final_DRs_1)
