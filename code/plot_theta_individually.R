@@ -6,6 +6,7 @@ library(patchwork)
 library(remotes)
 remotes::install_github('vquennessen/densityratio')
 library(densityratio)
+library(viridis)
 
 ###############################################################################
 # CHECK THESE EVERY TIME
@@ -116,7 +117,7 @@ for (s in 1:length(species_list)) {
   B0 <- R0 / Phi
   A50_mat <- ages[min(which(Mat > 0.5))]
   SAD <- stable_AD(Rec_age, Max_age, W, R0, Mat, H, B0, Sigma_R, Fb, S, M, 
-                   eq_time = 150, A50_mat, Stochasticity = FALSE, Rho_R, 
+                   eq_time = 150, A50_mat, Recruitment_Var = FALSE, Rho_R, 
                    Recruitment_mode = 'pool', A)
   
   ##### set nF value for species #####
@@ -183,24 +184,14 @@ for (s in 1:length(species_list)) {
   jitter_height <- 0.001
   size1 <- 1.25
   size2 <- 0.5
-  
-  if (s == 4) {
-    colors <- c("#F8766D", "#B79F00", "#00BA38", "#00BFC4", "#619CFF", "#F564E3")
-  } else { colors <- c("#00BA38", "#00BFC4", "#619CFF", "#F564E3") }
-  
-  # # set FDRs for minimum and maximum biomass and yields and extract indices to 
-  # # get colors
-  # if (s == 4) { 
-  #   FDRs <- FDRs2
-  #   ind <- which(Final_DRs2 %in% FDRs)
-  # } else { 
-  #   FDRs <- FDRs1
-  #   ind <- which(Final_DRs1 %in% FDRs)
-  # }
-  # 
-  # # pull colors out for scenarios that are not 'None'
-  # if (folder != 'None') {new_colors <- colors[ind]} else {new_colors <- colors}
-  
+
+  og_colors <- rev(viridis(max(c(nF1, nF2)) + 1))
+  if (s != 4) {
+    new_colors <- og_colors[(nF2 - nF1 + 2):(nF2 + 1)]
+  } else {
+    new_colors <- og_colors[2:(nF2 + 1)]
+  }
+ 
   # take out M or keep it
   if (with_M == FALSE) { 
     
@@ -212,14 +203,15 @@ for (s in 1:length(species_list)) {
                          linetype = as.factor(Type))) +
       geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR), 
                       colour = NA), show.legend = FALSE) +  
-      scale_fill_manual(values = alpha(c(colors), 0.25), guide = FALSE) +
+      scale_fill_manual(values = alpha(c(new_colors), 0.25), guide = FALSE) +
       geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-      scale_color_manual(values = colors) +
+      scale_color_manual(values = new_colors) +
       geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') + 
       ylab('Distance from stable age distribution') +
       xlab('Years since reserve implemented') +
       theme(plot.margin = unit(c(0, 80, 0, 0), 'pt')) +
       labs(linetype = 'Type', color = expression('D'[final])) +
+      theme_bw() +
       theme(legend.position = c(1.15, 0.5)) +
       guides(color = guide_legend(order = 1), linetype = guide_legend(order = 2), 
              size = guide_legend(order = 3)) 
@@ -229,9 +221,8 @@ for (s in 1:length(species_list)) {
              path = paste('~/Documents/MS-thesis/figures/', folder, sep = ''),
              width = png_width, height = png_height)
     } else {
-      ggsave(thing1, filename = paste(Names[s], '_theta.png', sep = ''),
-             path = paste('C:/Users/Vic/Box/Quennessen_Thesis/figures/', 
-                          folder, sep = ''),
+      ggsave(thing1, filename = paste('theta_', Names[s], '.png', sep = ''),
+             path = 'C:/Users/Vic/Box/Quennessen_Thesis/publication manuscript/viridis figures/',
              width = png_width, height = png_height)
     }
     
@@ -242,10 +233,10 @@ for (s in 1:length(species_list)) {
                                           linetype = as.factor(Estimate), size = Type)) +
       geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR), 
                       colour = NA), show.legend = FALSE) +  
-      scale_fill_manual(values = alpha(c(colors), 0.25), guide = FALSE) +
+      scale_fill_manual(values = alpha(c(new_colors), 0.25), guide = FALSE) +
       geom_line(position = position_jitter(w = 0, h = jitter_height)) +
       scale_size_manual(values = c(size1, size2)) +
-      scale_color_manual(values = colors) +
+      scale_color_manual(values = new_colors) +
       geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') + 
       ylab('Distance from stable age distribution') +
       xlab('Years since reserve implemented') +
