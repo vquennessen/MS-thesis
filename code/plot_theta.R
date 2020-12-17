@@ -192,6 +192,12 @@ y2 <- 0.7
 jitter_height <- 0.005
 size1 <- 1
 size2 <- 0.5
+og_colors <- rev(viridis(max(c(nF1, nF2)) + 1))
+if (s != 4) {
+  new_colors <- og_colors[(nF2 - nF1 + 2):(nF2 + 1)]
+} else {
+  new_colors <- og_colors[2:(nF2 + 1)]
+}
 
 # plot it
 A <- ggplot(data = dfA, aes(x = Time, y = Theta, 
@@ -200,10 +206,10 @@ A <- ggplot(data = dfA, aes(x = Time, y = Theta,
                             size = Type)) +
   geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR), 
                   colour = NA), show.legend = FALSE) +  
-  scale_fill_manual(values = alpha(c(colors), 0.25), guide = FALSE) +
-  geom_line(position = position_jitter(w = 0, h = jitter_height)) +
+  scale_fill_manual(values = alpha(c(new_colors), 0.25), guide = FALSE) +
   scale_size_manual(values = c(size1, size2)) +
-  scale_color_manual(values = c("#00BA38", "#00BFC4", "#619CFF", "#F564E3")) +
+  scale_color_manual(values = new_colors) +
+  geom_line(position = position_jitter(w = 0, h = jitter_height)) +
   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') + 
   ggtitle(Names[1]) +
   ylab('Theta') +
@@ -218,10 +224,10 @@ B <- ggplot(data = dfB, aes(x = Time, y = Theta,
                             size = Type)) +
   geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR), 
                   colour = NA), show.legend = FALSE) +  
-  scale_fill_manual(values = alpha(c(colors), 0.25), guide = FALSE) +
-  geom_line(position = position_jitter(w = 0, h = jitter_height)) +
+  scale_fill_manual(values = alpha(c(new_colors), 0.25), guide = FALSE) +
+  scale_color_manual(values = new_colors) +
   scale_size_manual(values = c(size1, size2)) +
-  scale_color_manual(values = c("#00BA38", "#00BFC4", "#619CFF", "#F564E3")) +
+  geom_line(position = position_jitter(w = 0, h = jitter_height)) +
   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') + 
   ggtitle(Names[2]) +
   ylim(y1, y2) +
@@ -235,10 +241,10 @@ C <- ggplot(data = dfC, aes(x = Time, y = Theta,
                             size = Type)) +
   geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR), 
                   colour = NA), show.legend = FALSE) +  
-  scale_fill_manual(values = alpha(c(colors), 0.25), guide = FALSE) +
-  geom_line(position = position_jitter(w = 0, h = jitter_height)) +
+  scale_fill_manual(values = alpha(c(new_colors), 0.25), guide = FALSE) +
   scale_size_manual(values = c(size1, size2)) +
-  scale_color_manual(values = c("#00BA38", "#00BFC4", "#619CFF", "#F564E3")) +
+  scale_color_manual(values = new_colors) +
+  geom_line(position = position_jitter(w = 0, h = jitter_height)) +
   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') + 
   ggtitle(Names[3]) +
   xlab('Years since reserve implemented') +
@@ -253,11 +259,10 @@ D <- ggplot(data = dfD, aes(x = Time, y = Theta,
                             size = Type)) +
   geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR), 
                   colour = NA), show.legend = FALSE) +  
-  scale_fill_manual(values = alpha(c(colors), 0.25), guide = FALSE) +
+  scale_fill_manual(values = alpha(c(new_colors), 0.25), guide = FALSE) +
   geom_line(position = position_jitter(w = 0, h = jitter_height)) +
   scale_size_manual(values = c(size1, size2)) +
-  scale_color_manual(values = c("#F8766D", "#B79F00", "#00BA38", "#00BFC4", 
-                                "#619CFF", "#F564E3")) +
+  scale_color_manual(values = new_colors) +
   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black') + 
   ggtitle(Names[4]) +
   theme(axis.text.y = element_blank()) +
