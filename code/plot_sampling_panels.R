@@ -10,12 +10,14 @@ remotes::install_github('vquennessen/densityratio')
 library(densityratio)
 # install.packages('egg')
 library(egg)
+library(viridis)
 
 ###############################################################################
 # CHECK THESE EVERY TIME
 
-# folders <- c('Sampling', 'Both')
-folders <- c('New.Sampling', 'New.Both')
+folders <- c('New.Sampling', 'Recruitment', 'New.Both')
+scenarios <- c('Sampling', 'Recruitment', 'Both')
+versions <- c(1, 2)
 max_FDRs <- c(0.8, 0.7, 0.8, 0.5)
 FDRs1 <- c(0.6, 0.9)
 FDRs2 <- c(0.4, 0.9)
@@ -26,11 +28,8 @@ alfa <- 0.25
 ###############################################################################
 
 # species to compare
-# species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
-# Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
-
-species_list <- c('BR_OR_2015')
-Names <- c('Black Rockfish')
+species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
+Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
 
 # set variables
 A = 5
@@ -43,54 +42,55 @@ Control_rules = c(1:6)
 types <- c('Static', 'Transient')
 metrics <- c('Biomass', 'Yield', 'Effort')
 
+nSc <- length(scenarios)
 nT <- Time2 + 1
 nM <- length(metrics)
 nC <- length(Control_rules)
 nF1 <- length(Final_DRs1)
 nF2 <- length(Final_DRs2)
 
-for (s in 1:length(species_list)) {
+base1 <- data.frame(Scenario = rep(scenarios, each = nM*2*nF1*nT),
+                    Metric = rep(metrics, times = nSc, each = 2*nF1*nT),
+                    Type = rep(types, times = nSc*nM, each = nF1*nT), 
+                    FDR = rep(Final_DRs1, times = nSc*nM*2, each = nT), 
+                    Year = rep(0:Time2, times = nSc*nM*2*nF1), 
+                    Value = rep(NA, nSc*nM*2*nF1*nT), 
+                    Lower = rep(NA, nSc*nM*2*nF1*nT),
+                    Upper = rep(NA, nSc*nM*2*nF1*nT))
+
+base2 <- data.frame(Scenario = rep(scenarios, each = nM*2*nF2*nT),
+                    Metric = rep(metrics, times = nSc, each = 2*nF2*nT),
+                    Type = rep(types, times = nSc*nM, each = nF2*nT), 
+                    FDR = rep(Final_DRs2, times = nSc*nM*2, each = nT), 
+                    Year = rep(0:Time2, times = nSc*nM*2*nF2), 
+                    Value = rep(NA, nSc*nM*2*nF2*nT), 
+                    Lower = rep(NA, nSc*nM*2*nF2*nT),
+                    Upper = rep(NA, nSc*nM*2*nF2*nT))
+
+for (v in 1:2) {
   
-  for (f in 1:length(folders)) {
+  if (v == 1) { 
+    FDRs <- list(c(0.6, 0.9), c(0.6, 0.9), c(0.6, 0.9), c(0.4, 0.9))
     
-    # scenarios <- paste(folders[f], c('', '.HighT'), sep = '')
-    scenarios <- paste(folders[f], c(''), sep = '')
-    
-    nS <- length(scenarios)
-    
-    base1 <- data.frame(Scenario = rep(scenarios, each = nM*2*nF1*nT),
-                        Metric = rep(metrics, times = nS, each = 2*nF1*nT),
-                        Type = rep(types, times = nS*nM, each = nF1*nT), 
-                        FDR = rep(Final_DRs1, times = nS*nM*2, each = nT), 
-                        Year = rep(0:Time2, times = nS*nM*2*nF1), 
-                        Value = rep(NA, nS*nM*2*nF1*nT), 
-                        Lower = rep(NA, nS*nM*2*nF1*nT),
-                        Upper = rep(NA, nS*nM*2*nF1*nT))
-    
-    base2 <- data.frame(Scenario = rep(scenarios, each = nM*2*nF2*nT),
-                        Metric = rep(metrics, times = nS, each = 2*nF2*nT),
-                        Type = rep(types, times = nS*nM, each = nF2*nT), 
-                        FDR = rep(Final_DRs2, times = nS*nM*2, each = nT), 
-                        Year = rep(0:Time2, times = nS*nM*2*nF2), 
-                        Value = rep(NA, nS*nM*2*nF2*nT), 
-                        Lower = rep(NA, nS*nM*2*nF2*nT),
-                        Upper = rep(NA, nS*nM*2*nF2*nT))
+  } else if (v == 2) {
+    FDRs <- c(0.8, 0.7, 0.8, 0.5)
+  }
+  
+  for (s in 1:length(species_list)) {
     
     # data frame based on species number
     if (s == 4) { DF <- base2 } else { DF <- base1 }
     
-    for (scen in 1:nS) {
+    for (f in 1:length(folders)) {
       
-      # # determine num_sims based on data folder
-      # num_sims <- ifelse(scenarios[scen] == 'Both', 6193, 5000)
-      if (f == 1) {num_sims = 2185} else {num_sims = 2460}
+      num_sims <- 5000
       
       # load biomass, yield, and effort files
-      load(paste('~/Documents/MS-thesis/data/', scenarios[scen], '/', 
+      load(paste('~/Documents/MS-thesis/data/', folders[f], '/', 
                  species_list[s], '/', num_sims, '_biomass.Rda', sep = ''))
-      load(paste('~/Documents/MS-thesis/data/', scenarios[scen], '/', 
+      load(paste('~/Documents/MS-thesis/data/', folders[f], '/', 
                  species_list[s], '/', num_sims, '_yield.Rda', sep = ''))
-      load(paste('~/Documents/MS-thesis/data/', scenarios[scen], '/', 
+      load(paste('~/Documents/MS-thesis/data/', folders[f], '/', 
                  species_list[s], '/', num_sims, '_effort.Rda', sep = ''))
       
       # set nF value for species 
@@ -132,7 +132,7 @@ for (s in 1:length(species_list)) {
           for (fdr in 1:nF) {
             for (t in 1:nT) {
               
-              index <- (scen - 1)*nM*2*nF*nT + (m - 1)*2*nF*nT + (ty - 1)*nF*nT + 
+              index <- (f - 1)*nM*2*nF*nT + (m - 1)*2*nF*nT + (ty - 1)*nF*nT + 
                 (fdr - 1)*nT + t
               # print(index)
               
@@ -154,36 +154,26 @@ for (s in 1:length(species_list)) {
     
     ##### plotting parameters #####
     jitter_height <- 0
+    og_colors <- rev(viridis(max(c(nF1, nF2)) + 1))
     if (s != 4) {
-      colors <- c("#00BA38", "#00BFC4", "#619CFF", "#F564E3")
+      new_colors <- og_colors[(nF2 - nF1 + 2):(nF2 + 1)]
     } else {
-      colors <- c("#F8766D", "#B79F00", "#00BA38", "#00BFC4", "#619CFF", "#F564E3")
+      new_colors <- og_colors[2:(nF2 + 1)]
     }
     
     # set FDRs for maximum difference in biomass and/or yield for Both
-    if (f == 2) {
-      FDRs <- max_FDRs[s]
-    } else if (f == 1 & s != 4) {
-      FDRs <- FDRs1
-    } else { FDRs <- FDRs2 }
-    
-  
     if (s != 4) { 
-      ind <- which(Final_DRs1 %in% FDRs)
+      ind <- which(Final_DRs1 %in% FDRs[[s]])
     } else if (s == 4) {
-      ind <- which(Final_DRs2 %in% FDRs)
+      ind <- which(Final_DRs2 %in% FDRs[[s]])
     }
     
-    # pull colors out for scenarios that are not 'None'
-    if (folders[f] != 'None') { new_colors <- colors[ind]
-    } else { new_colors <- colors }
-    
     # process DF
-    levels(DF$Scenario) <- c('24 Transects', '36 Transects')
+    DF$Scenario <- factor(DF$Scenario, levels = scenarios)
     DF$Metric <- factor(DF$Metric, levels = metrics)
-    DF$FDR <- as.factor(DF$FDR)
-    DF$Type <- as.factor(DF$Type)
-    new_DF <- subset(DF, FDR %in% FDRs)
+    DF$FDR <- factor(DF$FDR)
+    DF$Type <- factor(DF$Type, levels = types)
+    new_DF <- subset(DF, FDR %in% FDRs[[s]])
     
     ##### plot panels #####
     final_plot <- ggplot(data = new_DF, aes(x = Year, y = Value, color = FDR, 
@@ -194,6 +184,7 @@ for (s in 1:length(species_list)) {
       geom_line(position = position_jitter(w = 0, h = jitter_height)) +
       scale_color_manual(values = new_colors) +
       geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
+      theme_bw() +
       facet_grid(Metric ~ Scenario, scales = 'free') +
       xlab('Years since reserve implemented') +
       labs(color = expression('D'[final]), linetype = 'Type')
@@ -201,15 +192,14 @@ for (s in 1:length(species_list)) {
     final_plot <- tag_facet(final_plot)
     final_plot <- final_plot +
       theme(strip.text = element_text(), strip.background = element_rect())
-      
-      
+    
+    name_pt1 <- ifelse(v == 1, 'dfinal_composite_', 'transient_composite_')
+    
     # save plot
     ggsave(final_plot,
-           filename = paste(Names[s], '_composite_relative.png', sep = ''),
-           path = paste('~/Documents/MS-thesis/figures/', folders[f], '/', 
-                        sep = ''),
+           filename = paste(name_pt1, Names[s], '.png', sep = ''),
+           path = '~/Documents/MS-thesis/figures/viridis/',
            width = png_width, height = png_height)
-    
   }
   
 }
