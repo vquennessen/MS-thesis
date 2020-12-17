@@ -12,8 +12,6 @@ library(densityratio)
 ###############################################################################
 # CHECK THESE EVERY TIME
 folder <- 'None'
-FDRs1 <- c(0.6, 0.9)
-FDRs2 <- c(0.4, 0.9)
 cluster <- FALSE
 png_width <- 4
 png_height <- 6
@@ -67,10 +65,8 @@ base2 <- data.frame(Type = rep(types, each = nF2*nT),
                     Lower = rep(NA, 2*nF2*nT), 
                     Upper = rep(NA, 2*nF2*nT))
 
-# for (s in 1:length(species_list)) {
+for (s in 1:length(species_list)) {
 
-for (s in 2:2) {
-  
   # load biomass, yield, and effort files
   if (cluster == TRUE) {
     load(paste('~/Documents/MS-thesis/data/', folder, '/', 
@@ -151,35 +147,12 @@ for (s in 2:2) {
   
   ##### plotting parameters #####
   jitter_height <- 0
+  og_colors <- rev(viridis(max(c(nF1, nF2)) + 1))
   if (s != 4) {
-    colors <- c("#00BA38", "#00BFC4", "#619CFF", "#F564E3")
+    new_colors <- og_colors[(nF2 - nF1 + 2):(nF2 + 1)]
   } else {
-    colors <- c("#F8766D", "#B79F00", "#00BA38", "#00BFC4", "#619CFF", "#F564E3")
+    new_colors <- og_colors[2:(nF2 + 1)]
   }
-  
-  # set FDRs for minimum and maximum biomass and yields and extract indices to 
-  # get colors
-  if (s == 4) { 
-    FDRs <- FDRs2
-    ind <- which(Final_DRs2 %in% FDRs)
-  } else { 
-    FDRs <- FDRs1
-    ind <- which(Final_DRs1 %in% FDRs)
-  }
-  
-  # pull colors out for scenarios that are not 'None'
-  if (folder != 'None') {
-    new_colors <- colors[ind]
-    BIOMASS <- subset(BIOMASS, FDR %in% FDRs)
-    YIELD <- subset(YIELD, FDR %in% FDRs)
-    EFFORT <- subset(EFFORT, FDR %in% FDRs)
-  } else {
-      new_colors <- colors}
-  
-  ##### single dfinal value plot #####
-  BIOMASS <- subset(BIOMASS, FDR == 0.9)
-  YIELD <- subset(YIELD, FDR == 0.9)
-  EFFORT <- subset(EFFORT, FDR == 0.9)
 
   ##### plot total biomass #####
   biomass <- ggplot(data = BIOMASS, aes(x = Year, y = Value, 
@@ -189,12 +162,12 @@ for (s in 2:2) {
                     colour = NA), show.legend = FALSE) +
     scale_fill_manual(values = alpha(c(new_colors), alfa)) +
     geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-    # scale_color_manual(values = new_colors) +
-    scale_color_manual(values = "#F564E3") +
+    scale_color_manual(values = new_colors) +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
     ylab('Relative biomass') +
     theme(axis.title.x = element_blank()) +
     labs(tag = 'a') +
+    theme_bw() +
     theme(legend.position = 'none')
   
   ##### plot total yield #####
@@ -204,13 +177,14 @@ for (s in 2:2) {
                     colour = NA), show.legend = FALSE) +
     scale_fill_manual(values = alpha(c(new_colors), alfa)) +
     geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-    # scale_color_manual(values = new_colors) +
-    scale_color_manual(values = "#F564E3") +
+    scale_color_manual(values = new_colors) +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
     ylab('Relative yield') +
-    theme(legend.position = 'none') +
+    theme(axis.title.x = element_blank()) +
     labs(tag = 'b') +
-    theme(axis.title.x = element_blank())
+    theme_bw() +
+    theme(legend.position = 'none')
+    
   
   ##### plot total effort #####
   effort <- ggplot(data = EFFORT, aes(x = Year, y = Value, 
@@ -220,34 +194,29 @@ for (s in 2:2) {
                     colour = NA), show.legend = FALSE) +
     scale_fill_manual(values = alpha(c(new_colors), alfa)) +
     geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-    # scale_color_manual(values = new_colors) +
-    scale_color_manual(values = "#F564E3") +
+    scale_color_manual(values = new_colors) +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
     ylab('Relative effort') +
     xlab('Years since reserve implemented') +
     labs(color = expression('D'[final]), linetype = 'Type', tag = 'c') +
+    theme_bw() +
     theme(plot.margin = unit(c(0, 70, 0, 0), 'pt')) +
-    theme(legend.position = c(1.22, 1.5)) + 
+    theme(legend.position = c(1.24, 2)) + 
     guides(color = guide_legend(order = 1), linetype = guide_legend(order = 2))
   
   ##### patch all the figures together #####
   patch <- biomass / yield / effort
 
-  # if (cluster == TRUE) {
-  #   ggsave(patch, 
-  #          filename = paste(Names[s], '_relative.png', sep = ''),
-  #          path = paste('~/Documents/MS-thesis/figures/', folder, sep = ''),
-  #          width = png_width, height = png_height)
-  #   
-  # } else {
-  #   ggsave(patch, filename = paste(Names[s], '_relative.png', sep = ''),
-  #          path = paste('C:/Users/Vic/Box/Quennessen_Thesis/figures/', 
-  #                       folder, '/relative', sep = ''),
-  #          width = png_width, height = png_height)
-  # }
-  # 
-  
-  ggsave(patch, filename = paste(Names[s], '_relative_Dfinal09.png', sep = ''),
-         path = 'C:/Users/Vic/Box/Quennessen_Thesis/presentations/MS defense', 
-         width = png_width, height = png_height)
+  if (cluster == TRUE) {
+    ggsave(patch,
+           filename = paste('relative_', Names[s], '.png', sep = ''),
+           path = paste('~/Documents/MS-thesis/figures/', folder, sep = ''),
+           width = png_width, height = png_height)
+
+  } else {
+    ggsave(patch, filename = paste('relative_', Names[s], '.png', sep = ''),
+           path = 'C:/Users/Vic/Box/Quennessen_Thesis/publication manuscript/viridis figures/',
+           width = png_width, height = png_height)
+  }
+
 }
