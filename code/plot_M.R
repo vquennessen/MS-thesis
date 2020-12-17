@@ -195,10 +195,12 @@ for (y in 1:nY) {
     names(panel.labels) <- c('Biomass', 'Yield')
     
     # plotting parameters
-    if (s == 4) {
-      colors <- c("#F8766D", "#B79F00", "#00BA38", "#00BFC4", 
-                  "#619CFF", "#F564E3")
-    } else { colors <- c("#00BA38", "#00BFC4", "#619CFF", "#F564E3") }
+    og_colors <- rev(viridis(max(c(nF1, nF2)) + 1))
+    if (s != 4) {
+      new_colors <- og_colors[(nF2 - nF1 + 2):(nF2 + 1)]
+    } else {
+      new_colors <- og_colors[2:(nF2 + 1)]
+    }
     
     # plot relative results
     thing1 <- ggplot(new_DF, aes(x = Estimate, y = Value, color = FDR, 
@@ -207,8 +209,9 @@ for (y in 1:nY) {
       geom_point(position = position_jitter(w = 0.25, h = 0), size = 3, stroke = 1) +
       scale_shape_manual(values = c(16, 17, 1, 2), 
                          labels = c('Static', 'Static', 'Transient', 'Transient')) +
-      scale_color_manual(values = colors, guide = FALSE) +
+      scale_color_manual(values = new_colors, guide = FALSE) +
       ylab('Median relative value') +
+      theme_bw() +
       theme(axis.title.x = element_blank()) +
       labs(shape = 'Type', color = expression('D'[final])) +
       facet_grid(cols = vars(Metric), labeller = labeller(Metric = panel.labels))
@@ -228,9 +231,10 @@ for (y in 1:nY) {
       geom_hline(yintercept = 0, linetype = 2) +
       geom_point(position = position_jitter(w = 0.3, h = 0), size = 3, stroke = 1) +
       scale_shape_manual(values = c(1, 2), guide = FALSE) +
-      scale_color_manual(values = colors) +
+      scale_color_manual(values = new_colors) +
       ylab('Median difference') +
       xlab('Estimate of natural mortality (M)') +
+      theme_bw() +
       labs(shape = 'Difference \n Metric', color = expression('D'[final])) +
       guides(color = guide_legend(order = 1)) +
       facet_grid(cols = vars(Metric), labeller = labeller(Metric = panel.labels))
@@ -245,10 +249,8 @@ for (y in 1:nY) {
              width = png_width, height = png_height)
       
     } else {
-      ggsave(final_plot, filename = paste(Names[s], '_year', Years[y], 
-                                      '_M.png', sep = ''),
-             path = paste('C:/Users/Vic/Box/Quennessen_Thesis/figures/', 
-                          folder, sep = ''),
+      ggsave(final_plot, filename = paste('M_', Names[s], '_year', Years[y], '.png', sep = ''),
+             path = 'C:/Users/Vic/Box/Quennessen_Thesis/publication manuscript/viridis figures/',
              width = png_width, height = png_height)
     }
     
