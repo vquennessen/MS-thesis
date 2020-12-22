@@ -79,7 +79,7 @@ for (s in 1:length(Names)) {
   # pull out sample sims as sums across all areas for particular years, but 
   # only for correct M value
   B_sample   <- colSums(sims_biomass[, , c(1, 4), , ]) 
-  Y_sample <- sims_yield[, c(1, 4), , ]
+  Y_sample <- sims_yield[, c(1, 2), , ]
   
   # initialize relative arrays
   Rel_biomass <- array(rep(0, nY*nTy*nF*num_sims), c(nY, nTy, nF, num_sims))
@@ -160,7 +160,6 @@ w_jitter <- 0.3
 # legend position coordinates
 x.legend <- 1.25
 y.legend <- 1
-
 
 ##### mean figure #####
 
