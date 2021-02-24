@@ -13,12 +13,12 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
     Transects = 24
     Recruitment_Var = FALSE
     
-  } else if (Scenario == 'New.Sampling.LowT') {
+  } else if (Scenario == 'Sampling.LowT') {
     Sampling_Var = TRUE
     Transects = 12
     Recruitment_Var = FALSE
     
-  } else if (Scenario == 'New.Sampling') {
+  } else if (Scenario == 'Sampling') {
     Sampling_Var = TRUE
     Transects = 24
     Recruitment_Var = FALSE
@@ -38,7 +38,7 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
     Transects = 12
     Recruitment_Var = TRUE
     
-  } else if (Scenario == 'New.Both' | Scenario == 'Variance') {
+  } else if (Scenario == 'Both' | Scenario == 'Variance') {
     Sampling_Var = TRUE
     Transects = 24
     Recruitment_Var = TRUE
@@ -72,7 +72,7 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
   A = 5
   MPA = 3
   Time1 = 50
-  Time2 = 20
+  Time2 = 200
   TimeT = Time1 + Time2
   Recruitment_mode = 'pool'
   Surveys = TRUE
