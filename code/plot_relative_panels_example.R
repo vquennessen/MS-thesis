@@ -16,7 +16,7 @@ folder <- 'None'
 FDRs1 <- c(0.9)
 cluster <- FALSE
 png_width <- 4
-png_height <- 6
+png_height <- 7
 y1 <- 0.25
 y2 <- 1.5
 y1.1 <- 0.95
@@ -129,13 +129,6 @@ for (ty in 1:2) {
 
 ##### plotting parameters #####
 jitter_height <- 0
-og_colors <- rev(viridis(7))
-new_colors <- og_colors[4:7]
-
-# set FDRs for minimum and maximum biomass and yields and extract indices to 
-# get colors
-ind <- which(Final_DRs1 == FDRs1)
-new_colors <- colors[ind]
 
 ##### single dfinal value plot #####
 BIOMASS <- subset(BIOMASS, FDR == 0.9)
@@ -145,13 +138,8 @@ DR <- subset(DR, FDR == 0.9)
 
 ##### plot total biomass #####
 biomass <- ggplot(data = BIOMASS, aes(x = Year, y = Value, 
-                                      color = as.factor(FDR), 
                                       linetype = as.factor(Type))) +
-  geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR),
-                  colour = NA), show.legend = FALSE) +
-  scale_fill_manual(values = alpha(c(new_colors), alfa)) +
-  geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-  scale_color_manual(values = new_colors) +
+  geom_line(position = position_jitter(w = 0, h = jitter_height), size = 1) +
   geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
   ylab('Relative biomass') +
   theme_bw() +
@@ -160,13 +148,9 @@ biomass <- ggplot(data = BIOMASS, aes(x = Year, y = Value,
   annotate('text', x = 0, y = 1.21, label = 'a')
 
 ##### plot total yield #####
-yield <- ggplot(data = YIELD, aes(x = Year, y = Value, color = as.factor(FDR), 
+yield <- ggplot(data = YIELD, aes(x = Year, y = Value,
                                   linetype = as.factor(Type))) +
-  geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR),
-                  colour = NA), show.legend = FALSE) +
-  scale_fill_manual(values = alpha(c(new_colors), alfa)) +
-  geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-  scale_color_manual(values = new_colors) +
+  geom_line(position = position_jitter(w = 0, h = jitter_height), size = 1) +
   geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
   ylab('Relative yield') +
   theme_bw() +
@@ -176,13 +160,8 @@ yield <- ggplot(data = YIELD, aes(x = Year, y = Value, color = as.factor(FDR),
 
 ##### plot total effort #####
 effort <- ggplot(data = EFFORT, aes(x = Year, y = Value, 
-                                    color = as.factor(FDR), 
                                     linetype = as.factor(Type))) +
-  geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR),
-                  colour = NA), show.legend = FALSE) +
-  scale_fill_manual(values = alpha(c(new_colors), alfa)) +
-  geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-  scale_color_manual(values = new_colors) +
+  geom_line(position = position_jitter(w = 0, h = jitter_height), size = 1) +
   geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
   ylab('Relative effort') +
   theme_bw() +
@@ -197,28 +176,22 @@ targets <- 1 - (1 - FDRs1[1])*(1 - exp(-1 * M * years))
 transients <- data.frame(Year = years, Target = targets)
 
 ##### plot total density ratio #####
-dr <- ggplot(data = DR, aes(x = Year, y = Value, color = as.factor(FDR), 
-                            linetype = as.factor(Type))) +
-  geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR),
-                  colour = NA), show.legend = FALSE) +
-  scale_fill_manual(values = alpha(c(new_colors), alfa)) +
-  geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-  scale_color_manual(values = new_colors) +
-  geom_line(data = transients, aes(x = Year, y = Target), linetype = 'dotted', 
-            color = 'black') +
-  geom_hline(yintercept = 0.9, size = 0.25) +
+dr <- ggplot(data = DR, aes(x = Year, y = Value, linetype = as.factor(Type))) +
+  geom_hline(yintercept = 0.9, size = 0.75, color = 'gray30') +
+  geom_line(data = transients, aes(x = Year, y = Target), linetype = 'dashed', 
+            color = 'gray30', size = 0.75) + 
+  geom_line(position = position_jitter(w = 0, h = jitter_height), size = 1) +
   ylab('Density ratio') +
   xlab('Years since reserve implemented') +
-  labs(color = expression('D'[final]), linetype = 'Type') +
+  labs(linetype = 'Type of Control Rule') +
   theme_bw() +
-  theme(plot.margin = unit(c(0, 70, 0, 0), 'pt')) +
-  theme(legend.position = c(1.22, 2.28)) + 
-  guides(color = guide_legend(order = 1), linetype = guide_legend(order = 2)) +
+  # theme(plot.margin = unit(c(0, 70, 0, 0), 'pt')) +
+  theme(legend.position = 'bottom') + # c(1.22, 2.28)) + 
   annotate('text', x = 0, y = 1.07, label = 'd')
 
 ##### patch all the figures together #####
 patch <- biomass / yield / effort / dr
 
 ggsave(patch, filename = paste(Names[1], '_example_Dfinal09.png', sep = ''),
-       path = 'C:/Users/Vic/Box/Quennessen_Thesis/presentations/WSN 2020/',
+       path = 'C:/Users/Vic/Box/Quennessen_Thesis/MS Thesis/publication manuscript/figures',
        width = png_width, height = png_height)
