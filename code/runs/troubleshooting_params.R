@@ -1,10 +1,10 @@
-Species = 'CAB_OR_2019'
+Species = 'CR_OR_2015'
 
-Final_DRs <- c(0.6, 0.8)
+Final_DRs <- c(0.6)
 
-Sampling_Error = FALSE
+Sampling_Var = TRUE
 Transects = 24
-Stochasticity = FALSE
+Recruitment_Var = FALSE
 M_Error = 0.05
 Output.N = TRUE
 Output.Abundance = TRUE
@@ -20,7 +20,7 @@ R0 = 1e+5
 A = 5
 MPA = 3
 Time1 = 50
-Time2 = 20
+Time2 = 200
 Recruitment_mode = 'pool'
 Surveys = TRUE
 Fishery_management = TRUE
