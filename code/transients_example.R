@@ -16,10 +16,11 @@ y2 <- 1.5
 
 # species to compare
 species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
-species_names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
+species_names <- c('Canary \n Rockfish \n', 'Black \n Rockfish \n', 'Lingcod', 
+                   'Cabezon')
 nS <- length(species_list)
 
-TimeT <- 20
+TimeT <- 100
 years <- 0:TimeT
 nT <- length(years)
 
@@ -98,20 +99,23 @@ dfinal <- expression('D'[final])
 #   labs(size = 'Control Rule \n Type', 
 #        linetype = 'Estimate of \n Natural \n Mortality')
 
-example <- ggplot(data = DF, aes(x = Time, y = Target, color = Type,
+# only transient lines
+DF_transient <- subset(DF, Type == 'Transient')
+
+example <- ggplot(data = DF_transient, aes(x = Time, y = Target,
                                  linetype = Species)) +
-  geom_line(size = 1) +
-  ylab('Target Density Ratio \n Dfinal value: 0.6') +
+  geom_line(size = 2) +
   xlab('Years Since Reserve Implementation') +
   scale_linetype_manual(values = c('solid', 'dotdash', 'dotted', 'dashed')) +
-  scale_color_manual(values = c('grey50', 'black')) +
-  ylim(0.6, 1) +
-  theme_bw() +
+  # scale_color_manual(values = c('grey50', 'black')) +
+  # scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1)) +
+  theme_classic() +
   scale_size(range = 1, guide = FALSE) +
   labs(linetype = 'Species', color = 'Type of \n Control Rule') +
-  theme(legend.key.width = unit(1.5, 'cm')) +
-  guides(linetype = guide_legend(override.aes = list(size = 1)))
+  theme(legend.key.width = unit(1, 'cm')) +
+  guides(linetype = guide_legend(override.aes = list(size = 1))) +
+  theme(axis.title.y = element_blank())
 
 ggsave(example, filename = 'transients_example.png', 
        path = 'C:/Users/Vic/Box/Quennessen_Thesis/MS Thesis/publication manuscript/figures',
-       width = 7, height = 4)
+       width = 20, height = 10)
