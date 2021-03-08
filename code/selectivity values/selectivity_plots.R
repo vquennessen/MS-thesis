@@ -2,6 +2,8 @@
 
 library(densityratio)
 library(ggplot2)
+library(patchwork)
+library(egg)
 
 ###### canary rockfish #####
 
@@ -26,15 +28,7 @@ S1 <- selectivity(Rec_age, Max_age, A1, L1, A2, L2, K, Fleets,A50_up, A50_down,
 ages <- Rec_age:Max_age
 
 DF1 <- data.frame(Age = ages, Selectivity = S1)
-
-G1 <- ggplot(DF1, aes(x = Age, y = Selectivity)) +
-  geom_line() +
-  # ggtitle('Selectivity at Age for Canary Rockfish') +
-  ylim(values = c(0, 1)) 
-
-ggsave('Selectivity_CR.png', G1, 
-       path = 'C:/Users/Vic/Box/Quennessen_Thesis/ch. 1 manuscript', 
-       width = 4, height = 3)
+DF1$Species <- 'Canary Rockfish'
 
 ###### black rockfish #####
 
@@ -61,15 +55,7 @@ S2 <- selectivity(Rec_age, Max_age, A1, L1, A2, L2, K, Fleets,A50_up, A50_down,
 ages <- Rec_age:Max_age
 
 DF2 <- data.frame(Age = ages, Selectivity = S2)
-
-G2 <- ggplot(DF2, aes(x = Age, y = Selectivity)) +
-  geom_line() +
-  # ggtitle('Selectivity at Age for Black Rockfish') + 
-  ylim(values = c(0, 1))
-
-ggsave('Selectivity_BR.png', G2, 
-       path = 'C:/Users/Vic/Box/Quennessen_Thesis/ch. 1 manuscript', 
-       width = 4, height = 3)
+DF2$Species <- 'Black Rockfish'
 
 ##### lingcod #####
 
@@ -94,15 +80,7 @@ S3 <- selectivity(Rec_age, Max_age, A1, L1, A2, L2, K, Fleets,A50_up, A50_down,
 ages <- Rec_age:Max_age
 
 DF3 <- data.frame(Age = ages, Selectivity = S3)
-
-G3 <- ggplot(DF3, aes(x = Age, y = Selectivity)) +
-  geom_line() +
-  # ggtitle('Selectivity at Age for Lingcod') +
-  ylim(values = c(0, 1))
-
-ggsave('Selectivity_LING.png', G3, 
-       path = 'C:/Users/Vic/Box/Quennessen_Thesis/ch. 1 manuscript', 
-       width = 4, height = 3)
+DF3$Species <- 'Lingcod'
 
 ##### cabezon #####
 
@@ -127,12 +105,20 @@ S4 <- selectivity(Rec_age, Max_age, A1, L1, A2, L2, K, Fleets,A50_up, A50_down,
 ages <- Rec_age:Max_age
 
 DF4 <- data.frame(Age = ages, Selectivity = S4)
+DF4$Species <- 'Cabezon'
 
-G4 <- ggplot(DF4, aes(x = Age, y = Selectivity)) +
+# combine dataframes
+DF <- rbind(DF1, DF2, DF3, DF4)
+
+g1 <- ggplot(data = DF, aes(x = Age, y = Selectivity)) +
   geom_line() +
-  # ggtitle('Selectivity at Age for Cabezon') +
-  ylim(values = c(0, 1))
+  facet_wrap(facets = vars(Species), nrow = 2, ncol = 2, scales = 'free') +
+  coord_cartesian(ylim = c(0, 1))
 
-ggsave('Selectivity_CAB.png', G4, 
-       path = 'C:/Users/Vic/Box/Quennessen_Thesis/ch. 1 manuscript', 
-       width = 4, height = 3)
+# add tag labels to each facet
+g2 <- tag_facet(g1, vjust = 1.15)
+
+# save figure
+ggsave('Selectivity_plots.png', g2, 
+       path = 'C:/Users/Vic/Box/Quennessen_Thesis/MS Thesis/publication manuscript/figures', 
+       width = 6, height = 5)
