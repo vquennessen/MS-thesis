@@ -231,7 +231,7 @@ ggsave(mean_plot, filename = paste('cumulative_mean_plot.png', sep = ''),
 
 ##### standard deviation figure #####
 
-# plot cumulative mean biomass year 5
+# plot cumulative SD biomass year 5
 thing5 <- ggplot(bio_short, aes(x = Species, y = SD, color = FDR, 
                                 shape = Type)) +
   geom_point(position = position_jitter(w = w_jitter, h = 0), stroke = 1, 
@@ -239,12 +239,12 @@ thing5 <- ggplot(bio_short, aes(x = Species, y = SD, color = FDR,
   ggtitle('(a) Biomass: 5 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
-  ylab('relative biomass: mean') +
+  ylab('relative biomass: standard deviation') +
   theme_bw() +
   theme(axis.title.x = element_blank()) +
   theme(legend.position = 'none')
 
-# plot cumulative mean yield year 5
+# plot cumulative SD yield year 5
 thing6 <- ggplot(yield_short, aes(x = Species, y = SD, color = FDR, 
                                   shape = Type)) +
   geom_point(position = position_jitter(w = w_jitter, h = 0), stroke = 1, 
@@ -252,12 +252,12 @@ thing6 <- ggplot(yield_short, aes(x = Species, y = SD, color = FDR,
   ggtitle('(c) Yield: 5 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
-  ylab('relative yield: mean') +
+  ylab('relative yield: standard deviation') +
   theme_bw() +
   theme(axis.title.x = element_blank()) +
   theme(legend.position = 'none')
 
-# plot cumulative mean biomass year 20
+# plot cumulative SD biomass year 20
 thing7 <- ggplot(bio_long, aes(x = Species, y = SD, color = FDR, 
                                shape = Type)) +
   geom_point(position = position_jitter(w = w_jitter, h = 0), size = 3, 
@@ -270,7 +270,7 @@ thing7 <- ggplot(bio_long, aes(x = Species, y = SD, color = FDR,
   theme(axis.title.y = element_blank()) +
   theme(legend.position = 'none')
 
-# plot cumulative mean yield year 20
+# plot cumulative SD yield year 20
 thing8 <- ggplot(yield_long, aes(x = Species, y = SD, color = FDR, 
                                  shape = Type)) +
   geom_point(position = position_jitter(w = w_jitter, h = 0), size = 3, 
