@@ -52,4 +52,4 @@ fig2 <- tag_facet(fig1, vjust = 2.5) +
 
 ggsave(fig2, file = 'proportions_transient_greater.png', 
        path = 'C:/Users/Vic/Box/Quennessen_Thesis/MS Thesis/publication manuscript/viridis figures',
-       width = 5, heigh = 6)
+       width = 5, height = 6)
