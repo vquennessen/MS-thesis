@@ -177,9 +177,9 @@ transients <- data.frame(Year = years, Target = targets)
 
 ##### plot total density ratio #####
 dr <- ggplot(data = DR, aes(x = Year, y = Value, linetype = as.factor(Type))) +
-  geom_hline(yintercept = 0.9, size = 0.75, color = 'gray30') +
+  geom_hline(yintercept = 0.9, size = 0.75, color = 'gray60') +
   geom_line(data = transients, aes(x = Year, y = Target), linetype = 'dashed', 
-            color = 'gray30', size = 0.75) + 
+            color = 'gray60', size = 0.75) + 
   geom_line(position = position_jitter(w = 0, h = jitter_height), size = 1) +
   ylab('Density ratio') +
   xlab('Years since reserve implemented') +
