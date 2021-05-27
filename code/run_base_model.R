@@ -13,41 +13,22 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
     Transects = 24
     Recruitment_Var = FALSE
     
-  } else if (Scenario == 'Sampling.LowT') {
-    Sampling_Var = TRUE
-    Transects = 12
-    Recruitment_Var = FALSE
-    
-  } else if (Scenario == 'Sampling') {
+    } else if (Scenario == 'Sampling') {
     Sampling_Var = TRUE
     Transects = 24
     Recruitment_Var = FALSE
     
-  } else if (Scenario == 'Sampling.HighT') {
-    Sampling_Var = TRUE
-    Transects = 36
-    Recruitment_Var = FALSE
-    
-  } else if (Scenario == 'Recruitment') {
+   } else if (Scenario == 'Recruitment') {
     Sampling_Var = FALSE
     Transects = 24
     Recruitment_Var = TRUE
     
-  } else if (Scenario == 'Both.LowT') {
-    Sampling_Var = TRUE
-    Transects = 12
-    Recruitment_Var = TRUE
-    
-  } else if (Scenario == 'Both' | Scenario == 'Variance') {
+    } else if (Scenario == 'Both' | Scenario == 'Variance') {
     Sampling_Var = TRUE
     Transects = 24
     Recruitment_Var = TRUE
     
-  } else if (Scenario == 'Both.HighT') {
-    Sampling_Var = TRUE
-    Transects = 36
-    Recruitment_Var = TRUE
-  } 
+    } 
   
   # set arguments
   if (Scenario != 'Variance') {
@@ -58,7 +39,8 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
     Output.Yield = TRUE
     Output.Effort = TRUE
     Output.Density.Ratio = TRUE
-  } else {
+  
+    } else {
     Output.N = FALSE
     Output.Abundance = FALSE
     Output.Biomass = TRUE
@@ -74,7 +56,7 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
   Time1 = 50
   Time2 = 200
   TimeT = Time1 + Time2
-  Recruitment_mode = 'pool'
+  Recruitment_mode = 'regional_DD'
   Surveys = TRUE
   Fishery_management = TRUE
   Fishing = TRUE
