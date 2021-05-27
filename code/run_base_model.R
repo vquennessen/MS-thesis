@@ -1,9 +1,6 @@
 run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
   
-  library(remotes)
-  remotes::install_github('vquennessen/densityratio')
-  library(densityratio)
-  
+  # add start time to progress.txt file to track progress of runs
   start_time <- paste('Start time: ', Sys.time(), ' - ', Scenario, ' - ', 
                       Species, ': ', num_sims, ' sims', sep = '')
   write(start_time, file = 'progress.txt', append = TRUE)
