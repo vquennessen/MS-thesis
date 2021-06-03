@@ -16,17 +16,17 @@ Scenario = 'None'
 lapply(species_list_1, run_base_model, num_sims = 1, Scenario, Final_DRs_1)
 lapply(species_list_2, run_base_model, num_sims = 1, Scenario, Final_DRs_2)
 
-Scenario = 'Recruitment'
-
-lapply(species_list_1, run_base_model, num_sims = 1, Scenario, Final_DRs_1)
-lapply(species_list_2, run_base_model, num_sims = 1, Scenario, Final_DRs_2)
-
-Scenario = 'Sampling'
-
-lapply(species_list_1, run_base_model, num_sims = 1, Scenario, Final_DRs_1)
-lapply(species_list_2, run_base_model, num_sims = 1, Scenario, Final_DRs_2)
-
-Scenario = 'Both'
-
-lapply(species_list_1, run_base_model, num_sims = 1, Scenario, Final_DRs_1)
-lapply(species_list_2, run_base_model, num_sims = 1, Scenario, Final_DRs_2)
+# Scenario = 'Recruitment'
+# 
+# lapply(species_list_1, run_base_model, num_sims = 1, Scenario, Final_DRs_1)
+# lapply(species_list_2, run_base_model, num_sims = 1, Scenario, Final_DRs_2)
+# 
+# Scenario = 'Sampling'
+# 
+# lapply(species_list_1, run_base_model, num_sims = 1, Scenario, Final_DRs_1)
+# lapply(species_list_2, run_base_model, num_sims = 1, Scenario, Final_DRs_2)
+# 
+# Scenario = 'Both'
+# 
+# lapply(species_list_1, run_base_model, num_sims = 1, Scenario, Final_DRs_1)
+# lapply(species_list_2, run_base_model, num_sims = 1, Scenario, Final_DRs_2)
