@@ -26,7 +26,7 @@ species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
 Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
 
 # determine num_sims based on data folder
-num_sims <- 3
+num_sims <- 1
 
 # set variables
 A = 5
@@ -98,7 +98,7 @@ for (s in 1:length(Names)) {
   ##### relative biomass and median, upper, and lower limits  #####
   
   # pull out sample sims as sums across all areas for particular years
-  B_sample   <- colSums(sims_biomass) 
+  B_sample <- colSums(sims_biomass) 
   Y_sample <- sims_yield
   
   # initialize relative arrays
@@ -245,7 +245,7 @@ for (s in 1:length(Names)) {
   
   # save results to figures folder
   ggsave(final_plot, filename = paste('cumulative_M_', Names[s], '.png', sep = ''),
-         path = 'C:/Users/Vic/Box/Quennessen_Thesis/MS thesis/publication manuscript/viridis figures',
+         path = 'C:/Users/Vic/Box/Quennessen_Thesis/MS thesis/publication manuscript/figures',
          width = png_width, height = png_height)
   
 }
