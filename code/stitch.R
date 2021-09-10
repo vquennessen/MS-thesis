@@ -1,8 +1,9 @@
 stitch <- function(Scenario, x, y) {
   
   library(abind)
-  species_list = c('LING_OW_2017', 'CR_OR_2015', 'BR_OR_2015', 'CAB_OR_2019')
-
+  species_list = c('CR_OR_2015', 'LING_OW_2017', 'BR_OR_2015', 'CAB_OR_2019')
+  # species_list = c('CAB_OR_2019')
+  
   for (s in 1:length(species_list)) {
     
     Species = species_list[s]
