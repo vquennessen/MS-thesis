@@ -119,7 +119,7 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
       sims_abundance[, , , , i] <- output$Abundance
     }
     
-    if (i %% (num_sims/10) == 0) {
+    if ((i/num_sims*100) %% 10 == 0) {
       update <- paste(Sys.time(), ' - ', Species, ' - ', i/num_sims*100, 
                       '% done!', sep = '')
       write(update, file = 'progress.txt', append = TRUE)
