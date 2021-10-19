@@ -13,7 +13,7 @@ library(viridisLite)
 ###############################################################################
 # CHECK THESE EVERY TIME
 Years <- 1:20
-png_width <- 8
+png_width <- 9
 png_height <- 6
 ###############################################################################
 
@@ -22,7 +22,7 @@ species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
 Names <- c('Canary \n Rockfish', 'Black \n Rockfish', 'Lingcod', 'Cabezon')
 
 # determine num_sims based on data folder
-num_sims <- 3
+num_sims <- 1
 
 # set variables
 A = 5
@@ -90,10 +90,10 @@ for (s in 1:length(Names)) {
     for (fdr in 1:nF) {
       for (y in 1:nY) {
         for (sim in 1:num_sims) {
-          Rel_biomass[y, ty, fdr, sim] <- B_sample[y + 1, ty, fdr, sim] / 
-            B_sample[1, ty, fdr, sim]
-          Rel_yield[y, ty, fdr, sim] <- Y_sample[y + 1, ty, fdr, sim] / 
-            Y_sample[1, ty, fdr, sim]
+          Rel_biomass[y, ty, fdr, sim] <- B_sample[y + 1, ty, fdr] / 
+            B_sample[1, ty, fdr]
+          Rel_yield[y, ty, fdr, sim] <- Y_sample[y + 1, ty, fdr] / 
+            Y_sample[1, ty, fdr]
         }
       }
     }
@@ -224,9 +224,9 @@ thing4 <- ggplot(yield_long, aes(x = Species, y = Mean, color = FDR,
 mean_plot <- (thing1 + thing3) / (thing2 + thing4)
 
 # save results to figures folder
-ggsave(mean_plot, filename = paste('cumulative_mean_plot.png', sep = ''),
-       path = paste('C:/Users/Vic/Box/Quennessen_Thesis/MS Thesis/', 
-                    'publication manuscript/viridis figures', sep = ''),
+ggsave(mean_plot, filename = paste('fig4_cumulative_mean.png', sep = ''),
+       path = paste('C:/Users/vique/Box Sync/Quennessen_Thesis/MS Thesis/', 
+                    'publication manuscript/figures', sep = ''),
        width = png_width, height = png_height)
 
 ##### standard deviation figure #####
@@ -288,8 +288,8 @@ thing8 <- ggplot(yield_long, aes(x = Species, y = SD, color = FDR,
 sd_plot <- (thing5 + thing7) / (thing6 + thing8)
 
 # save results to figures folder
-ggsave(sd_plot, filename = paste('cumulative_sd_plot.png', sep = ''),
-       path = paste('C:/Users/Vic/Box/Quennessen_Thesis/MS Thesis/', 
-                    'publication manuscript/viridis figures', sep = ''),
+ggsave(sd_plot, filename = paste('fig5_cumulative_SD.png', sep = ''),
+       path = paste('C:/Users/vique/Box Sync/Quennessen_Thesis/MS Thesis/', 
+                    'publication manuscript/figures', sep = ''),
        width = png_width, height = png_height)
 
