@@ -31,6 +31,7 @@ png_height <- 6
 # species to compare
 species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
 Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
+titles <- c('figS1_', 'fig3_', 'figS2_', 'figS3_')
 
 # determine num_sims based on data folder
 num_sims <- ifelse(folder == 'None', 3, 
@@ -48,8 +49,7 @@ types <- c('Static', 'Transient')
 metrics <- c('Biomass', 'Yield', 'Effort')
 
 # dimensions
-sample_size = num_sims
-
+num_sims <- 1
 nT <- Time2 + 1
 nC <- length(Control_rules)
 nS <- length(species_list)
@@ -102,22 +102,19 @@ for (s in 1:length(species_list)) {
   E_sample <- sims_effort
   
   # initialize relative arrays
-  Rel_biomass <- array(rep(0, nT*nC*nF*num_sims), c(nT, nC, nF, num_sims))
-  Rel_yield   <- array(rep(0, nT*nC*nF*num_sims), c(nT, nC, nF, num_sims))
-  Rel_effort  <- array(rep(0, nT*nC*nF*num_sims), c(nT, nC, nF, num_sims))
+  Rel_biomass <- array(rep(0, nT*nC*nF), c(nT, nC, nF))
+  Rel_yield   <- array(rep(0, nT*nC*nF), c(nT, nC, nF))
+  Rel_effort  <- array(rep(0, nT*nC*nF), c(nT, nC, nF))
   
   # calculate relative arrays after reserve implementation
   for (cr in 1:nC) {
     for (fdr in 1:nF) {
-      for (sim in 1:num_sims) {
-        Rel_biomass[, cr, fdr, sim] <- B_sample[, cr, fdr, sim] / 
-          B_sample[1, cr, fdr, sim]
-        Rel_yield[, cr, fdr, sim] <- Y_sample[, cr, fdr, sim] / 
-          Y_sample[1, cr, fdr, sim]
-        Rel_effort[, cr, fdr, sim] <- E_sample[Time1:(Time1 + Time2), 
-                                               cr, fdr, sim] / 
-          E_sample[1, cr, fdr, sim]
-      }
+      Rel_biomass[, cr, fdr] <- B_sample[1:nT, cr, fdr, 1] / 
+        B_sample[1, cr, fdr, 1]
+      Rel_yield[, cr, fdr] <- Y_sample[1:nT, cr, fdr, 1] / 
+        Y_sample[1, cr, fdr, 1]
+      Rel_effort[1:nT, cr, fdr] <- E_sample[Time1:(Time1 + Time2), cr, fdr, 1] / 
+        E_sample[1, cr, fdr, 1]
     }
   }
   
@@ -133,19 +130,19 @@ for (s in 1:length(species_list)) {
         index <- (ty - 1)*nF*nT + (fdr - 1)*nT + t
         
         # relative biomass
-        BIOMASS$Value[index] <- median(Rel_biomass[t, ty, fdr, ])
-        BIOMASS$Lower[index] <- quantile(Rel_biomass[t, ty, fdr, ], 0.25)
-        BIOMASS$Upper[index] <- quantile(Rel_biomass[t, ty, fdr, ], 0.75)
+        BIOMASS$Value[index] <- median(Rel_biomass[t, ty, fdr])
+        BIOMASS$Lower[index] <- quantile(Rel_biomass[t, ty, fdr], 0.25)
+        BIOMASS$Upper[index] <- quantile(Rel_biomass[t, ty, fdr], 0.75)
         
         # relative yield
-        YIELD$Value[index] <- median(Rel_yield[t, ty, fdr, ])
-        YIELD$Lower[index] <- quantile(Rel_yield[t, ty, fdr, ], 0.25)
-        YIELD$Upper[index] <- quantile(Rel_yield[t, ty, fdr, ], 0.75)
+        YIELD$Value[index] <- median(Rel_yield[t, ty, fdr])
+        YIELD$Lower[index] <- quantile(Rel_yield[t, ty, fdr], 0.25)
+        YIELD$Upper[index] <- quantile(Rel_yield[t, ty, fdr], 0.75)
         
         # relative effort
-        EFFORT$Value[index] <- median(Rel_effort[t, ty, fdr, ])
-        EFFORT$Lower[index] <- quantile(Rel_effort[t, ty, fdr, ], 0.25)
-        EFFORT$Upper[index] <- quantile(Rel_effort[t, ty, fdr, ], 0.75)
+        EFFORT$Value[index] <- median(Rel_effort[t, ty, fdr])
+        EFFORT$Lower[index] <- quantile(Rel_effort[t, ty, fdr], 0.25)
+        EFFORT$Upper[index] <- quantile(Rel_effort[t, ty, fdr], 0.75)
         
       }
     }
@@ -170,9 +167,6 @@ for (s in 1:length(species_list)) {
   ##### new plot #####
   fig <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR), 
                                linetype = as.factor(Type))) +
-    geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR),
-                    colour = NA), show.legend = FALSE) +
-    scale_fill_manual(values = alpha(c(new_colors), alfa)) +
     geom_line(position = position_jitter(w = 0, h = jitter_height)) +
     scale_color_manual(values = new_colors) +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
@@ -186,75 +180,10 @@ for (s in 1:length(species_list)) {
   # add panel tags (a) through (f)
   final_plot <- tag_facet(fig) +
     theme(strip.text = element_text(), strip.background = element_rect())
-  
-  # ##### plot total biomass #####
-  # biomass <- ggplot(data = BIOMASS, aes(x = Year, y = Value, 
-  #                                       color = as.factor(FDR), 
-  #                                       linetype = as.factor(Type))) +
-  #   geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR),
-  #                   colour = NA), show.legend = FALSE) +
-  #   scale_fill_manual(values = alpha(c(new_colors), alfa)) +
-  #   geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-  #   scale_color_manual(values = new_colors) +
-  #   geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
-  #   ylab('Relative biomass') +
-  #   theme(axis.title.x = element_blank()) +
-  #   labs(tag = 'a') +
-  #   theme_bw() +
-  #   theme(legend.position = 'none')
-  # 
-  # ##### plot total yield #####
-  # yield <- ggplot(data = YIELD, aes(x = Year, y = Value, color = as.factor(FDR), 
-  #                                   linetype = as.factor(Type))) +
-  #   geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR),
-  #                   colour = NA), show.legend = FALSE) +
-  #   scale_fill_manual(values = alpha(c(new_colors), alfa)) +
-  #   geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-  #   scale_color_manual(values = new_colors) +
-  #   geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
-  #   ylab('Relative yield') +
-  #   theme(axis.title.x = element_blank()) +
-  #   labs(tag = 'b') +
-  #   theme_bw() +
-  #   theme(legend.position = 'none')
-  #   
-  # 
-  # ##### plot total effort #####
-  # effort <- ggplot(data = EFFORT, aes(x = Year, y = Value, 
-  #                                     color = as.factor(FDR), 
-  #                                     linetype = as.factor(Type))) +
-  #   geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = as.factor(FDR),
-  #                   colour = NA), show.legend = FALSE) +
-  #   scale_fill_manual(values = alpha(c(new_colors), alfa)) +
-  #   geom_line(position = position_jitter(w = 0, h = jitter_height*12)) +
-  #   scale_color_manual(values = new_colors) +
-  #   geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
-  #   ylab('Relative effort') +
-  #   xlab('Years since reserve implemented') +
-  #   labs(color = expression('D'[final]), linetype = 'Type', tag = 'c') +
-  #   theme_bw() +
-  #   theme(plot.margin = unit(c(0, 70, 0, 0), 'pt')) +
-  #   theme(legend.position = c(1.24, 2)) + 
-  #   guides(color = guide_legend(order = 1), linetype = guide_legend(order = 2))
-  # 
-  # ##### patch all the figures together #####
-  # patch <- biomass / yield / effort
-
-  # if (cluster == TRUE) {
-  #   ggsave(patch,
-  #          filename = paste('relative_', Names[s], '.png', sep = ''),
-  #          path = paste('~/Documents/MS-thesis/figures/', folder, sep = ''),
-  #          width = png_width, height = png_height)
-  # 
-  # } else {
-  #   ggsave(patch, filename = paste('relative_', Names[s], '.png', sep = ''),
-  #          path = 'C:/Users/Vic/Box/Quennessen_Thesis/MS thesis/publication manuscript/viridis figures/',
-  #          width = png_width, height = png_height)
     
-    ggsave(final_plot, filename = paste('new_relative_', Names[s], '.png', 
+    ggsave(final_plot, filename = paste(titles[s], Names[s], '.png', 
                                         sep = ''),
-           path = 'C:/Users/Vic/Box/Quennessen_Thesis/MS thesis/publication manuscript/viridis figures/',
+           path = 'C:/Users/vique/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
            width = png_width, height = png_height)
     
-           # }
 }
