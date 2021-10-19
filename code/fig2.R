@@ -28,22 +28,18 @@ alfa <- 0.25
 species_list <- c('BR_OR_2015')
 Names <- c('Black Rockfish')
 
-# determine num_sims based on data folder
-num_sims <- 3
-
 # set variables
 A = 5
 MPA = 3
 Time1 = 50
-Time2 = 20
+Time2 = 200
 Final_DRs1 <- c(0.6, 0.7, 0.8, 0.9)
 Control_rules = c(1:6)
 types <- c('Static', 'Transient')
 metrics <- c('Biomass', 'Yield', 'Effort', 'Density.Ratio')
 
 # dimensions
-sample_size = num_sims
-
+num_sims <- 1
 nT <- Time2 + 1
 nC <- length(Control_rules)
 nS <- length(species_list)
@@ -57,10 +53,10 @@ DF <- data.frame(Type = rep(types, each = nF*nT),
                    Upper = rep(NA, 2*nF*nT))
 
 # load biomass, yield, and effort files
-load(paste('~/Projects/MS-thesis/data/None/BR_OR_2015/3_biomass.Rda', sep = ''))
-load(paste('~/Projects/MS-thesis/data/None/BR_OR_2015/3_yield.Rda', sep = ''))
-load(paste('~/Projects/MS-thesis/data/None/BR_OR_2015/3_effort.Rda', sep = ''))
-load(paste('~/Projects/MS-thesis/data/None/BR_OR_2015/3_DR.Rda', sep = ''))
+load(paste('~/Projects/MS-thesis/data/None/BR_OR_2015/1_biomass.Rda', sep = ''))
+load(paste('~/Projects/MS-thesis/data/None/BR_OR_2015/1_yield.Rda', sep = ''))
+load(paste('~/Projects/MS-thesis/data/None/BR_OR_2015/1_effort.Rda', sep = ''))
+load(paste('~/Projects/MS-thesis/data/None/BR_OR_2015/1_DR.Rda', sep = ''))
 
 ##### relative biomass and median, upper, and lower limits  #####
 
@@ -71,22 +67,19 @@ E_sample <- sims_effort
 DR_sample <- sims_DR
 
 # initialize relative arrays
-Rel_biomass <- array(rep(0, nT*nC*nF*num_sims), c(nT, nC, nF, num_sims))
-Rel_yield   <- array(rep(0, nT*nC*nF*num_sims), c(nT, nC, nF, num_sims))
-Rel_effort  <- array(rep(0, nT*nC*nF*num_sims), c(nT, nC, nF, num_sims))
+Rel_biomass <- array(rep(0, nT*nC*nF), c(nT, nC, nF))
+Rel_yield   <- array(rep(0, nT*nC*nF), c(nT, nC, nF))
+Rel_effort  <- array(rep(0, nT*nC*nF), c(nT, nC, nF))
 
 # calculate relative arrays after reserve implementation
 for (cr in 1:nC) {
   for (fdr in 1:nF) {
-    for (sim in 1:num_sims) {
-      Rel_biomass[, cr, fdr, sim] <- B_sample[, cr, fdr, sim] / 
-        B_sample[1, cr, fdr, sim]
-      Rel_yield[, cr, fdr, sim] <- Y_sample[, cr, fdr, sim] / 
-        Y_sample[1, cr, fdr, sim]
-      Rel_effort[, cr, fdr, sim] <- E_sample[Time1:(Time1 + Time2), 
-                                             cr, fdr, sim] / 
-        E_sample[1, cr, fdr, sim]
-    }
+      Rel_biomass[, cr, fdr] <- B_sample[1:nT, cr, fdr, 1] / 
+        B_sample[1, cr, fdr, 1]
+      Rel_yield[, cr, fdr] <- Y_sample[1:nT, cr, fdr, 1] / 
+        Y_sample[1, cr, fdr, 1]
+      Rel_effort[1:nT, cr, fdr] <- E_sample[Time1:(Time1 + Time2), cr, fdr, 1] / 
+        E_sample[1, cr, fdr, 1]
   }
 }
 
@@ -104,24 +97,24 @@ for (ty in 1:2) {
       index <- (ty - 1)*nF*nT + (fdr - 1)*nT + t
       
       # relative biomass
-      BIOMASS$Value[index] <- median(Rel_biomass[t, ty, fdr, ])
-      BIOMASS$Lower[index] <- quantile(Rel_biomass[t, ty, fdr, ], 0.25)
-      BIOMASS$Upper[index] <- quantile(Rel_biomass[t, ty, fdr, ], 0.75)
+      BIOMASS$Value[index] <- median(Rel_biomass[t, ty, fdr])
+      BIOMASS$Lower[index] <- quantile(Rel_biomass[t, ty, fdr], 0.25)
+      BIOMASS$Upper[index] <- quantile(Rel_biomass[t, ty, fdr], 0.75)
       
       # relative yield
-      YIELD$Value[index] <- median(Rel_yield[t, ty, fdr, ])
-      YIELD$Lower[index] <- quantile(Rel_yield[t, ty, fdr, ], 0.25)
-      YIELD$Upper[index] <- quantile(Rel_yield[t, ty, fdr, ], 0.75)
+      YIELD$Value[index] <- median(Rel_yield[t, ty, fdr])
+      YIELD$Lower[index] <- quantile(Rel_yield[t, ty, fdr], 0.25)
+      YIELD$Upper[index] <- quantile(Rel_yield[t, ty, fdr], 0.75)
       
       # relative effort
-      EFFORT$Value[index] <- median(Rel_effort[t, ty, fdr, ])
-      EFFORT$Lower[index] <- quantile(Rel_effort[t, ty, fdr, ], 0.25)
-      EFFORT$Upper[index] <- quantile(Rel_effort[t, ty, fdr, ], 0.75)
+      EFFORT$Value[index] <- median(Rel_effort[t, ty, fdr])
+      EFFORT$Lower[index] <- quantile(Rel_effort[t, ty, fdr], 0.25)
+      EFFORT$Upper[index] <- quantile(Rel_effort[t, ty, fdr], 0.75)
       
       # relative density ratio
-      DR$Value[index] <- median(DR_sample[t, ty, fdr, ])
-      DR$Lower[index] <- quantile(DR_sample[t, ty, fdr, ], 0.25)
-      DR$Upper[index] <- quantile(DR_sample[t, ty, fdr, ], 0.75)
+      DR$Value[index] <- median(DR_sample[t, ty, fdr, 1])
+      DR$Lower[index] <- quantile(DR_sample[t, ty, fdr, 1], 0.25)
+      DR$Upper[index] <- quantile(DR_sample[t, ty, fdr, 1], 0.75)
       
     }
   }
@@ -192,6 +185,6 @@ dr <- ggplot(data = DR, aes(x = Year, y = Value, linetype = as.factor(Type))) +
 ##### patch all the figures together #####
 patch <- biomass / yield / effort / dr
 
-ggsave(patch, filename = paste(Names[1], '_example_Dfinal09.png', sep = ''),
-       path = 'C:/Users/Vic/Box/Quennessen_Thesis/MS Thesis/publication manuscript/figures',
+ggsave(patch, filename = paste('fig2_', Time2, '_years.png', sep = ''),
+       path = 'C:/Users/vique/Box Sync/Quennessen_Thesis/MS Thesis/publication manuscript/figures',
        width = png_width, height = png_height)
