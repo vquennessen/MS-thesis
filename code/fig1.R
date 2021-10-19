@@ -110,12 +110,12 @@ example <- ggplot(data = DF_transient, aes(x = Time, y = Target,
   # scale_color_manual(values = c('grey50', 'black')) +
   # scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1)) +
   theme_classic() +
-  scale_size(range = 1, guide = FALSE) +
+  scale_size(range = 1, guide = 'none') +
   labs(linetype = 'Species', color = 'Type of \n Control Rule') +
   theme(legend.key.width = unit(1, 'cm')) +
   guides(linetype = guide_legend(override.aes = list(size = 1))) +
   theme(axis.title.y = element_blank())
 
-ggsave(example, filename = 'transients_example.png', 
-       path = 'C:/Users/Vic/Box/Quennessen_Thesis/MS Thesis/publication manuscript/figures',
+ggsave(example, filename = 'fig1a_portion_transients_example.png', 
+       path = 'C:/Users/vique/Box Sync/Quennessen_Thesis/MS Thesis/publication manuscript/figures/',
        width = 20, height = 10)
