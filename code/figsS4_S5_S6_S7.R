@@ -24,6 +24,7 @@ png_height <- 6
 
 species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
 Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
+titles <- c('figS4_', 'figS5_', 'figS6_', 'figS7_')
 
 # determine num_sims based on data folder
 num_sims <- 1
@@ -145,41 +146,6 @@ for (s in 1:length(Names)) {
     }
   }
   
-  # # DF based on species
-  # if (s == 4) { diff_DF <- diff2 } else { diff_DF <- diff1 }
-  # 
-  # ##### initialize difference array #####
-  # Difference_B <- array(rep(0, nE*nF*num_sims), c(nE, nF, num_sims))
-  # Difference_Y <- array(rep(0, nE*nF*num_sims), c(nE, nF, num_sims))
-  # 
-  # ##### calculate differences between transient and static DRs #####
-  # for (e in 1:nE) {
-  #   for (fdr in 1:nF) {     
-  #     for (sim in 1:num_sims) {
-  #       # biomass
-  #       diff_B <- Rel_biomass[2*e, fdr, sim] - Rel_biomass[2*e - 1, fdr, sim]
-  #       Difference_B[e, fdr, sim] <- diff_B / Rel_biomass[2*e - 1, fdr, sim]
-  #       # yield
-  #       diff_Y <- Rel_yield[2*e, fdr, sim] - Rel_yield[2*e - 1, fdr, sim]
-  #       Difference_Y[e, fdr, sim] <- diff_Y / Rel_yield[2*e - 1, fdr, sim]
-  #     }
-  #   }
-  # }
-  # 
-  # ##### fill in data frames with median and quantile values #####
-  # for (e in 1:nE) {
-  #   for (fdr in 1:nF) {
-  #     index <- (e - 1)*nF + fdr         
-  #     # print(index)
-  #     all_biomass <- nrow(subset(diff_DF, Metric == 'Biomass'))
-  #     # relative biomass
-  #     diff_DF$Value[index] <- median(Difference_B[e, fdr, ])
-  #     # relative yield
-  #     diff_DF$Value[index + all_biomass] <- median(Difference_Y[e, fdr, ])
-  #   }
-  # }
-  
-  
   # make FDR and Estimate factor variables
   DF$FDR <- factor(DF$FDR)
   DF$Estimate <- factor(DF$Estimate, levels = c('Low', 'True', 'High'))
@@ -215,7 +181,7 @@ for (s in 1:length(Names)) {
     scale_shape_manual(values = c(16, 17, 1, 2), 
                        labels = c('Static Biomass', 'Static Yield', 
                                   'Transient Biomass', 'Transient Yield')) +
-    scale_color_manual(values = new_colors, guide = FALSE) +
+    scale_color_manual(values = new_colors, guide = 'none') +
     ylab('Cumulative value') +
     theme_bw() +
     theme(axis.title.x = element_blank()) +
@@ -232,7 +198,7 @@ for (s in 1:length(Names)) {
                                 shape = Type.Metric)) +
     geom_hline(yintercept = 1, linetype = 2) +
     geom_point(position = position_jitter(w = 0.3, h = 0), size = 3, stroke = 1) +
-    scale_shape_manual(values = c(16, 17, 1, 2), guide = FALSE) +
+    scale_shape_manual(values = c(16, 17, 1, 2), guide = 'none') +
     scale_color_manual(values = new_colors) +
     ylab('Cumulative Value') +
     xlab('Estimate of natural mortality (M)') +
@@ -244,8 +210,8 @@ for (s in 1:length(Names)) {
   final_plot <- thing1 / thing2
   
   # save results to figures folder
-  ggsave(final_plot, filename = paste('cumulative_M_', Names[s], '.png', sep = ''),
-         path = 'C:/Users/Vic/Box/Quennessen_Thesis/MS thesis/publication manuscript/figures',
+  ggsave(final_plot, filename = paste(titles[s], 'M_', Names[s], '.png', sep = ''),
+         path = 'C:/Users/vique/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
          width = png_width, height = png_height)
   
 }
