@@ -84,9 +84,9 @@ for (s in 1:length(species_list)) {
     for (ty in 1:nTy) {
       for (fdr in 1:nF) {
         for (sim in 1:num_sims) {
-          Rel_biomass[, ty, fdr, sim] <- B_sample[, ty, fdr, sim] / 
+          Rel_biomass[, ty, fdr, sim] <- B_sample[1:nY, ty, fdr, sim] / 
             B_sample[1, ty, fdr, sim]
-          Rel_yield[, ty, fdr, sim] <- Y_sample[, ty, fdr, sim] / 
+          Rel_yield[, ty, fdr, sim] <- Y_sample[1:nY, ty, fdr, sim] / 
             Y_sample[1, ty, fdr, sim]
           Rel_effort[, ty, fdr, sim] <- E_sample[Time1:(Time1 + Time2), 
                                                  ty, fdr, sim] / 
@@ -101,7 +101,7 @@ for (s in 1:length(species_list)) {
       for (y in 1:nY) {
         
         index <- (s - 1)*nSc*nF1*nY + (i - 1)*nF*nY + (fdr - 1)*nY + y
-        print(index)
+        # print(index)
         
         # biology dataframe
         BIO_prop$Value[index] <- 

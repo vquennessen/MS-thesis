@@ -1,13 +1,16 @@
 # proportion analysis
 
 # set working directory
-setwd("~/Projects/MS-thesis/code")
+# setwd("~/Projects/MS-thesis/code")
 
 # load libraries
 library(dplyr)
 library(ggplot2)
 library(viridis)
 library(egg)
+
+# source function to create proportion_transient_greater.csv
+source('extract_proportions_transient_greater.R')
 
 # load data
 data <- read.csv("proportion_transient_greater.csv", header = TRUE)
@@ -32,7 +35,6 @@ colors <- og_colors[1:n]
 
 # figure width and height
 png_width <- 6
-# png_height <- 5
 
 # make plot
 fig1 <- ggplot(data = basic_FDR_year, 
@@ -50,6 +52,6 @@ fig1 <- ggplot(data = basic_FDR_year,
 fig2 <- tag_facet(fig1, vjust = 2.5) +
   theme(strip.text = element_text(), strip.background = element_rect())
 
-ggsave(fig2, file = 'proportions_transient_greater.png', 
-       path = 'C:/Users/Vic/Box/Quennessen_Thesis/MS Thesis/publication manuscript/viridis figures',
+ggsave(fig2, file = 'fig7.png', 
+       path = '~/Documents/MS-thesis/figures',
        width = 5, height = 6)
