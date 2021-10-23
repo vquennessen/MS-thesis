@@ -30,6 +30,8 @@ alfa <- 0.25
 # species to compare
 species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
 Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
+titles <- c('figS12_', 'figS11_', 'figS13_', 'figS14_',
+            'figS8_', 'fig6_', 'figS9_', 'figS10_')
 
 # set variables
 A = 5
@@ -51,40 +53,27 @@ nFt <- 3*nF1 + nF2
 nY  <- Time2 + 1
 nTy <- length(types)
 
-base1 <- data.frame(Species = rep(NA, nSc*nM*2*nF1*nT),
-                    Scenario = rep(scenarios, each = nM*2*nF1*nT),
-                    Metric = rep(metrics, times = nSc, each = 2*nF1*nT),
-                    Type = rep(types, times = nSc*nM, each = nF1*nT), 
-                    FDR = rep(Final_DRs1, times = nSc*nM*2, each = nT), 
+base1 <- data.frame(Species = rep(NA, nSc*nM*2*nF1*nY),
+                    Scenario = rep(scenarios, each = nM*2*nF1*nY),
+                    Metric = rep(metrics, times = nSc, each = 2*nF1*nY),
+                    Type = rep(types, times = nSc*nM, each = nF1*nY), 
+                    FDR = rep(Final_DRs1, times = nSc*nM*2, each = nY), 
                     Year = rep(0:Time2, times = nSc*nM*2*nF1), 
-                    Value = rep(NA, nSc*nM*2*nF1*nT), 
-                    Lower = rep(NA, nSc*nM*2*nF1*nT),
-                    Upper = rep(NA, nSc*nM*2*nF1*nT), 
-                    Source = rep('Stochastic', nSc*nM*2*nF1*nT))
+                    Value = rep(NA, nSc*nM*2*nF1*nY), 
+                    Lower = rep(NA, nSc*nM*2*nF1*nY),
+                    Upper = rep(NA, nSc*nM*2*nF1*nY), 
+                    Source = rep('Stochastic', nSc*nM*2*nF1*nY))
 
-base2 <- data.frame(Species = rep(NA, nSc*nM*2*nF2*nT),
-                    Scenario = rep(scenarios, each = nM*2*nF2*nT),
-                    Metric = rep(metrics, times = nSc, each = 2*nF2*nT),
-                    Type = rep(types, times = nSc*nM, each = nF2*nT), 
-                    FDR = rep(Final_DRs2, times = nSc*nM*2, each = nT), 
+base2 <- data.frame(Species = rep(NA, nSc*nM*2*nF2*nY),
+                    Scenario = rep(scenarios, each = nM*2*nF2*nY),
+                    Metric = rep(metrics, times = nSc, each = 2*nF2*nY),
+                    Type = rep(types, times = nSc*nM, each = nF2*nY), 
+                    FDR = rep(Final_DRs2, times = nSc*nM*2, each = nY), 
                     Year = rep(0:Time2, times = nSc*nM*2*nF2), 
-                    Value = rep(NA, nSc*nM*2*nF2*nT), 
-                    Lower = rep(NA, nSc*nM*2*nF2*nT),
-                    Upper = rep(NA, nSc*nM*2*nF2*nT), 
-                    Source = rep('Stochastic', nSc*nM*2*nF2*nT))
-
-diff <- data.frame(Species = c(rep(Names[1], each = nSc*nM*nF1*nY), 
-                               rep(Names[2], each = nSc*nM*nF1*nY), 
-                               rep(Names[3], each = nSc*nM*nF1*nY), 
-                               rep(Names[4], each = nSc*nM*nF2*nY)),
-                   Scenario = c(rep(rep(scenarios, each = nM*nF1*nY), 3),
-                                rep(scenarios, each = nM*nF2*nY)),
-                   Metric = c(rep(rep(metrics, times = nSc, each = nF1*nY), 3), 
-                              rep(metrics, times = nSc, each = nF2*nY)),
-                   FDR = c(rep(rep(Final_DRs1, times = nSc*nM, each = nY), 3),
-                           rep(Final_DRs2, times = nSc*nM, each = nY)),
-                   Year = rep(0:Time2, times = nSc*nM*nFt),
-                   Proportion = rep(NA, nSc*nM*nFt*nY))
+                    Value = rep(NA, nSc*nM*2*nF2*nY), 
+                    Lower = rep(NA, nSc*nM*2*nF2*nY),
+                    Upper = rep(NA, nSc*nM*2*nF2*nY), 
+                    Source = rep('Stochastic', nSc*nM*2*nF2*nY))
 
 for (v in 1:2) {
   
@@ -134,9 +123,9 @@ for (v in 1:2) {
       for (ty in 1:nTy) {
         for (fdr in 1:nF) {
           for (sim in 1:num_sims) {
-            Rel_biomass[, ty, fdr, sim] <- B_sample[, ty, fdr, sim] / 
+            Rel_biomass[, ty, fdr, sim] <- B_sample[1:nY, ty, fdr, sim] / 
               B_sample[1, ty, fdr, sim]
-            Rel_yield[, ty, fdr, sim] <- Y_sample[, ty, fdr, sim] / 
+            Rel_yield[, ty, fdr, sim] <- Y_sample[1:nY, ty, fdr, sim] / 
               Y_sample[1, ty, fdr, sim]
             Rel_effort[, ty, fdr, sim] <- E_sample[Time1:(Time1 + Time2), 
                                                    ty, fdr, sim] / 
@@ -184,7 +173,7 @@ for (v in 1:2) {
     DF$Metric <- factor(DF$Metric, levels = metrics, 
                         labels = c('Relative Biomass', 'Relative Yield', 
                                    'Relative Effort'))
-    DF$FDR <- factor(DF$FDR)
+    DF$FDR <- factor(DF$FDR, levels = Final_DRs2)
     DF$Type <- factor(DF$Type, levels = types)
     new_DF <- subset(DF, FDR %in% FDRs[[s]])
   
@@ -212,7 +201,7 @@ for (v in 1:2) {
     ##### load deterministic values and merge into new dataframe #####
     
     # load deterministic data for correct FDR values
-    source('code/extract_deterministic_values.R')
+    source('~/Documents/MS-thesis/code/extract_deterministic_values.R')
     deterministic <- read.csv('deterministic_values.csv')
     new_deterministic <- subset(deterministic, 
                                 FDR == FDRs[s] & Species == Names[s])
@@ -225,10 +214,11 @@ for (v in 1:2) {
     
     # process DF
     combined_DF$Scenario <- factor(combined_DF$Scenario, levels = scenarios)
-    combined_DF$Metric <- factor(combined_DF$Metric, 
-                                 levels = c('Relative Biomass', 
-                                            'Relative Yield', 
-                                            'Relative Effort'))
+    combined_DF$Metric <- factor(combined_DF$Metric)
+                                 # , levels = metrics, 
+                                 # labels = c('Relative Biomass', 
+                                 #            'Relative Yield', 
+                                 #            'Relative Effort'))
 
     # write combined_DF to .csv file
     write.csv(x = combined_DF, file = 'combinedDF2.csv')
@@ -257,16 +247,14 @@ for (v in 1:2) {
     final_plot <- final_plot +
       theme(strip.text = element_text(), strip.background = element_rect())
     
-    name_pt1 <- ifelse(v == 1, 'dfinal_composite_', 'transient_composite_')
+    # figure titles index
+    fti <- (v - 1)*length(species_list) + s
     
     # save plot
     ggsave(final_plot,
-           filename = paste(name_pt1, Names[s], '.png', sep = ''),
-           path = '~/Documents/MS-thesis/figures/viridis/',
+           filename = paste(titles[fti], Names[s], '.png', sep = ''),
+           path = '~/Documents/MS-thesis/figures/',
            width = png_width, height = png_height)
   }
-  
-  ##### write difference dataframe to csv file #####
-  write.csv(x = diff, file = 'proportion_transient_greater.csv')
-  
+
 }
