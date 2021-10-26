@@ -32,7 +32,7 @@ Names <- c('Black Rockfish')
 A = 5
 MPA = 3
 Time1 = 50
-Time2 = 200
+Time2 = 20
 Final_DRs1 <- c(0.6, 0.7, 0.8, 0.9)
 Control_rules = c(1:6)
 types <- c('Static', 'Transient')
@@ -122,6 +122,7 @@ for (ty in 1:2) {
 
 ##### plotting parameters #####
 jitter_height <- 0
+plot_color <- 'black'
 
 ##### single dfinal value plot #####
 BIOMASS <- subset(BIOMASS, FDR == 0.9)
@@ -132,7 +133,8 @@ DR <- subset(DR, FDR == 0.9)
 ##### plot total biomass #####
 biomass <- ggplot(data = BIOMASS, aes(x = Year, y = Value, 
                                       linetype = as.factor(Type))) +
-  geom_line(position = position_jitter(w = 0, h = jitter_height), size = 1) +
+  geom_line(position = position_jitter(w = 0, h = jitter_height), size = 1, 
+            color = plot_color) +
   geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
   ylab('Relative biomass') +
   theme_bw() +
@@ -143,7 +145,8 @@ biomass <- ggplot(data = BIOMASS, aes(x = Year, y = Value,
 ##### plot total yield #####
 yield <- ggplot(data = YIELD, aes(x = Year, y = Value,
                                   linetype = as.factor(Type))) +
-  geom_line(position = position_jitter(w = 0, h = jitter_height), size = 1) +
+  geom_line(position = position_jitter(w = 0, h = jitter_height), size = 1, 
+            color = plot_color) +
   geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
   ylab('Relative yield') +
   theme_bw() +
@@ -154,7 +157,8 @@ yield <- ggplot(data = YIELD, aes(x = Year, y = Value,
 ##### plot total effort #####
 effort <- ggplot(data = EFFORT, aes(x = Year, y = Value, 
                                     linetype = as.factor(Type))) +
-  geom_line(position = position_jitter(w = 0, h = jitter_height), size = 1) +
+  geom_line(position = position_jitter(w = 0, h = jitter_height), size = 1, 
+            color = plot_color) +
   geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
   ylab('Relative effort') +
   theme_bw() +
@@ -173,12 +177,12 @@ dr <- ggplot(data = DR, aes(x = Year, y = Value, linetype = as.factor(Type))) +
   geom_hline(yintercept = 0.9, size = 0.75, color = 'gray60') +
   geom_line(data = transients, aes(x = Year, y = Target), linetype = 'dashed', 
             color = 'gray60', size = 0.75) + 
-  geom_line(position = position_jitter(w = 0, h = jitter_height), size = 1) +
+  geom_line(position = position_jitter(w = 0, h = jitter_height), size = 1, 
+            color = plot_color) +
   ylab('Density ratio') +
   xlab('Years since reserve implemented') +
   labs(linetype = 'Type of Control Rule') +
   theme_bw() +
-  # theme(plot.margin = unit(c(0, 70, 0, 0), 'pt')) +
   theme(legend.position = 'bottom') + # c(1.22, 2.28)) + 
   annotate('text', x = 0, y = 1.07, label = 'd')
 
@@ -186,5 +190,6 @@ dr <- ggplot(data = DR, aes(x = Year, y = Value, linetype = as.factor(Type))) +
 patch <- biomass / yield / effort / dr
 
 ggsave(patch, filename = paste('fig2_', Time2, '_years.png', sep = ''),
-       path = 'C:/Users/vique/Box Sync/Quennessen_Thesis/MS Thesis/publication manuscript/figures',
+       path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS Thesis/publication manuscript/figures',
+       # path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/presentations/AFS 2021',
        width = png_width, height = png_height)
