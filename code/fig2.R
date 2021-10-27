@@ -140,7 +140,7 @@ biomass <- ggplot(data = BIOMASS, aes(x = Year, y = Value,
   theme_bw() +
   theme(axis.title.x = element_blank()) +
   theme(legend.position = 'none') +
-  annotate('text', x = 0, y = 1.21, label = 'a')
+  annotate('text', x = 0, y = 1.39, label = 'a')
 
 ##### plot total yield #####
 yield <- ggplot(data = YIELD, aes(x = Year, y = Value,
@@ -151,7 +151,7 @@ yield <- ggplot(data = YIELD, aes(x = Year, y = Value,
   ylab('Relative yield') +
   theme_bw() +
   theme(legend.position = 'none') +
-  annotate('text', x = 0, y = 1.15, label = 'b') +
+  annotate('text', x = 0, y = 0.35, label = 'b') +
   theme(axis.title.x = element_blank())
 
 ##### plot total effort #####
@@ -163,7 +163,7 @@ effort <- ggplot(data = EFFORT, aes(x = Year, y = Value,
   ylab('Relative effort') +
   theme_bw() +
   theme(legend.position = 'none') + 
-  annotate('text', x = 0, y = 1.9, label = 'c') +
+  annotate('text', x = 0, y = 0.22, label = 'c') +
   theme(axis.title.x = element_blank())
 
 # transient target density ratio values
@@ -184,7 +184,7 @@ dr <- ggplot(data = DR, aes(x = Year, y = Value, linetype = as.factor(Type))) +
   labs(linetype = 'Type of Control Rule') +
   theme_bw() +
   theme(legend.position = 'bottom') + # c(1.22, 2.28)) + 
-  annotate('text', x = 0, y = 1.07, label = 'd')
+  annotate('text', x = 0, y = 0.785, label = 'd')
 
 ##### patch all the figures together #####
 patch <- biomass / yield / effort / dr
