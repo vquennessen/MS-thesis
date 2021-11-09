@@ -32,7 +32,7 @@ Names <- c('Black Rockfish')
 A = 5
 MPA = 3
 Time1 = 50
-Time2 = 20
+Time2 = 100
 Final_DRs1 <- c(0.6, 0.7, 0.8, 0.9)
 Control_rules = c(1:6)
 types <- c('Static', 'Transient')
