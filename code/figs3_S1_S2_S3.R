@@ -183,7 +183,7 @@ for (s in 1:length(species_list)) {
     
     ggsave(final_plot, filename = paste(titles[s], Names[s], '.png', 
                                         sep = ''),
-           path = 'C:/Users/vique/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
+           path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
            width = png_width, height = png_height)
     
 }
