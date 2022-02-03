@@ -1,0 +1,166 @@
+# relative biomass, yield, and effort
+
+# plot relative biomass for static vs. transient DRs for each area
+
+# load any necessary libraries
+# library(plyr)
+library(ggplot2)
+library(patchwork)
+remotes::install_github('vquennessen/densityratio')
+library(densityratio)
+library(viridis)
+library(egg)
+
+###############################################################################
+# CHECK THESE EVERY TIME
+folder <- 'None'
+cluster <- FALSE
+
+png_width <- 6
+png_height <- 6
+
+###############################################################################
+
+# species to compare
+species_list <- c('CR_OR_2015')
+Names <- c('Canary Rockfish')
+
+# set variables
+A = 5
+MPA = 3
+Time1 = 50
+Time2 = 200
+Final_DRs1 <- c(0.6, 0.7, 0.8, 0.9)
+Control_rules = c(1:6)
+types <- c('Static', 'Transient')
+metrics <- c('Biomass', 'Yield', 'Effort')
+
+# dimensions
+num_sims <- 1
+nT <- Time2 + 1
+nC <- length(Control_rules)
+nS <- length(species_list)
+nF1 <- length(Final_DRs1)
+
+base1 <- data.frame(Type = rep(types, each = nF1*nT), 
+                    FDR = rep(Final_DRs1, times = 2, each = nT), 
+                    Year = rep(0:Time2, times = 2*nF1), 
+                    Value = rep(NA, 2*nF1*nT), 
+                    Lower = rep(NA, 2*nF1*nT),
+                    Upper = rep(NA, 2*nF1*nT))
+
+for (s in 1:length(species_list)) {
+  
+  # load biomass, yield, and effort files
+  if (cluster == TRUE) {
+    load(paste('~/Documents/MS-thesis/data/', folder, '/', 
+               species_list[s], '/', num_sims, '_biomass.Rda', sep = ''))
+    load(paste('~/Documents/MS-thesis/data/', folder, '/', 
+               species_list[s], '/', num_sims, '_yield.Rda', sep = ''))
+    load(paste('~/Documents/MS-thesis/data/', folder, '/', 
+               species_list[s], '/', num_sims, '_effort.Rda', sep = ''))
+    
+  } else {
+    load(paste('~/Projects/MS-thesis/data/', folder, '/', 
+               species_list[s], '/', num_sims, '_biomass.Rda', sep = ''))
+    load(paste('~/Projects/MS-thesis/data/', folder, '/', 
+               species_list[s], '/', num_sims, '_yield.Rda', sep = ''))
+    load(paste('~/Projects/MS-thesis/data/', folder, '/', 
+               species_list[s], '/', num_sims, '_effort.Rda', sep = ''))
+  }
+  
+  # set nF value for species 
+  nF <- ifelse(s == 4, nF2, nF1)  
+  
+  ##### relative biomass and median, upper, and lower limits  #####
+  
+  # pull out sample sims as sums across all areas for particular years
+  B_sample   <- colSums(sims_biomass) 
+  Y_sample <- sims_yield
+  E_sample <- sims_effort
+  
+  # initialize relative arrays
+  Rel_biomass <- array(rep(0, nT*nC*nF), c(nT, nC, nF))
+  Rel_yield   <- array(rep(0, nT*nC*nF), c(nT, nC, nF))
+  Rel_effort  <- array(rep(0, nT*nC*nF), c(nT, nC, nF))
+  
+  # calculate relative arrays after reserve implementation
+  for (cr in 1:nC) {
+    for (fdr in 1:nF) {
+      Rel_biomass[, cr, fdr] <- B_sample[1:nT, cr, fdr, 1] / 
+        B_sample[1, cr, fdr, 1]
+      Rel_yield[, cr, fdr] <- Y_sample[1:nT, cr, fdr, 1] / 
+        Y_sample[1, cr, fdr, 1]
+      Rel_effort[1:nT, cr, fdr] <- E_sample[Time1:(Time1 + Time2), cr, fdr, 1] / 
+        E_sample[1, cr, fdr, 1]
+    }
+  }
+  
+  # data frame based on species number
+  if (s == 4) { DF <- base2 } else { DF <- base1 }
+  
+  BIOMASS <- DF; YIELD <- DF; EFFORT <- DF
+  
+  ##### fill in data frames with median and quantile values #####
+  for (ty in 1:2) {
+    for (fdr in 1:nF) {
+      for (t in 1:nT) {
+        index <- (ty - 1)*nF*nT + (fdr - 1)*nT + t
+        
+        # relative biomass
+        BIOMASS$Value[index] <- median(Rel_biomass[t, ty, fdr])
+        BIOMASS$Lower[index] <- quantile(Rel_biomass[t, ty, fdr], 0.25)
+        BIOMASS$Upper[index] <- quantile(Rel_biomass[t, ty, fdr], 0.75)
+        
+        # relative yield
+        YIELD$Value[index] <- median(Rel_yield[t, ty, fdr])
+        YIELD$Lower[index] <- quantile(Rel_yield[t, ty, fdr], 0.25)
+        YIELD$Upper[index] <- quantile(Rel_yield[t, ty, fdr], 0.75)
+        
+        # relative effort
+        EFFORT$Value[index] <- median(Rel_effort[t, ty, fdr])
+        EFFORT$Lower[index] <- quantile(Rel_effort[t, ty, fdr], 0.25)
+        EFFORT$Upper[index] <- quantile(Rel_effort[t, ty, fdr], 0.75)
+        
+      }
+    }
+  }
+  
+  # put dataframes together, with new metric column
+  BIOMASS$Metric <- 'Biomass'
+  YIELD$Metric <- 'Yield'
+  EFFORT$Metric <- 'Effort'
+  DF <- rbind(BIOMASS, YIELD, EFFORT)
+  DF$Metric <- factor(DF$Metric, levels = metrics)
+  
+  ##### plotting parameters #####
+  jitter_height <- 0
+  og_colors <- rev(viridis(max(c(nF1, nF2)) + 1))
+  if (s != 4) {
+    new_colors <- og_colors[(nF2 - nF1 + 2):(nF2 + 1)]
+  } else {
+    new_colors <- og_colors[2:(nF2 + 1)]
+  }
+  
+  ##### new plot #####
+  fig <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR), 
+                               linetype = as.factor(Type))) +
+    geom_line(position = position_jitter(w = 0, h = jitter_height)) +
+    scale_color_manual(values = new_colors) +
+    geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
+    facet_grid(Metric ~ Type, scales = 'free', switch = 'y') +
+    ylab('Relative Value') +
+    labs(color = expression('D'[final]), 
+         linetype = 'Type of \n Control \n Rule') +
+    theme_bw()
+  
+  
+  # add panel tags (a) through (f)
+  final_plot <- tag_facet(fig) +
+    theme(strip.text = element_text(), strip.background = element_rect())
+  
+  ggsave(final_plot, filename = 'Canary_RF_200_years.png',
+         path = 'C:/Users/vique/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
+         width = png_width, height = png_height)
+  
+}
