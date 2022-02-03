@@ -15,27 +15,18 @@ library(egg)
 # CHECK THESE EVERY TIME
 folder <- 'None'
 cluster <- FALSE
-# png_width <- 4
-# png_height <- 6
 
-png_width <- 6
-png_height <- 6
-
-# y1 <- 0.25
-# y2 <- 1.5
-# y1.1 <- 0.95
-# y2.1 <- 2
-# alfa <- 0.25
+png_width <- 5
+png_height <- 5
 ###############################################################################
 
 # species to compare
 species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
 Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
-titles <- c('figS1_', 'fig3_', 'figS2_', 'figS3_')
+titles <- c('old_figS1_', 'fig3_', 'figS2_', 'figS3_')
 
 # determine num_sims based on data folder
-num_sims <- ifelse(folder == 'None', 3, 
-                   ifelse(folder == 'Both', 6193, 5000))
+num_sims <- ifelse(folder == 'None', 3, 5000)
 
 # set variables
 A = 5
@@ -167,7 +158,8 @@ for (s in 1:length(species_list)) {
   ##### new plot #####
   fig <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR), 
                                linetype = as.factor(Type))) +
-    geom_line(position = position_jitter(w = 0, h = jitter_height)) +
+    geom_line(position = position_jitter(w = 0, h = jitter_height), 
+              size = 1) +
     scale_color_manual(values = new_colors) +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
     facet_grid(Metric ~ Type, scales = 'free', switch = 'y') +
@@ -178,7 +170,9 @@ for (s in 1:length(species_list)) {
     
   
   # add panel tags (a) through (f)
-  final_plot <- tag_facet(fig) +
+  final_plot <- tag_facet(p = fig, 
+                          hjust = -0.5, 
+                          vjust = 11) +
     theme(strip.text = element_text(), strip.background = element_rect())
     
     ggsave(final_plot, filename = paste(titles[s], Names[s], '.png', 

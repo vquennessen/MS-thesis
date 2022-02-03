@@ -16,8 +16,8 @@ library(egg)
 folder <- 'None'
 cluster <- FALSE
 
-png_width <- 6
-png_height <- 6
+png_width <- 5.5
+png_height <- 5.5
 
 ###############################################################################
 
@@ -156,10 +156,12 @@ for (s in 1:length(species_list)) {
   
   
   # add panel tags (a) through (f)
-  final_plot <- tag_facet(fig) +
+  final_plot <- tag_facet(p = fig, 
+                          hjust = -0.1, 
+                          vjust = 13.25) +    
     theme(strip.text = element_text(), strip.background = element_rect())
-  
-  ggsave(final_plot, filename = 'Canary_RF_200_years.png',
+  ggsave(final_plot, 
+         filename = 'figS1_Canary Rockfish.png',
          path = 'C:/Users/vique/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
          width = png_width, height = png_height)
   
