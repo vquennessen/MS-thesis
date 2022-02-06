@@ -172,7 +172,7 @@ thing1 <- ggplot(bio_short, aes(x = Species, y = Mean, color = FDR,
   ggtitle('(a) Biomass: 5 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
-  ylab('relative biomass: mean') +
+  ylab('Relative Biomass: Mean') +
   theme_bw() +
   theme(axis.title.x = element_blank()) +
   theme(legend.position = 'none')
@@ -186,7 +186,7 @@ thing2 <- ggplot(yield_short, aes(x = Species, y = Mean, color = FDR,
   ggtitle('(c) Yield: 5 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
-  ylab('relative yield: mean') +
+  ylab('Relative Yield: Mean') +
   theme_bw() +
   theme(axis.title.x = element_blank()) +
   theme(legend.position = 'none')
@@ -239,7 +239,7 @@ thing5 <- ggplot(bio_short, aes(x = Species, y = SD, color = FDR,
   ggtitle('(a) Biomass: 5 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
-  ylab('relative biomass: standard deviation') +
+  ylab('Relative Biomass: Standard Deviation') +
   theme_bw() +
   theme(axis.title.x = element_blank()) +
   theme(legend.position = 'none')
@@ -252,7 +252,7 @@ thing6 <- ggplot(yield_short, aes(x = Species, y = SD, color = FDR,
   ggtitle('(c) Yield: 5 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
-  ylab('relative yield: standard deviation') +
+  ylab('Relative Yield: Standard Deviation') +
   theme_bw() +
   theme(axis.title.x = element_blank()) +
   theme(legend.position = 'none')
