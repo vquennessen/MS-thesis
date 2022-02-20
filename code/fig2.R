@@ -27,7 +27,7 @@ Names <- c('Black Rockfish')
 A = 5
 MPA = 3
 Time1 = 50
-Time2 = 20
+Time2 = 100
 Final_DRs1 <- c(0.6, 0.7, 0.8, 0.9)
 Control_rules = c(1:6)
 types <- c('Static', 'Transient')
@@ -168,15 +168,18 @@ targets <- 1 - (1 - FDRs1[1])*(1 - exp(-1 * M * years))
 transients <- data.frame(Year = years, Target = targets)
 
 # add targets to DR dataframe
-DR$Type2 <- c(rep('Static Actual', 21), rep('Transient Actual', 21))
+DR$Type2 <- c(rep('Static Actual', Time2 + 1), 
+              rep('Transient Actual', Time2 + 1))
 DR$Type3 <- 'Actual'
-DR2 <- data.frame(Type = c(rep('Static', 21), rep('Transient', 21)), 
+DR2 <- data.frame(Type = c(rep('Static', Time2 + 1), 
+                           rep('Transient', Time2 + 1)), 
                   FDR = 0.9, 
                   Year = rep(0:20, times = 2), 
-                  Value = c(rep(0.9, 21), transients$Target), 
+                  Value = c(rep(0.9, Time2 + 1), 
+                            transients$Target), 
                   Lower = NA, Upper = NA, 
-                  Type2 = c(rep('Static Target', 21), 
-                            rep('Transient Target', 21)),
+                  Type2 = c(rep('Static Target', Time2 + 1), 
+                            rep('Transient Target', Time2 + 1)),
                   Type3 = 'Target')
 
 DR3 <- rbind(DR, DR2)
@@ -202,5 +205,4 @@ patch <- biomass / yield / effort / dr
 
 ggsave(patch, filename = paste('fig2_', Time2, '_years.png', sep = ''),
        path = 'C:/Users/vique/Box Sync/Quennessen_Thesis/MS Thesis/publication manuscript/figures',
-       # path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/presentations/AFS 2021',
        width = png_width, height = png_height)
