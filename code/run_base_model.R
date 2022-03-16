@@ -7,22 +7,18 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
   
   if (Scenario == 'None' | Scenario == 'Test' | Scenario == 'Areas') {
     Sampling_Var = FALSE
-    Transects = 24
     Recruitment_Var = FALSE
     
     } else if (Scenario == 'Sampling') {
     Sampling_Var = TRUE
-    Transects = 24
     Recruitment_Var = FALSE
     
    } else if (Scenario == 'Recruitment') {
     Sampling_Var = FALSE
-    Transects = 24
     Recruitment_Var = TRUE
     
     } else if (Scenario == 'Both' | Scenario == 'Variance') {
     Sampling_Var = TRUE
-    Transects = 24
     Recruitment_Var = TRUE
     
     } 
@@ -57,6 +53,7 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
   Surveys = TRUE
   Fishery_management = TRUE
   Fishing = TRUE
+  Transects = 24
   Adult_movement = TRUE
   Years_sampled = 1
   Areas_sampled = 'all'
