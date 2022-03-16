@@ -150,12 +150,29 @@ bio_long <- subset(DF, Metric == 'Biomass' & Year == years[2])
 yield_short <- subset(DF, Metric == 'Yield' & Year == years[1])
 yield_long <- subset(DF, Metric == 'Yield' & Year == years[2])
 
+# add dummy parameter for x-axis plotting
+dif <- 0.2
+cr <- 1
+br <- 3
+lc <- 5
+ca <- 7
+
+CR <- c(cr - 3/2*dif, cr - dif/2, cr + dif/2, cr + 3/2*dif)
+BR <- c(br - 3/2*dif, br - dif/2, br + dif/2, br + 3/2*dif)
+LC <- c(lc - 3/2*dif, lc - dif/2, lc + dif/2, lc + 3/2*dif)
+CA <- c(ca - 5/2*dif, ca - 3/2*dif, ca - dif/2, ca + dif/2, 
+        ca + 3/2*dif, ca + 5/2*dif)
+
+X <- c(CR, CR, BR, BR, LC, LC, CA, CA)
+
+bio_short$X   <- X
+bio_long$X    <- X
+yield_short$X <- X
+yeild_long$X  <- X
+
 # plotting parameters
 og_colors <- rev(viridis(max(c(nF1, nF2)) + 1))
 new_colors <- og_colors[2:(nF2 + 1)]
-
-# horizontal jitter amount
-w_jitter <- 0.3
 
 # legend position coordinates
 x.legend <- 1.25
@@ -164,56 +181,60 @@ y.legend <- 1
 ##### mean figure #####
 
 # plot cumulative mean biomass year 5
-thing1 <- ggplot(bio_short, aes(x = Species, y = Mean, color = FDR, 
+thing1 <- ggplot(bio_short, aes(x = X, y = Mean, color = FDR, 
                                 shape = Type)) +
   geom_hline(yintercept = 1, linetype = 2) +
-  geom_point(position = position_jitter(w = w_jitter, h = 0), stroke = 1, 
-             size = 3) +
+  geom_point(stroke = 1, size = 3) +
   ggtitle('(a) Biomass: 5 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
-  ylab('relative biomass: mean') +
+  ylab('Relative Biomass: Mean') +
+  scale_x_continuous(breaks = c(cr, br, lc, ca),
+                     labels = Names) +
   theme_bw() +
   theme(axis.title.x = element_blank()) +
   theme(legend.position = 'none')
 
 # plot cumulative mean yield year 5
-thing2 <- ggplot(yield_short, aes(x = Species, y = Mean, color = FDR, 
+thing2 <- ggplot(yield_short, aes(x = X, y = Mean, color = FDR, 
                                   shape = Type)) +
   geom_hline(yintercept = 1, linetype = 2) +
-  geom_point(position = position_jitter(w = w_jitter, h = 0), stroke = 1, 
-             size = 3) +
+  geom_point(stroke = 1, size = 3) +
   ggtitle('(c) Yield: 5 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
-  ylab('relative yield: mean') +
-  theme_bw() +
+  ylab('Relative Yield: Mean') +
+  scale_x_continuous(breaks = c(cr, br, lc, ca),
+                     labels = Names) +  theme_bw() +
+  theme_bw() + 
   theme(axis.title.x = element_blank()) +
   theme(legend.position = 'none')
 
 # plot cumulative mean biomass year 20
-thing3 <- ggplot(bio_long, aes(x = Species, y = Mean, color = FDR, 
+thing3 <- ggplot(bio_long, aes(x = X, y = Mean, color = FDR, 
                                shape = Type)) +
   geom_hline(yintercept = 1, linetype = 2) +
-  geom_point(position = position_jitter(w = w_jitter, h = 0), size = 3, 
-             stroke = 1) +
+  geom_point(size = 3, stroke = 1) +
   ggtitle('(b) Biomass: 20 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
+  scale_x_continuous(breaks = c(cr, br, lc, ca),
+                     labels = Names) +
   theme_bw() +
   theme(axis.title.x = element_blank()) +
   theme(axis.title.y = element_blank()) +
   theme(legend.position = 'none')
 
 # plot cumulative mean yield year 20
-thing4 <- ggplot(yield_long, aes(x = Species, y = Mean, color = FDR, 
+thing4 <- ggplot(yield_long, aes(x = X, y = Mean, color = FDR, 
                                  shape = Type)) +
   geom_hline(yintercept = 1, linetype = 2) +
-  geom_point(position = position_jitter(w = w_jitter, h = 0), size = 3, 
-             stroke = 1) +
+  geom_point(size = 3, stroke = 1) +
   ggtitle('(d) Yield: 20 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
+  scale_x_continuous(breaks = c(cr, br, lc, ca),
+                     labels = Names) +
   theme_bw() +
   theme(axis.title.x = element_blank()) +
   theme(axis.title.y = element_blank()) +
@@ -232,52 +253,56 @@ ggsave(mean_plot, filename = paste('fig4_cumulative_mean.png', sep = ''),
 ##### standard deviation figure #####
 
 # plot cumulative SD biomass year 5
-thing5 <- ggplot(bio_short, aes(x = Species, y = SD, color = FDR, 
+thing5 <- ggplot(bio_short, aes(x = X, y = SD, color = FDR, 
                                 shape = Type)) +
-  geom_point(position = position_jitter(w = w_jitter, h = 0), stroke = 1, 
-             size = 3) +
+  geom_point(stroke = 1, size = 3) +
   ggtitle('(a) Biomass: 5 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
-  ylab('relative biomass: standard deviation') +
+  ylab('Relative Biomass: Standard Deviation') +
+  scale_x_continuous(breaks = c(cr, br, lc, ca),
+                     labels = Names) +
   theme_bw() +
   theme(axis.title.x = element_blank()) +
   theme(legend.position = 'none')
 
 # plot cumulative SD yield year 5
-thing6 <- ggplot(yield_short, aes(x = Species, y = SD, color = FDR, 
+thing6 <- ggplot(yield_short, aes(x = X, y = SD, color = FDR, 
                                   shape = Type)) +
-  geom_point(position = position_jitter(w = w_jitter, h = 0), stroke = 1, 
-             size = 3) +
+  geom_point(stroke = 1, size = 3) +
   ggtitle('(c) Yield: 5 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
-  ylab('relative yield: standard deviation') +
+  ylab('Relative Yield: Standard Deviation') +
+  scale_x_continuous(breaks = c(cr, br, lc, ca),
+                     labels = Names) +
   theme_bw() +
   theme(axis.title.x = element_blank()) +
   theme(legend.position = 'none')
 
 # plot cumulative SD biomass year 20
-thing7 <- ggplot(bio_long, aes(x = Species, y = SD, color = FDR, 
+thing7 <- ggplot(bio_long, aes(x = X, y = SD, color = FDR, 
                                shape = Type)) +
-  geom_point(position = position_jitter(w = w_jitter, h = 0), size = 3, 
-             stroke = 1) +
+  geom_point(size = 3, stroke = 1) +
   ggtitle('(b) Biomass: 20 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
+  scale_x_continuous(breaks = c(cr, br, lc, ca),
+                     labels = Names) +
   theme_bw() +
   theme(axis.title.x = element_blank()) +
   theme(axis.title.y = element_blank()) +
   theme(legend.position = 'none')
 
 # plot cumulative SD yield year 20
-thing8 <- ggplot(yield_long, aes(x = Species, y = SD, color = FDR, 
+thing8 <- ggplot(yield_long, aes(x = X, y = SD, color = FDR, 
                                  shape = Type)) +
-  geom_point(position = position_jitter(w = w_jitter, h = 0), size = 3, 
-             stroke = 1) +
+  geom_point(size = 3, stroke = 1) +
   ggtitle('(d) Yield: 20 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
+  scale_x_continuous(breaks = c(cr, br, lc, ca),
+                     labels = Names) +
   theme_bw() +
   theme(axis.title.x = element_blank()) +
   theme(axis.title.y = element_blank()) +

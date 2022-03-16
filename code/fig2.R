@@ -16,12 +16,7 @@ folder <- 'None'
 FDRs1 <- c(0.9)
 cluster <- FALSE
 png_width <- 4
-png_height <- 7
-y1 <- 0.25
-y2 <- 1.5
-y1.1 <- 0.95
-y2.1 <- 2
-alfa <- 0.25
+png_height <- 8
 ###############################################################################
 
 # species to compare
@@ -172,24 +167,42 @@ M <- parameters(species_list[1])[[2]]
 targets <- 1 - (1 - FDRs1[1])*(1 - exp(-1 * M * years))
 transients <- data.frame(Year = years, Target = targets)
 
+# add targets to DR dataframe
+DR$Type2 <- c(rep('Static Actual', Time2 + 1), 
+              rep('Transient Actual', Time2 + 1))
+DR$Type3 <- 'Actual'
+DR2 <- data.frame(Type = c(rep('Static', Time2 + 1), 
+                           rep('Transient', Time2 + 1)), 
+                  FDR = 0.9, 
+                  Year = rep(0:20, times = 2), 
+                  Value = c(rep(0.9, Time2 + 1), 
+                            transients$Target), 
+                  Lower = NA, Upper = NA, 
+                  Type2 = c(rep('Static Target', Time2 + 1), 
+                            rep('Transient Target', Time2 + 1)),
+                  Type3 = 'Target')
+
+DR3 <- rbind(DR, DR2)
+
 ##### plot total density ratio #####
-dr <- ggplot(data = DR, aes(x = Year, y = Value, linetype = as.factor(Type))) +
-  geom_hline(yintercept = 0.9, size = 0.75, color = 'gray60') +
-  geom_line(data = transients, aes(x = Year, y = Target), linetype = 'dashed', 
-            color = 'gray60', size = 0.75) + 
-  geom_line(position = position_jitter(w = 0, h = jitter_height), size = 1, 
-            color = plot_color) +
+dr <- ggplot(data = DR3, aes(x = Year, y = Value, linetype = Type2, 
+                             color = Type2)) +
+  geom_line(size = 0.8) +
+  scale_color_manual(values = c('black', 'gray70', 'black', 'gray70')) +
+  scale_linetype_manual(values = c(1, 1, 2, 2)) +
   ylab('Density ratio') +
   xlab('Years since reserve implemented') +
-  labs(linetype = 'Type of Control Rule') +
+  scale_y_continuous(limits = c(0.75, 1.3)) +
   theme_bw() +
-  theme(legend.position = 'bottom') + # c(1.22, 2.28)) + 
-  annotate('text', x = 0, y = 0.785, label = 'd')
+  theme(legend.position = c(0.5, 0.7)) +
+  guides(color = guide_legend(nrow = 2)) +
+  theme(legend.key.width = unit(1.5, 'cm')) +
+  annotate('text', x = 0, y = 0.785, label = 'd') +
+  labs(color = 'Control Rules', linetype = 'Control Rules')
 
 ##### patch all the figures together #####
 patch <- biomass / yield / effort / dr
 
 ggsave(patch, filename = paste('fig2_', Time2, '_years.png', sep = ''),
-       path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS Thesis/publication manuscript/figures',
-       # path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/presentations/AFS 2021',
+       path = 'C:/Users/vique/Box Sync/Quennessen_Thesis/MS Thesis/publication manuscript/figures',
        width = png_width, height = png_height)

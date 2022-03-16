@@ -16,25 +16,21 @@ library(egg)
 folder <- 'None'
 cluster <- FALSE
 
-png_width <- 5
-png_height <- 5
+png_width <- 5.5
+png_height <- 5.5
+
 ###############################################################################
 
 # species to compare
-species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
-Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
-titles <- c('old_figS1_', 'fig3_', 'figS2_', 'figS3_')
-
-# determine num_sims based on data folder
-num_sims <- ifelse(folder == 'None', 3, 5000)
+species_list <- c('CR_OR_2015')
+Names <- c('Canary Rockfish')
 
 # set variables
 A = 5
 MPA = 3
 Time1 = 50
-Time2 = 20
+Time2 = 200
 Final_DRs1 <- c(0.6, 0.7, 0.8, 0.9)
-Final_DRs2 <- c(0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
 Control_rules = c(1:6)
 types <- c('Static', 'Transient')
 metrics <- c('Biomass', 'Yield', 'Effort')
@@ -45,8 +41,6 @@ nT <- Time2 + 1
 nC <- length(Control_rules)
 nS <- length(species_list)
 nF1 <- length(Final_DRs1)
-nF2 <- length(Final_DRs2)
-nFall <- nF2 + 3*nF1
 
 base1 <- data.frame(Type = rep(types, each = nF1*nT), 
                     FDR = rep(Final_DRs1, times = 2, each = nT), 
@@ -55,15 +49,8 @@ base1 <- data.frame(Type = rep(types, each = nF1*nT),
                     Lower = rep(NA, 2*nF1*nT),
                     Upper = rep(NA, 2*nF1*nT))
 
-base2 <- data.frame(Type = rep(types, each = nF2*nT), 
-                    FDR = rep(Final_DRs2, times = 2, each = nT), 
-                    Year = rep(0:Time2, times = 2*nF2), 
-                    Value = rep(NA, 2*nF2*nT), 
-                    Lower = rep(NA, 2*nF2*nT), 
-                    Upper = rep(NA, 2*nF2*nT))
-
 for (s in 1:length(species_list)) {
-
+  
   # load biomass, yield, and effort files
   if (cluster == TRUE) {
     load(paste('~/Documents/MS-thesis/data/', folder, '/', 
@@ -158,8 +145,7 @@ for (s in 1:length(species_list)) {
   ##### new plot #####
   fig <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR), 
                                linetype = as.factor(Type))) +
-    geom_line(position = position_jitter(w = 0, h = jitter_height), 
-              size = 1) +
+    geom_line(position = position_jitter(w = 0, h = jitter_height)) +
     scale_color_manual(values = new_colors) +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
     facet_grid(Metric ~ Type, scales = 'free', switch = 'y') +
@@ -167,17 +153,16 @@ for (s in 1:length(species_list)) {
     labs(color = expression('D'[final]), 
          linetype = 'Type of \n Control \n Rule') +
     theme_bw()
-    
+  
   
   # add panel tags (a) through (f)
   final_plot <- tag_facet(p = fig, 
-                          hjust = -0.5, 
-                          vjust = 11) +
+                          hjust = -0.1, 
+                          vjust = 13.25) +    
     theme(strip.text = element_text(), strip.background = element_rect())
-    
-    ggsave(final_plot, filename = paste(titles[s], Names[s], '.png', 
-                                        sep = ''),
-           path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
-           width = png_width, height = png_height)
-    
+  ggsave(final_plot, 
+         filename = 'figS1_Canary Rockfish.png',
+         path = 'C:/Users/vique/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
+         width = png_width, height = png_height)
+  
 }

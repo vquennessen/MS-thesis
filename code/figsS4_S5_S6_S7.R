@@ -160,6 +160,51 @@ for (s in 1:length(Names)) {
   YEAR2 <- subset(DF, Year == years_to_plot[2] & 
                     (Estimate == 'True' | Type == 'Transient'))
   
+  # add dummy variable for plotting x-axis
+  breaks <- c(2, 1, 3)
+  dif <- 0.18
+   
+  if (s == 4) {
+    x1 <- c(breaks[1] - 5/2*dif, 
+            breaks[1] - 3/2*dif, 
+            breaks[1] - dif/2, 
+            breaks[1] + dif/2, 
+            breaks[1] + 3/2*dif, 
+            breaks[1] + 5/2*dif)
+    x2 <- c(breaks[2] - 5/2*dif, 
+            breaks[2] - 3/2*dif, 
+            breaks[2] - dif/2, 
+            breaks[2] + dif/2, 
+            breaks[2] + 3/2*dif, 
+            breaks[2] + 5/2*dif)
+    x3 <- c(breaks[3] - 5/2*dif, 
+            breaks[3] - 3/2*dif, 
+            breaks[3] - dif/2, 
+            breaks[3] + dif/2, 
+            breaks[3] + 3/2*dif, 
+            breaks[3] + 5/2*dif)
+
+  } else {
+    x1 <- c(breaks[1] - 3/2*dif, 
+            breaks[1] - dif/2, 
+            breaks[1] + dif/2, 
+            breaks[1] + 3/2*dif)
+    x2 <- c(breaks[2] - 3/2*dif, 
+            breaks[2] - dif/2, 
+            breaks[2] + dif/2, 
+            breaks[2] + 3/2*dif)
+    x3 <- c(breaks[3] - 3/2*dif, 
+            breaks[3] - dif/2, 
+            breaks[3] + dif/2, 
+            breaks[3] + 3/2*dif)
+  }
+  
+  X <- c(x1, x1, x2, x3)
+  XX <- c(X, X)
+  
+  YEAR1$XX <- XX
+  YEAR2$XX <- XX
+  
   # panel labels
   panel.labels <- c(paste('(a) Biomass: year', years_to_plot[1]), 
                     paste('(b) Yield: year', years_to_plot[1]))
@@ -174,15 +219,17 @@ for (s in 1:length(Names)) {
   }
   
   # plot relative results
-  thing1 <- ggplot(YEAR1, aes(x = Estimate, y = Value, color = FDR, 
+  thing1 <- ggplot(YEAR1, aes(x = XX, y = Value, color = FDR, 
                                shape = Type.Metric)) +
     geom_hline(yintercept = 1, linetype = 2) +
-    geom_point(position = position_jitter(w = 0.3, h = 0), size = 3, stroke = 1) +
+    geom_point(size = 3, stroke = 1) +
     scale_shape_manual(values = c(16, 17, 1, 2), 
                        labels = c('Static Biomass', 'Static Yield', 
                                   'Transient Biomass', 'Transient Yield')) +
     scale_color_manual(values = new_colors, guide = 'none') +
-    ylab('Cumulative value') +
+    ylab('Cumulative Value') +
+    scale_x_continuous(breaks = breaks,
+                       labels = c('Low', 'True', 'High')) +
     theme_bw() +
     theme(axis.title.x = element_blank()) +
     labs(shape = 'Type and Metric') +
@@ -194,14 +241,16 @@ for (s in 1:length(Names)) {
   names(panel.labels) <- c('Biomass', 'Yield')
   
   # plot difference results
-  thing2 <- ggplot(YEAR2, aes(x = Estimate, y = Value, color = FDR, 
+  thing2 <- ggplot(YEAR2, aes(x = XX, y = Value, color = FDR, 
                                 shape = Type.Metric)) +
     geom_hline(yintercept = 1, linetype = 2) +
-    geom_point(position = position_jitter(w = 0.3, h = 0), size = 3, stroke = 1) +
+    geom_point(size = 3, stroke = 1) +
     scale_shape_manual(values = c(16, 17, 1, 2), guide = 'none') +
     scale_color_manual(values = new_colors) +
     ylab('Cumulative Value') +
-    xlab('Estimate of natural mortality (M)') +
+    xlab('Estimate of Natural Mortality (M)') +
+    scale_x_continuous(breaks = breaks,
+                       labels = c('Low', 'True', 'High')) +
     theme_bw() +
     labs(color = expression('D'[final])) +
     guides(color = guide_legend(order = 1)) +
