@@ -25,9 +25,6 @@ species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
 Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
 titles <- c('old_figS1_', 'fig3_', 'figS2_', 'figS3_')
 
-# determine num_sims based on data folder
-num_sims <- ifelse(folder == 'None', 3, 5000)
-
 # set variables
 A = 5
 MPA = 3
