@@ -47,7 +47,7 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
   A = 5
   MPA = 3
   Time1 = 50
-  Time2 = 200
+  Time2 = 20
   TimeT = Time1 + Time2
   Recruitment_mode = 'regional_DD'
   Surveys = TRUE
