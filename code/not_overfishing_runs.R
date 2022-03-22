@@ -11,7 +11,7 @@ library(parallel)
 source('run_base_model.R')
 
 # species to run
-species_list_1 = c('BR_OR_2015_overfished')
+species_list_1 = c('BR_OR_2015')
 
 # final density ratios
 Final_DRs_1 <- c(0.6, 0.7, 0.8, 0.9)
