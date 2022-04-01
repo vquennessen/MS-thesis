@@ -117,8 +117,8 @@ run_base_model <- function(Species, num_sims, Scenario, Final_DRs) {
     }
     
     if ((i/num_sims*100) %% 10 == 0) {
-      update <- paste(Sys.time(), ' - ', Species, ' - ', i/num_sims*100, 
-                      '% done!', sep = '')
+      update <- paste(Sys.time(), ' - ', Scenario, ' - ', Species, ' - ', 
+                      i/num_sims*100, '% done!', sep = '')
       write(update, file = 'progress.txt', append = TRUE)
     }
     
