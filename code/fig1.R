@@ -117,5 +117,5 @@ example <- ggplot(data = DF_transient, aes(x = Time, y = Target,
   theme(axis.title.y = element_blank())
 
 ggsave(example, filename = 'fig1a_portion_transients_example.png', 
-       path = 'C:/Users/vique/Box Sync/Quennessen_Thesis/MS Thesis/publication manuscript/figures/',
+       path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS Thesis/publication manuscript/figures/',
        width = 20, height = 10)

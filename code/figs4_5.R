@@ -246,7 +246,7 @@ mean_plot <- (thing1 + thing3) / (thing2 + thing4)
 
 # save results to figures folder
 ggsave(mean_plot, filename = paste('fig4_cumulative_mean.png', sep = ''),
-       path = paste('C:/Users/vique/Box Sync/Quennessen_Thesis/MS Thesis/', 
+       path = paste('C:/Users/Vic/Box Sync/Quennessen_Thesis/MS Thesis/', 
                     'publication manuscript/figures', sep = ''),
        width = png_width, height = png_height)
 
@@ -314,7 +314,7 @@ sd_plot <- (thing5 + thing7) / (thing6 + thing8)
 
 # save results to figures folder
 ggsave(sd_plot, filename = paste('fig5_cumulative_SD.png', sep = ''),
-       path = paste('C:/Users/vique/Box Sync/Quennessen_Thesis/MS Thesis/', 
+       path = paste('C:/Users/Vic/Box Sync/Quennessen_Thesis/MS Thesis/', 
                     'publication manuscript/figures', sep = ''),
        width = png_width, height = png_height)
 
