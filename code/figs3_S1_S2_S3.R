@@ -168,8 +168,8 @@ for (s in 1:length(species_list)) {
   
   # add panel tags (a) through (f)
   final_plot <- tag_facet(p = fig, 
-                          hjust = -0.5, 
-                          vjust = 11) +
+                          hjust = -0.3, 
+                          vjust = 1.5) +
     theme(strip.text = element_text(), strip.background = element_rect())
     
     ggsave(final_plot, filename = paste(titles[s], Names[s], '.png', 
