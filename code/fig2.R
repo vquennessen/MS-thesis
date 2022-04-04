@@ -27,7 +27,7 @@ Names <- c('Black Rockfish')
 A = 5
 MPA = 3
 Time1 = 50
-Time2 = 100
+Time2 = 20
 Final_DRs1 <- c(0.6, 0.7, 0.8, 0.9)
 Control_rules = c(1:6)
 types <- c('Static', 'Transient')
@@ -135,7 +135,7 @@ biomass <- ggplot(data = BIOMASS, aes(x = Year, y = Value,
   theme_bw() +
   theme(axis.title.x = element_blank()) +
   theme(legend.position = 'none') +
-  annotate('text', x = 0, y = 1.39, label = 'a')
+  annotate('text', x = 0, y = 0.957, label = 'a')
 
 ##### plot total yield #####
 yield <- ggplot(data = YIELD, aes(x = Year, y = Value,
@@ -146,7 +146,7 @@ yield <- ggplot(data = YIELD, aes(x = Year, y = Value,
   ylab('Relative yield') +
   theme_bw() +
   theme(legend.position = 'none') +
-  annotate('text', x = 0, y = 0.35, label = 'b') +
+  annotate('text', x = 0, y = 0.52, label = 'b') +
   theme(axis.title.x = element_blank())
 
 ##### plot total effort #####
@@ -158,7 +158,7 @@ effort <- ggplot(data = EFFORT, aes(x = Year, y = Value,
   ylab('Relative effort') +
   theme_bw() +
   theme(legend.position = 'none') + 
-  annotate('text', x = 0, y = 0.22, label = 'c') +
+  annotate('text', x = 0, y = 0.475, label = 'c') +
   theme(axis.title.x = element_blank())
 
 # transient target density ratio values
@@ -192,17 +192,17 @@ dr <- ggplot(data = DR3, aes(x = Year, y = Value, linetype = Type2,
   scale_linetype_manual(values = c(1, 1, 2, 2)) +
   ylab('Density ratio') +
   xlab('Years since reserve implemented') +
-  scale_y_continuous(limits = c(0.75, 1.3)) +
+  scale_y_continuous(limits = c(0.84, 1.3)) +
   theme_bw() +
   theme(legend.position = c(0.5, 0.7)) +
   guides(color = guide_legend(nrow = 2)) +
-  theme(legend.key.width = unit(1.5, 'cm')) +
-  annotate('text', x = 0, y = 0.785, label = 'd') +
+  theme(legend.key.width = unit(1.25, 'cm')) +
+  annotate('text', x = 0, y = 0.86, label = 'd') +
   labs(color = 'Control Rules', linetype = 'Control Rules')
 
 ##### patch all the figures together #####
 patch <- biomass / yield / effort / dr
 
 ggsave(patch, filename = paste('fig2_', Time2, '_years.png', sep = ''),
-       path = 'C:/Users/vique/Box Sync/Quennessen_Thesis/MS Thesis/publication manuscript/figures',
+       path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS Thesis/publication manuscript/figures',
        width = png_width, height = png_height)
