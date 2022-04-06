@@ -229,7 +229,7 @@ for (s in 1:length(Names)) {
     scale_color_manual(values = new_colors, guide = 'none') +
     ylab('Cumulative Value') +
     scale_x_continuous(breaks = breaks,
-                       labels = c('Low', 'True', 'High')) +
+                       labels = c('True', 'Low', 'High')) +
     theme_bw() +
     theme(axis.title.x = element_blank()) +
     labs(shape = 'Type and Metric') +
@@ -250,7 +250,7 @@ for (s in 1:length(Names)) {
     ylab('Cumulative Value') +
     xlab('Estimate of Natural Mortality (M)') +
     scale_x_continuous(breaks = breaks,
-                       labels = c('Low', 'True', 'High')) +
+                       labels = c('True', 'Low', 'High')) +
     theme_bw() +
     labs(color = expression('D'[final])) +
     guides(color = guide_legend(order = 1)) +
@@ -260,7 +260,7 @@ for (s in 1:length(Names)) {
   
   # save results to figures folder
   ggsave(final_plot, filename = paste(titles[s], 'M_', Names[s], '.png', sep = ''),
-         path = 'C:/Users/vique/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
+         path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
          width = png_width, height = png_height)
   
 }
