@@ -20,6 +20,7 @@ png_height <- 6
 # species to compare
 species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
 Names <- c('Canary \n Rockfish', 'Black \n Rockfish', 'Lingcod', 'Cabezon')
+years_to_plot <- c(10, 20)
 
 # determine num_sims based on data folder
 num_sims <- 1
@@ -143,12 +144,11 @@ DF$Type <- factor(DF$Type, levels = types)
 DF$Species <- factor(DF$Species, levels = Names)
 
 # remove static biomass and yield for low and high estimates
-years <- c(5, 20)
-bio_short <- subset(DF, Metric == 'Biomass' & Year == years[1])
-bio_long <- subset(DF, Metric == 'Biomass' & Year == years[2])
+bio_short <- subset(DF, Metric == 'Biomass' & Year == years_to_plot[1])
+bio_long <- subset(DF, Metric == 'Biomass' & Year == years_to_plot[2])
 
-yield_short <- subset(DF, Metric == 'Yield' & Year == years[1])
-yield_long <- subset(DF, Metric == 'Yield' & Year == years[2])
+yield_short <- subset(DF, Metric == 'Yield' & Year == years_to_plot[1])
+yield_long <- subset(DF, Metric == 'Yield' & Year == years_to_plot[2])
 
 # add dummy parameter for x-axis plotting
 dif <- 0.2
@@ -180,12 +180,12 @@ y.legend <- 1
 
 ##### mean figure #####
 
-# plot cumulative mean biomass year 5
+# plot cumulative mean biomass year 10
 thing1 <- ggplot(bio_short, aes(x = X, y = Mean, color = FDR, 
                                 shape = Type)) +
   geom_hline(yintercept = 1, linetype = 2) +
   geom_point(stroke = 1, size = 3) +
-  ggtitle('(a) Biomass: 5 years') +
+  ggtitle('(a) Biomass: 10 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
   ylab('Relative Biomass: Mean') +
@@ -195,12 +195,12 @@ thing1 <- ggplot(bio_short, aes(x = X, y = Mean, color = FDR,
   theme(axis.title.x = element_blank()) +
   theme(legend.position = 'none')
 
-# plot cumulative mean yield year 5
+# plot cumulative mean yield year 10
 thing2 <- ggplot(yield_short, aes(x = X, y = Mean, color = FDR, 
                                   shape = Type)) +
   geom_hline(yintercept = 1, linetype = 2) +
   geom_point(stroke = 1, size = 3) +
-  ggtitle('(c) Yield: 5 years') +
+  ggtitle('(c) Yield: 10 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
   ylab('Relative Yield: Mean') +
@@ -252,11 +252,11 @@ ggsave(mean_plot, filename = paste('fig4_cumulative_mean.png', sep = ''),
 
 ##### standard deviation figure #####
 
-# plot cumulative SD biomass year 5
+# plot cumulative SD biomass year 10
 thing5 <- ggplot(bio_short, aes(x = X, y = SD, color = FDR, 
                                 shape = Type)) +
   geom_point(stroke = 1, size = 3) +
-  ggtitle('(a) Biomass: 5 years') +
+  ggtitle('(a) Biomass: 10 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
   ylab('Relative Biomass: Standard Deviation') +
@@ -266,11 +266,11 @@ thing5 <- ggplot(bio_short, aes(x = X, y = SD, color = FDR,
   theme(axis.title.x = element_blank()) +
   theme(legend.position = 'none')
 
-# plot cumulative SD yield year 5
+# plot cumulative SD yield year 10
 thing6 <- ggplot(yield_short, aes(x = X, y = SD, color = FDR, 
                                   shape = Type)) +
   geom_point(stroke = 1, size = 3) +
-  ggtitle('(c) Yield: 5 years') +
+  ggtitle('(c) Yield: 10 years') +
   scale_color_manual(values = new_colors) +
   scale_shape_manual(values = c(1, 4)) +
   ylab('Relative Yield: Standard Deviation') +
