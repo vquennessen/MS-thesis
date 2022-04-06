@@ -29,7 +29,7 @@ Names <- c('Canary Rockfish')
 A = 5
 MPA = 3
 Time1 = 50
-Time2 = 200
+Time2 = 100
 Final_DRs1 <- c(0.6, 0.7, 0.8, 0.9)
 Control_rules = c(1:6)
 types <- c('Static', 'Transient')
@@ -162,7 +162,7 @@ for (s in 1:length(species_list)) {
     theme(strip.text = element_text(), strip.background = element_rect())
   ggsave(final_plot, 
          filename = 'figS1_Canary Rockfish.png',
-         path = 'C:/Users/vique/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
+         path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
          width = png_width, height = png_height)
   
 }
