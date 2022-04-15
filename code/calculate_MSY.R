@@ -11,6 +11,20 @@ library(patchwork)
 remotes::install_github('vquennessen/densityratio')
 library(densityratio)
 
+##### model parameters #########################################################
+
+Species <- 'CR_OR_2015'
+# Species <- 'BR_OR_2015'
+# Species <- 'LING_OW_2017'
+# Species <- 'CAB_OR_2019'
+
+eq_time <- 250
+
+
+##### stable age distribution ##################################################
+
+
+
 ##### load species parameters #####
 par <- parameters(Species)
 
@@ -49,15 +63,21 @@ Mat <- maturity(Rec_age, Max_age, K_mat, L, L50)
 # age at 50% mature
 A50_mat <- ages[min(which(Mat > 0.5))]
 # unfished biomass
+R0 <- 1000
 B0 <- R0*W[1]
 # selectivity at age
 S <- selectivity(Rec_age, Max_age, A1, L1, A2, L2, K, Fleets, A50_up,
                  A50_down, Alpha, F_fin, Beta, Cf)
 
-# Recruitment error = 0 without Recruitment_Var
-Eps2 <- array(rep(0, eq_time), c(1, eq_time, 1, 1))
+# # Recruitment error = 0 without Recruitment_Var
+# Eps2 <- array(rep(0, eq_time), c(1, eq_time, 1, 1))
 
-##### Initialize arrays #####
+# stable age distribution
+SAD <- stable_AD(Rec_age, Max_age, W, R0, Mat, H, B0, Sigma_R, Fb = 0, S, M, 
+                 eq_time, A50_mat, Recruitment_Var = FALSE, Rho_R, 
+                 Recruitment_mode = 'pool', A = 5)
+
+##### Initialize arrays ########################################################
 
 # Fishing effort stays constant
 E2 <- array(rep(1, eq_time), c(1, eq_time, 1, 1))
@@ -66,25 +86,30 @@ E2 <- array(rep(1, eq_time), c(1, eq_time, 1, 1))
 FM_values <- seq(from = 0, to = 1, by = 0.01)
 fn <- length(FM_values)
 
-# Initialize depletion vector
-dep <- rep(0, fn)
+# Initialize depletion vectors
+dep_SSB <- rep(0, fn)
+dep_B <- rep(0, fn)
 
 # Initialize population size and catch arrays
 # Dimensions = age * 1 * time * 1
 N2 <- catch2 <- array(rep(0, num*eq_time), c(num, 1, eq_time, 1,  1))
 
-# Initialize biomass, SSB, and recruitment error
+# Initialize biomass, SSB, and abundance
 # Dimensions = 1 * time * 1
 SSB2 <- biomass2 <- array(rep(0, eq_time), c(1, eq_time, 1, 1))
 abundance2 <- array(rep(0, eq_time), c(1, eq_time, 1, 1, 1))
 
-# calculate stable age distribution
-SAD <- stable_AD(Rec_age, Max_age, W, R0, Mat, H, B0, Sigma_R, Fb = 0, S, M,
-                 eq_time = 150, A50_mat, Recruitment_Var, Rho_R,
-                 Recruitment_mode, A = 1)
+# Initialize catch-at-age matrix
+# Dimensions = age * area * time * CR * FDR values (3)
+Catch <- array(rep(0, num*1*TimeT*1*1), c(num, 1, TimeT, 1, 1))
 
-# initial spawning stock biomass with no fishing
+# Initialize yield matrix
+# Dimensions = area * time * CR * FDR values (3)
+Yield <- array(rep(0, 1*TimeT*1*1), c(1, TimeT, 1, 1))
+
+# initial spawning stock biomass / biomass with no fishing
 FM0_SSB <- sum(W*SAD*Mat)
+FM0_B <- sum(W*SAD)
 
 for (t in 1:Rec_age) {
   N2[, 1, t, 1, 1] <- SAD
@@ -115,15 +140,29 @@ for (i in 2:fn) {
     SSB2[, t, 1, 1]                <- PD[[4]]
     abundance2[, t, 1, 1, 1]       <- PD[[5]]
     
-  }
+    # fishing
+    Catch[, 1, t, 1, 1] <- catch(t, cr, fdr, FM, Nat_mortality, N, A = 1, Fb, 
+                                 E, Catch)
+    Yield[, t, 1, 1] <- colSums(Catch[, 1, t, cr, fdr]*W)
+    
+    }
   
-  dep[i] <- SSB2[1, eq_time, 1, 1] / FM0_SSB
+  dep_SSB[i] <- SSB2[1, eq_time, 1, 1] / FM0_SSB
+  dep_B[i] <- B2[1, eq_time, 1, 1] / FM0_B
   
 }
 
-closest_FM <- FM_values[which.min(abs(dep - D))]
+FMSY_SSB <- FM_values[which.min(abs(dep_SSB - 0.4))]
+FMSY_B <- FM_values[which.min(abs(dep_B - 0.4))]
 
-plot(FM_values, dep, main = Species, ylim = c(0, 1),
+# MSY by SSB
+plot(FM_values, dep_SSB, main = Species, ylim = c(0, 1),
      ylab = 'Depletion', xlab = 'FM value')
-abline(v = closest_FM, col = 'red')
-abline(h = D, col = 'green')
+abline(v = FMSY_SSB, col = 'red')
+abline(h = 0.4, col = 'green')
+
+# MSY by B
+plot(FM_values, dep_B, main = Species, ylim = c(0, 1),
+     ylab = 'Depletion', xlab = 'FM value')
+abline(v = FMSY_B, col = 'red')
+abline(h = 0.4, col = 'green')
