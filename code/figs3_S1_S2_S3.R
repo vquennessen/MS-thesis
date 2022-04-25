@@ -46,16 +46,18 @@ nS <- length(species_list)
 nF1 <- length(Final_DRs1)
 nF2 <- length(Final_DRs2)
 nFall <- nF2 + 3*nF1
+nTy <- length(types)
+nM <- length(metrics)
 
 base1 <- data.frame(Type = rep(types, each = nF1*nT), 
-                    FDR = rep(Final_DRs1, times = 2, each = nT), 
-                    Year = rep(0:Time2, times = 2*nF1), 
-                    Value = rep(NA, 2*nF1*nT)) 
+                    FDR = rep(Final_DRs1, times = nTy, each = nT), 
+                    Year = rep(0:Time2, times = nTy*nF1), 
+                    Value = rep(NA, nTy*nF1*nT)) 
 
 base2 <- data.frame(Type = rep(types, each = nF2*nT), 
-                    FDR = rep(Final_DRs2, times = 2, each = nT), 
-                    Year = rep(0:Time2, times = 2*nF2), 
-                    Value = rep(NA, 2*nF2*nT))
+                    FDR = rep(Final_DRs2, times = nTy, each = nT), 
+                    Year = rep(0:Time2, times = nTy*nF2), 
+                    Value = rep(NA, nTy*nF2*nT))
 
 for (s in 1:length(species_list)) {
   
@@ -172,13 +174,13 @@ for (s in 1:length(species_list)) {
   ##### new plot #####
   fig <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR), 
                                linetype = as.factor(Type))) +
-    geom_line(size = 1) +
-    scale_color_manual(values = c(new_colors)) +
-    geom_hline(yintercept = 1, linetype = 'dashed', color = 'black', 
-               size = 0.5) +
-    facet_grid(Metric ~ Type, scales = 'free', switch = 'y') +
     geom_hline(data = MSY_DF, aes(yintercept = Value), 
                size = 0.75, linetype = 'twodash') +
+    geom_hline(yintercept = 1, linetype = 'dashed', color = 'black', 
+               size = 0.5) +
+    geom_line(size = 0.75) +
+    scale_color_manual(values = c(new_colors)) +
+    facet_grid(Metric ~ Type, scales = 'free', switch = 'y') +
     ylab('Relative Value') +
     labs(color = expression('D'[final]), 
          linetype = 'Type of \n Control \n Rule') +
