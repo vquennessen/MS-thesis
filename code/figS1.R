@@ -41,6 +41,8 @@ nT <- Time2 + 1
 nC <- length(Control_rules)
 nS <- length(species_list)
 nF1 <- length(Final_DRs1)
+nTy <- length(types)
+nM <- length(metrics)
 
 base1 <- data.frame(Type = rep(types, each = nF1*nT), 
                     FDR = rep(Final_DRs1, times = 2, each = nT), 
@@ -133,8 +135,28 @@ for (s in 1:length(species_list)) {
   DF <- rbind(BIOMASS, YIELD, EFFORT)
   DF$Metric <- factor(DF$Metric, levels = metrics)
   
+  # calculate MSY
+  source("calculate_MSY.R")
+  MSY <- calculate_MSY(species_list[s], metric = MSY_metrics[s], 
+                       value = values[s])
+  
+  MSY_biomass <- MSY[[2]]
+  MSY_yield <- MSY[[4]]
+  
+  # calculate relative MSY values
+  relative_MSY_biomass <- MSY_biomass / B_sample[1, 1, 1, 1]
+  relative_MSY_yield <- MSY_yield / Y_sample[1, 1, 1, 1]
+  
+  MSY_values <- c(relative_MSY_biomass, relative_MSY_yield, NA)
+  
+  # MSY dataframe
+  MSY_DF <- data.frame(Metric = rep(metrics, each = nTy), 
+                       Types = rep(types, times = nM), 
+                       Value = rep(MSY_values, each = nTy))
+  
+  MSY_DF$Metric <- factor(MSY_DF$Metric, levels = metrics)
+  
   ##### plotting parameters #####
-  jitter_height <- 0
   og_colors <- rev(viridis(max(c(nF1, nF2)) + 1))
   if (s != 4) {
     new_colors <- og_colors[(nF2 - nF1 + 2):(nF2 + 1)]
@@ -145,9 +167,11 @@ for (s in 1:length(species_list)) {
   ##### new plot #####
   fig <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR), 
                                linetype = as.factor(Type))) +
-    geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-    scale_color_manual(values = new_colors) +
+    geom_hline(data = MSY_DF, aes(yintercept = Value), 
+               size = 0.75, linetype = 'twodash') +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
+    geom_line(size = 0.75) +
+    scale_color_manual(values = new_colors) +
     facet_grid(Metric ~ Type, scales = 'free', switch = 'y') +
     ylab('Relative Value') +
     labs(color = expression('D'[final]), 
