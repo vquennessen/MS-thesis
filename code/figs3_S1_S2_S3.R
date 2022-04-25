@@ -6,7 +6,7 @@
 # library(plyr)
 library(ggplot2)
 library(patchwork)
-remotes::install_github('vquennessen/densityratio')
+# remotes::install_github('vquennessen/densityratio')
 library(densityratio)
 library(viridis)
 library(egg)
@@ -35,6 +35,8 @@ Final_DRs2 <- c(0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
 Control_rules = c(1:6)
 types <- c('Static', 'Transient')
 metrics <- c('Biomass', 'Yield', 'Effort')
+MSY_metrics <- c('Biomass', 'Biomass', 'SSB', 'Biomass')
+values <- c(0.4, 0.4, 0.4, 0.4)
 
 # dimensions
 num_sims <- 1
@@ -48,23 +50,21 @@ nFall <- nF2 + 3*nF1
 base1 <- data.frame(Type = rep(types, each = nF1*nT), 
                     FDR = rep(Final_DRs1, times = 2, each = nT), 
                     Year = rep(0:Time2, times = 2*nF1), 
-                    Value = rep(NA, 2*nF1*nT), 
-                    Lower = rep(NA, 2*nF1*nT),
-                    Upper = rep(NA, 2*nF1*nT))
+                    Value = rep(NA, 2*nF1*nT)) 
 
 base2 <- data.frame(Type = rep(types, each = nF2*nT), 
                     FDR = rep(Final_DRs2, times = 2, each = nT), 
                     Year = rep(0:Time2, times = 2*nF2), 
-                    Value = rep(NA, 2*nF2*nT), 
-                    Lower = rep(NA, 2*nF2*nT), 
-                    Upper = rep(NA, 2*nF2*nT))
+                    Value = rep(NA, 2*nF2*nT))
 
 for (s in 1:length(species_list)) {
-
+  
   # load biomass, yield, and effort files
   if (cluster == TRUE) {
     load(paste('~/Documents/MS-thesis/data/', folder, '/', 
                species_list[s], '/', num_sims, '_biomass.Rda', sep = ''))
+    load(paste('~/Documents/MS-thesis/data/', folder, '/', 
+               species_list[s], '/', num_sims, '_SSB.Rda', sep = ''))
     load(paste('~/Documents/MS-thesis/data/', folder, '/', 
                species_list[s], '/', num_sims, '_yield.Rda', sep = ''))
     load(paste('~/Documents/MS-thesis/data/', folder, '/', 
@@ -74,6 +74,8 @@ for (s in 1:length(species_list)) {
     load(paste('~/Projects/MS-thesis/data/', folder, '/', 
                species_list[s], '/', num_sims, '_biomass.Rda', sep = ''))
     load(paste('~/Projects/MS-thesis/data/', folder, '/', 
+               species_list[s], '/', num_sims, '_SSB.Rda', sep = ''))
+    load(paste('~/Projects/MS-thesis/data/', folder, '/', 
                species_list[s], '/', num_sims, '_yield.Rda', sep = ''))
     load(paste('~/Projects/MS-thesis/data/', folder, '/', 
                species_list[s], '/', num_sims, '_effort.Rda', sep = ''))
@@ -81,11 +83,12 @@ for (s in 1:length(species_list)) {
   
   # set nF value for species 
   nF <- ifelse(s == 4, nF2, nF1)  
-  
+
   ##### relative biomass and median, upper, and lower limits  #####
   
   # pull out sample sims as sums across all areas for particular years
   B_sample   <- colSums(sims_biomass) 
+  SSB_sample   <- colSums(sims_SSB)
   Y_sample <- sims_yield
   E_sample <- sims_effort
   
@@ -111,6 +114,27 @@ for (s in 1:length(species_list)) {
   
   BIOMASS <- DF; YIELD <- DF; EFFORT <- DF
   
+  # calculate MSY
+  source("calculate_MSY.R")
+  MSY <- calculate_MSY(species_list[s], metric = MSY_metrics[s], 
+                       value = values[s])
+  
+  MSY_biomass <- MSY[[2]]
+  MSY_yield <- MSY[[4]]
+  
+  # calculate relative MSY values
+  relative_MSY_biomass <- MSY_biomass / B_sample[1, 1, 1, 1]
+  relative_MSY_yield <- MSY_yield / Y_sample[1, 1, 1, 1]
+  
+  MSY_values <- c(relative_MSY_biomass, relative_MSY_yield, NA)
+  
+  # MSY dataframe
+  MSY_DF <- data.frame(Metric = rep(metrics, each = nTy), 
+                       Types = rep(types, times = nM), 
+                       Value = rep(MSY_values, each = nTy))
+  
+  MSY_DF$Metric <- factor(MSY_DF$Metric, levels = metrics)
+  
   ##### fill in data frames with median and quantile values #####
   for (ty in 1:2) {
     for (fdr in 1:nF) {
@@ -119,24 +143,18 @@ for (s in 1:length(species_list)) {
         
         # relative biomass
         BIOMASS$Value[index] <- median(Rel_biomass[t, ty, fdr])
-        BIOMASS$Lower[index] <- quantile(Rel_biomass[t, ty, fdr], 0.25)
-        BIOMASS$Upper[index] <- quantile(Rel_biomass[t, ty, fdr], 0.75)
         
         # relative yield
         YIELD$Value[index] <- median(Rel_yield[t, ty, fdr])
-        YIELD$Lower[index] <- quantile(Rel_yield[t, ty, fdr], 0.25)
-        YIELD$Upper[index] <- quantile(Rel_yield[t, ty, fdr], 0.75)
         
         # relative effort
         EFFORT$Value[index] <- median(Rel_effort[t, ty, fdr])
-        EFFORT$Lower[index] <- quantile(Rel_effort[t, ty, fdr], 0.25)
-        EFFORT$Upper[index] <- quantile(Rel_effort[t, ty, fdr], 0.75)
         
       }
     }
   }
-  
-  # put dataframes together, with new metric column
+
+  # put dataframes together, with new metric and MSY column
   BIOMASS$Metric <- 'Biomass'
   YIELD$Metric <- 'Yield'
   EFFORT$Metric <- 'Effort'
@@ -144,7 +162,6 @@ for (s in 1:length(species_list)) {
   DF$Metric <- factor(DF$Metric, levels = metrics)
   
   ##### plotting parameters #####
-  jitter_height <- 0
   og_colors <- rev(viridis(max(c(nF1, nF2)) + 1))
   if (s != 4) {
     new_colors <- og_colors[(nF2 - nF1 + 2):(nF2 + 1)]
@@ -155,26 +172,27 @@ for (s in 1:length(species_list)) {
   ##### new plot #####
   fig <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR), 
                                linetype = as.factor(Type))) +
-    geom_line(position = position_jitter(w = 0, h = jitter_height), 
-              size = 1) +
-    scale_color_manual(values = new_colors) +
-    geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
+    geom_line(size = 1) +
+    scale_color_manual(values = c(new_colors)) +
+    geom_hline(yintercept = 1, linetype = 'dashed', color = 'black', 
+               size = 0.5) +
     facet_grid(Metric ~ Type, scales = 'free', switch = 'y') +
+    geom_hline(data = MSY_DF, aes(yintercept = Value), 
+               size = 0.75, linetype = 'twodash') +
     ylab('Relative Value') +
     labs(color = expression('D'[final]), 
          linetype = 'Type of \n Control \n Rule') +
     theme_bw()
-    
   
   # add panel tags (a) through (f)
   final_plot <- tag_facet(p = fig, 
                           hjust = -0.3, 
-                          vjust = 1.5) +
+                          vjust = 3) +
     theme(strip.text = element_text(), strip.background = element_rect())
-    
-    ggsave(final_plot, filename = paste(titles[s], Names[s], '.png', 
-                                        sep = ''),
-           path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
-           width = png_width, height = png_height)
-    
+  
+  ggsave(final_plot, filename = paste(titles[s], Names[s], '.png', 
+                                      sep = ''),
+         path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
+         width = png_width, height = png_height)
+  
 }
