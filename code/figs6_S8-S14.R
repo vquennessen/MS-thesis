@@ -8,7 +8,6 @@ library(ggplot2)
 library(patchwork)
 remotes::install_github('vquennessen/densityratio')
 library(densityratio)
-# install.packages('egg')
 library(egg)
 library(viridis)
 
@@ -43,6 +42,8 @@ Final_DRs2 <- c(0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
 Control_rules = c(1:6)
 types <- c('Static', 'Transient')
 metrics <- c('Biomass', 'Yield', 'Effort')
+MSY_metrics <- c('Biomass', 'Biomass', 'SSB', 'Biomass')
+values <- c(0.4, 0.4, 0.4, 0.4)
 
 nSc <- length(scenarios)
 nM  <- length(metrics)
@@ -163,8 +164,34 @@ for (v in 1:2) {
       
     }
     
+    # calculate MSY
+    source("calculate_MSY.R")
+    MSY <- calculate_MSY(species_list[s], metric = MSY_metrics[s], 
+                         value = values[s])
+    
+    MSY_biomass <- MSY[[2]]
+    MSY_yield <- MSY[[4]]
+    
+    # calculate relative MSY values
+    relative_MSY_biomass <- MSY_biomass / B_sample[1, 1, 1, 1]
+    relative_MSY_yield <- MSY_yield / Y_sample[1, 1, 1, 1]
+    
+    MSY_values <- c(relative_MSY_biomass, relative_MSY_yield, NA)
+    
+    # MSY dataframe
+    MSY_DF <- data.frame(Metric = rep(metrics, each = nSc), 
+                         Scenario = rep(scenarios, times = nM), 
+                         Value = rep(MSY_values, each = nSc))
+    
+    # make columns match up with DF
+    MSY_DF$Metric <- factor(MSY_DF$Metric, levels = metrics, 
+                            labels = c('Relative Biomass', 
+                                       'Relative Yield', 
+                                       'Relative Effort'))
+    MSY_DF$Scenario <- factor(MSY_DF$Scenario, levels = scenarios)
+    
+    
     ##### plotting parameters #####
-    jitter_height <- 0
     colors <- viridis(3)
     new_colors <- colors[1:2]
     
@@ -176,17 +203,19 @@ for (v in 1:2) {
     DF$FDR <- factor(DF$FDR, levels = Final_DRs2)
     DF$Type <- factor(DF$Type, levels = types)
     new_DF <- subset(DF, FDR %in% FDRs[[s]])
-  
+    
     if (v == 1) {
       
-      final_plot <- ggplot(data = new_DF, aes(x = Year, y = Value, color = FDR, 
-                               linetype = Type)) +
-        geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = FDR, colour = NA), 
-                    show.legend = FALSE) +
-        scale_fill_manual(values = alpha(new_colors, alfa)) +
-        geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-        scale_color_manual(values = new_colors) +
+      final_plot <- ggplot(data = new_DF, aes(x = Year, y = Value, 
+                                              linetype = Type, color = FDR)) +
+        geom_hline(data = MSY_DF, aes(yintercept = Value), 
+                   size = 0.75, linetype = 'twodash') +
         geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
+        geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = FDR), 
+                    color = NA, show.legend = FALSE) +
+        scale_fill_manual(values = alpha(new_colors, alfa)) +
+        geom_line() +
+        scale_color_manual(values = new_colors) +
         theme_bw() +
         theme(axis.title.y = element_blank()) +
         facet_grid(Metric ~ Scenario, scales = 'free', switch = 'y') +
@@ -198,49 +227,51 @@ for (v in 1:2) {
       
     } else {
       
-    ##### load deterministic values and merge into new dataframe #####
-    
-    # load deterministic data for correct FDR values
-    source('~/Documents/MS-thesis/code/extract_deterministic_values.R')
-    deterministic <- read.csv('deterministic_values.csv')
-    new_deterministic <- subset(deterministic, 
-                                FDR == FDRs[s] & Species == Names[s])
-    
-    # combine stochastic and deterministic dataframes into one
-    combined_DF <- rbind(new_DF, new_deterministic)
-    
-    # write combined_DF to .csv file
-    write.csv(x = combined_DF, file = 'combinedDF1.csv')
-    
-    # process DF
-    combined_DF$Scenario <- factor(combined_DF$Scenario, levels = scenarios)
-    combined_DF$Metric <- factor(combined_DF$Metric)
-                                 # , levels = metrics, 
-                                 # labels = c('Relative Biomass', 
-                                 #            'Relative Yield', 
-                                 #            'Relative Effort'))
-
-    # write combined_DF to .csv file
-    write.csv(x = combined_DF, file = 'combinedDF2.csv')
-    
-    ##### plot panels ##########################################################
-    final_plot <- ggplot(data = combined_DF, 
-                         aes(x = Year, y = Value, color = Type, 
-                             linetype = Source)) +
-      geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
-      geom_ribbon(data = new_DF, aes(ymin = Lower, ymax = Upper, fill = Type,
-                                     colour = NA), show.legend = FALSE) +
-      scale_fill_manual(values = alpha(new_colors, alfa)) +
-      geom_line(position = position_jitter(w = 0, h = jitter_height)) +
-      scale_color_manual(values = new_colors) +
-      theme_bw() +
-      theme(axis.title.y = element_blank()) +
-      facet_grid(Metric ~ Scenario, scales = 'free', switch = 'y') +
-      xlab('Years since reserve implemented') +
-      guides(color = guide_legend(order = 1), 
-             linetype = guide_legend(order = 2)) +
-      labs(color = 'Type of \n Control Rule', linetype = 'Source')
-    
+      ##### load deterministic values and merge into new dataframe #####
+      
+      # load deterministic data for correct FDR values
+      source('~/Documents/MS-thesis/code/extract_deterministic_values.R')
+      deterministic <- read.csv('deterministic_values.csv')
+      new_deterministic <- subset(deterministic, 
+                                  FDR == FDRs[s] & Species == Names[s])
+      
+      # combine stochastic and deterministic dataframes into one
+      combined_DF <- rbind(new_DF, new_deterministic)
+      
+      # write combined_DF to .csv file
+      write.csv(x = combined_DF, file = 'combinedDF1.csv')
+      
+      # process DF
+      combined_DF$Scenario <- factor(combined_DF$Scenario, levels = scenarios)
+      combined_DF$Metric <- factor(combined_DF$Metric)
+      # , levels = metrics, 
+      # labels = c('Relative Biomass', 
+      #            'Relative Yield', 
+      #            'Relative Effort'))
+      
+      # write combined_DF to .csv file
+      write.csv(x = combined_DF, file = 'combinedDF2.csv')
+      
+      ##### plot panels ##########################################################
+      final_plot <- ggplot(data = combined_DF, 
+                           aes(x = Year, y = Value, color = Type, 
+                               linetype = Source)) +
+        geom_hline(data = MSY_DF, aes(yintercept = Value), 
+                   size = 0.75, linetype = 'twodash') +
+        geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
+        geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = Type), 
+                    color = NA, show.legend = FALSE) +
+        scale_fill_manual(values = alpha(new_colors, alfa)) +
+        geom_line() +
+        scale_color_manual(values = new_colors) +
+        theme_bw() +
+        theme(axis.title.y = element_blank()) +
+        facet_grid(Metric ~ Scenario, scales = 'free', switch = 'y') +
+        xlab('Years since reserve implemented') +
+        guides(color = guide_legend(order = 1), 
+               linetype = guide_legend(order = 2)) +
+        labs(color = 'Type of \n Control Rule', linetype = 'Source')
+      
     }
     
     final_plot <- tag_facet(final_plot)
@@ -256,5 +287,5 @@ for (v in 1:2) {
            path = '~/Documents/MS-thesis/figures/',
            width = png_width, height = png_height)
   }
-
+  
 }
