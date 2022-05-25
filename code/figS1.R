@@ -31,9 +31,12 @@ MPA = 3
 Time1 = 50
 Time2 = 100
 Final_DRs1 <- c(0.6, 0.7, 0.8, 0.9)
+Final_DRs2 <- c(0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
 Control_rules = c(1:6)
 types <- c('Static', 'Transient')
 metrics <- c('Biomass', 'Yield', 'Effort')
+MSY_metrics <- c('Biomass')
+values <- c(0.4)
 
 # dimensions
 num_sims <- 1
@@ -41,6 +44,7 @@ nT <- Time2 + 1
 nC <- length(Control_rules)
 nS <- length(species_list)
 nF1 <- length(Final_DRs1)
+nF2 <- length(Final_DRs2)
 nTy <- length(types)
 nM <- length(metrics)
 
@@ -136,7 +140,7 @@ for (s in 1:length(species_list)) {
   DF$Metric <- factor(DF$Metric, levels = metrics)
   
   # calculate MSY
-  source("calculate_MSY.R")
+  source("code/calculate_MSY.R")
   MSY <- calculate_MSY(species_list[s], metric = MSY_metrics[s], 
                        value = values[s])
   
@@ -167,15 +171,16 @@ for (s in 1:length(species_list)) {
   ##### new plot #####
   fig <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR), 
                                linetype = as.factor(Type))) +
-    geom_hline(data = MSY_DF, aes(yintercept = Value), 
-               size = 0.75, linetype = 'twodash') +
+    geom_hline(data = MSY_DF, aes(yintercept = Value, color = 'MSY'), 
+               size = 0.75, linetype = 'twodash', color = 'black') +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
     geom_line(size = 0.75) +
     scale_color_manual(values = new_colors) +
     facet_grid(Metric ~ Type, scales = 'free', switch = 'y') +
     ylab('Relative Value') +
     labs(color = expression('D'[final]), 
-         linetype = 'Type of \n Control \n Rule') +
+         linetype = 'Type of \n Control \n Rule', 
+         size = 'Reference') +
     theme_bw()
   
   
@@ -184,6 +189,7 @@ for (s in 1:length(species_list)) {
                           hjust = -0.1, 
                           vjust = 13.25) +    
     theme(strip.text = element_text(), strip.background = element_rect())
+  
   ggsave(final_plot, 
          filename = 'figS1_Canary Rockfish.png',
          path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
