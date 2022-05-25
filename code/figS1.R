@@ -179,8 +179,7 @@ for (s in 1:length(species_list)) {
     facet_grid(Metric ~ Type, scales = 'free', switch = 'y') +
     ylab('Relative Value') +
     labs(color = expression('D'[final]), 
-         linetype = 'Type of \n Control \n Rule', 
-         size = 'Reference') +
+         linetype = 'Type of \n Control \n Rule') +
     theme_bw()
   
   
