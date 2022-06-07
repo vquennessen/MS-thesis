@@ -10,6 +10,7 @@ remotes::install_github('vquennessen/densityratio')
 library(densityratio)
 library(viridis)
 library(egg)
+library(cowplot)
 
 ###############################################################################
 # CHECK THESE EVERY TIME
@@ -169,7 +170,7 @@ for (s in 1:length(species_list)) {
   }
   
   ##### new plot #####
-  fig <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR), 
+  fig1 <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR), 
                                linetype = as.factor(Type))) +
     geom_hline(data = MSY_DF, aes(yintercept = Value, color = 'MSY'), 
                size = 0.75, linetype = 'twodash', color = 'black') +
@@ -182,16 +183,25 @@ for (s in 1:length(species_list)) {
          linetype = 'Type of \n Control \n Rule') +
     theme_bw()
   
+  fig2 <- ggdraw(fig1) + 
+    draw_label(label = "Reference", x = .89, y = .9, size = 11.5) + 
+    draw_line(x = c(.83, .88), y = c(.855,.855), linetype = "twodash", 
+              size = .8) +
+    draw_label(label = "MSY", x = .91, y = .855, size = 8.5) +
+    draw_line(x = c(.83, .875), y = c(.814,.814), linetype = "dashed", 
+              size = .5) +
+    draw_label(label = "No change", x = .936, y = .814, size = 8.5) 
+    
   
   # add panel tags (a) through (f)
-  final_plot <- tag_facet(p = fig, 
+  final_plot <- tag_facet(p = fig2, 
                           hjust = -0.1, 
                           vjust = 13.25) +    
     theme(strip.text = element_text(), strip.background = element_rect())
-  
-  ggsave(final_plot, 
-         filename = 'figS1_Canary Rockfish.png',
-         path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
-         width = png_width, height = png_height)
+    
+    ggsave(final_plot, 
+           filename = 'figS1_Canary Rockfish.png',
+           path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
+           width = png_width, height = png_height)
   
 }
