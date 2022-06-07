@@ -10,6 +10,7 @@ remotes::install_github('vquennessen/densityratio')
 library(densityratio)
 library(egg)
 library(viridis)
+library(cowplot)
 
 ###############################################################################
 # CHECK THESE EVERY TIME
@@ -206,7 +207,7 @@ for (v in 1:2) {
     
     if (v == 1) {
       
-      final_plot <- ggplot(data = new_DF, aes(x = Year, y = Value, 
+      fig1 <- ggplot(data = new_DF, aes(x = Year, y = Value, 
                                               linetype = Type, color = FDR)) +
         geom_hline(data = MSY_DF, aes(yintercept = Value), 
                    size = 0.75, linetype = 'twodash') +
@@ -224,6 +225,15 @@ for (v in 1:2) {
                linetype = guide_legend(order = 2)) +
         labs(color = expression('D'[final]), 
              linetype = 'Type of \n Control Rule')
+      
+      final_plot <- ggdraw(fig1) + 
+        draw_label(label = "Reference", x = .9, y = .831, size = 11.5) + 
+        draw_line(x = c(.86, .9), y = c(.785,.785), linetype = "twodash", 
+                  size = .8) +
+        draw_label(label = "MSY", x = .93, y = .785, size = 8.5) +
+        draw_line(x = c(.86, .9), y = c(.745,.745), linetype = "dashed", 
+                  size = .5) +
+        draw_label(label = "No change", x = .954, y = .745, size = 8.5) 
       
     } else {
       
@@ -253,7 +263,7 @@ for (v in 1:2) {
       write.csv(x = combined_DF, file = 'combinedDF2.csv')
       
       ##### plot panels ##########################################################
-      final_plot <- ggplot(data = combined_DF, 
+      fig1 <- ggplot(data = combined_DF, 
                            aes(x = Year, y = Value, color = Type, 
                                linetype = Source)) +
         geom_hline(data = MSY_DF, aes(yintercept = Value), 
@@ -272,10 +282,18 @@ for (v in 1:2) {
                linetype = guide_legend(order = 2)) +
         labs(color = 'Type of \n Control Rule', linetype = 'Source')
       
+      final_plot <- ggdraw(fig1) + 
+        draw_label(label = "Reference", x = .884, y = .82, size = 11.5) + 
+        draw_line(x = c(.84, .875), y = c(.775,.775), linetype = "twodash", 
+                  size = .8) +
+        draw_label(label = "MSY", x = .905, y = .775, size = 8.5) +
+        draw_line(x = c(.84, .875), y = c(.735,.735), linetype = "dashed", 
+                  size = .5) +
+        draw_label(label = "No change", x = .928, y = .735, size = 8.5) 
+      
     }
     
-    final_plot <- tag_facet(final_plot)
-    final_plot <- final_plot +
+    final_plot <- tag_facet(final_plot) +
       theme(strip.text = element_text(), strip.background = element_rect())
     
     # figure titles index
