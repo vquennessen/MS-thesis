@@ -10,6 +10,7 @@ library(patchwork)
 library(densityratio)
 library(viridis)
 library(egg)
+library(cowplot)
 
 ###############################################################################
 # CHECK THESE EVERY TIME
@@ -117,7 +118,7 @@ for (s in 1:length(species_list)) {
   BIOMASS <- DF; YIELD <- DF; EFFORT <- DF
   
   # calculate MSY
-  source("calculate_MSY.R")
+  source("~/Projects/MS-thesis/code/calculate_MSY.R")
   MSY <- calculate_MSY(species_list[s], metric = MSY_metrics[s], 
                        value = values[s])
   
@@ -172,7 +173,7 @@ for (s in 1:length(species_list)) {
   }
   
   ##### new plot #####
-  fig <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR), 
+  fig1 <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR), 
                                linetype = as.factor(Type))) +
     geom_hline(data = MSY_DF, aes(yintercept = Value), 
                size = 0.75, linetype = 'twodash') +
@@ -186,8 +187,17 @@ for (s in 1:length(species_list)) {
          linetype = 'Type of \n Control \n Rule') +
     theme_bw()
   
+  fig2 <- ggdraw(fig1) + 
+    draw_label(label = "Reference", x = .875, y = 0.97, size = 11.5) + 
+    draw_line(x = c(.815, .863), y = c(.92,.92), linetype = "twodash", 
+              size = .8) +
+    draw_label(label = "MSY", x = .91, y = .92, size = 8.5) +
+    draw_line(x = c(.815, .863), y = c(.88,.88), linetype = "dashed", 
+              size = .5) +
+    draw_label(label = "No change", x = .94, y = .88, size = 8.5) 
+  
   # add panel tags (a) through (f)
-  final_plot <- tag_facet(p = fig, 
+  final_plot <- tag_facet(p = fig2, 
                           hjust = -0.3, 
                           vjust = 3) +
     theme(strip.text = element_text(), strip.background = element_rect())
