@@ -50,6 +50,10 @@ nFall <- nF2 + 3*nF1
 nTy <- length(types)
 nM <- length(metrics)
 
+# plotting things
+MSY_x <- c(0.19, 0.2, 0.2, 0.19)
+MSY_y <- c(0.7, 0.7, 0.725, 0.7)
+
 base1 <- data.frame(Type = rep(types, each = nF1*nT), 
                     FDR = rep(Final_DRs1, times = nTy, each = nT), 
                     Year = rep(0:Time2, times = nTy*nF1), 
@@ -173,8 +177,7 @@ for (s in 1:length(species_list)) {
   }
   
   ##### new plot #####
-  fig1 <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR), 
-                               linetype = as.factor(Type))) +
+  fig1 <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR))) +
     geom_hline(data = MSY_DF, aes(yintercept = Value), 
                size = 0.75, linetype = 'twodash') +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black', 
@@ -183,19 +186,12 @@ for (s in 1:length(species_list)) {
     scale_color_manual(values = c(new_colors)) +
     facet_grid(Metric ~ Type, scales = 'free', switch = 'y') +
     ylab('Relative Value') +
-    labs(color = expression('D'[final]), 
-         linetype = 'Type of \n Control \n Rule') +
+    labs(color = expression('D'[final])) +
     theme_bw()
   
   fig2 <- ggdraw(fig1) + 
-    draw_label(label = "Reference", x = .875, y = 0.97, size = 11.5) + 
-    draw_line(x = c(.815, .863), y = c(.92,.92), linetype = "twodash", 
-              size = .8) +
-    draw_label(label = "MSY", x = .91, y = .92, size = 8.5) +
-    draw_line(x = c(.815, .863), y = c(.88,.88), linetype = "dashed", 
-              size = .5) +
-    draw_label(label = "No change", x = .94, y = .88, size = 8.5) 
-  
+    draw_label(label = "MSY", x = MSY_x[s], y = MSY_y[s], size = 8.5)
+    
   # add panel tags (a) through (f)
   final_plot <- tag_facet(p = fig2, 
                           hjust = -0.3, 
