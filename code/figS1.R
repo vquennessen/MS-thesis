@@ -182,14 +182,15 @@ for (s in 1:length(species_list)) {
          linetype = 'Type of \n Control \n Rule') +
     theme_bw()
   
-  fig2 <- ggdraw(fig1) + 
-    draw_label(label = "MSY", x = .2, y = .855, size = 8.5)
-    
   # add panel tags (a) through (f)
-  final_plot <- tag_facet(p = fig2, 
-                          hjust = -0.1, 
-                          vjust = 13.25) +    
-    theme(strip.text = element_text(), strip.background = element_rect())
+  fig2 <- tag_facet(p = fig1, hjust = -0.2, vjust = 1.6) +    
+    theme(strip.text = element_text(), strip.background = element_rect())  
+  
+  # add MSY label with cowplot
+  final_plot <- ggdraw(fig2) + 
+    draw_label(label = "MSY", x = .15, y = .71, size = 8.5)
+    
+
     
     ggsave(final_plot, 
            filename = 'figS1_Canary Rockfish.png',
