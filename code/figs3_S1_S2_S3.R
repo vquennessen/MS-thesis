@@ -51,9 +51,11 @@ nTy <- length(types)
 nM <- length(metrics)
 
 # plotting things
-MSY_x <- c(0.19, 0.2, 0.2, 0.19)
-MSY_y <- c(0.7, 0.7, 0.725, 0.7)
+MSY_x <- c(0.1675, 0.19, 0.18, 0.22)
+MSY_y <- c(0.71, 0.72, 0.735, 0.715)
+facets_v <- c(1.5, 3, 2, 11)
 
+# initialise dataframes
 base1 <- data.frame(Type = rep(types, each = nF1*nT), 
                     FDR = rep(Final_DRs1, times = nTy, each = nT), 
                     Year = rep(0:Time2, times = nTy*nF1), 
@@ -189,14 +191,12 @@ for (s in 1:length(species_list)) {
     labs(color = expression('D'[final])) +
     theme_bw()
   
-  fig2 <- ggdraw(fig1) + 
-    draw_label(label = "MSY", x = MSY_x[s], y = MSY_y[s], size = 8.5)
-    
   # add panel tags (a) through (f)
-  final_plot <- tag_facet(p = fig2, 
-                          hjust = -0.3, 
-                          vjust = 3) +
-    theme(strip.text = element_text(), strip.background = element_rect())
+  fig2 <- tag_facet(p = fig1, hjust = -0.3, vjust = facets_v[s]) +
+    theme(strip.text = element_text(), strip.background = element_rect())  
+  
+  final_plot <- ggdraw(fig2) + 
+    draw_label(label = "MSY", x = MSY_x[s], y = MSY_y[s], size = 8.5)
   
   ggsave(final_plot, filename = paste(titles[s], Names[s], '.png', 
                                       sep = ''),
