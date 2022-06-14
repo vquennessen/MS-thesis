@@ -25,6 +25,16 @@ cluster <- TRUE
 png_width <- 7
 png_height <- 6
 alfa <- 0.25
+
+# plotting things
+# figs S12, S11, S13, and S14
+MSY_x_v1 <- c(0.09, 0.105, 0.105, 0.09)
+MSY_y_v1 <- c(0.705, 0.705, 0.715, 0.73)
+
+# figs S8, 6, S9, S10
+MSY_x_v2 <- c(0.09, 0.105, 0.09, 0.09)
+MSY_y_v2 <- c(0.705, 0.705, 0.705, 0.735)
+
 ###############################################################################
 
 # species to compare
@@ -226,14 +236,13 @@ for (v in 1:2) {
         labs(color = expression('D'[final]), 
              linetype = 'Type of \n Control Rule')
       
-      final_plot <- ggdraw(fig1) + 
-        draw_label(label = "Reference", x = .9, y = .831, size = 11.5) + 
-        draw_line(x = c(.86, .9), y = c(.785,.785), linetype = "twodash", 
-                  size = .8) +
-        draw_label(label = "MSY", x = .93, y = .785, size = 8.5) +
-        draw_line(x = c(.86, .9), y = c(.745,.745), linetype = "dashed", 
-                  size = .5) +
-        draw_label(label = "No change", x = .954, y = .745, size = 8.5) 
+      # facet tags
+      fig2 <- tag_facet(fig1) + 
+        theme(strip.text = element_text(), strip.background = element_rect())
+      
+      # MSY label
+      final_plot <- ggdraw(fig2) + 
+        draw_label(label = "MSY", x = MSY_x_v1[s], y = MSY_y_v1[s], size = 8.5)
       
     } else {
       
@@ -282,19 +291,17 @@ for (v in 1:2) {
                linetype = guide_legend(order = 2)) +
         labs(color = 'Type of \n Control Rule', linetype = 'Source')
       
-      final_plot <- ggdraw(fig1) + 
-        draw_label(label = "Reference", x = .884, y = .82, size = 11.5) + 
-        draw_line(x = c(.84, .875), y = c(.775,.775), linetype = "twodash", 
-                  size = .8) +
-        draw_label(label = "MSY", x = .905, y = .775, size = 8.5) +
-        draw_line(x = c(.84, .875), y = c(.735,.735), linetype = "dashed", 
-                  size = .5) +
-        draw_label(label = "No change", x = .928, y = .735, size = 8.5) 
+      # facet tags
+      fig2 <- tag_facet(fig1) + 
+        theme(strip.text = element_text(), strip.background = element_rect())
+      
+      # MSY label
+      final_plot <- ggdraw(fig2) + 
+        draw_label(label = "MSY", x = MSY_x_v2[s], y = MSY_y_v2[s], size = 8.5)
       
     }
     
-    final_plot <- tag_facet(final_plot) +
-      theme(strip.text = element_text(), strip.background = element_rect())
+
     
     # figure titles index
     fti <- (v - 1)*length(species_list) + s
