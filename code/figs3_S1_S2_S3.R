@@ -23,8 +23,13 @@ png_height <- 5
 
 # species to compare
 species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
+# species_list <- c('CR_OR_2015_SSS', 'BR_OR_2015_SSS', 'LING_OW_2017_SSS', 
+#                   'CAB_OR_2019_SSS')
+
 Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
 titles <- c('old_figS1_', 'fig3_', 'figS2_', 'figS3_')
+# titles <- c('SSS_old_figS1_', 'SSS_fig3_', 'SSS_figS2_', 'SSS_figS3_')
+
 
 # set variables
 A = 5
