@@ -6,7 +6,7 @@
 # library(plyr)
 library(ggplot2)
 library(patchwork)
-# remotes::install_github('vquennessen/densityratio')
+remotes::install_github('vquennessen/densityratio')
 library(densityratio)
 library(viridis)
 library(egg)

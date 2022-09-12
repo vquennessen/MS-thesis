@@ -110,6 +110,11 @@ DF4$Species <- 'Cabezon'
 # combine dataframes
 DF <- rbind(DF1, DF2, DF3, DF4)
 
+# make species column a factor variable
+DF$Species <- factor(DF$Species, 
+                        levels = c('Canary Rockfish', 'Black Rockfish', 
+                                   'Lingcod', 'Cabezon'))
+
 g1 <- ggplot(data = DF, aes(x = Age, y = Selectivity)) +
   geom_line() +
   facet_wrap(facets = vars(Species), nrow = 2, ncol = 2, scales = 'free') +
@@ -119,6 +124,6 @@ g1 <- ggplot(data = DF, aes(x = Age, y = Selectivity)) +
 g2 <- tag_facet(g1, vjust = 1.15)
 
 # save figure
-ggsave('Selectivity_plots.png', g2, 
-       path = 'C:/Users/Vic/Box/Quennessen_Thesis/MS Thesis/publication manuscript/figures', 
-       width = 6, height = 5)
+ggsave(filename = 'Selectivity_plots.png', plot = g2, 
+       path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS Thesis/publication manuscript/figures/', 
+       width = 6, height = 5, units = 'in')
