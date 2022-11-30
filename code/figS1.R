@@ -10,6 +10,7 @@ remotes::install_github('vquennessen/densityratio')
 library(densityratio)
 library(viridis)
 library(egg)
+library(cowplot)
 
 ###############################################################################
 # CHECK THESE EVERY TIME
@@ -169,8 +170,7 @@ for (s in 1:length(species_list)) {
   }
   
   ##### new plot #####
-  fig <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR), 
-                               linetype = as.factor(Type))) +
+  fig1 <- ggplot(data = DF, aes(x = Year, y = Value, color = as.factor(FDR))) +
     geom_hline(data = MSY_DF, aes(yintercept = Value, color = 'MSY'), 
                size = 0.75, linetype = 'twodash', color = 'black') +
     geom_hline(yintercept = 1, linetype = 'dashed', color = 'black') +
@@ -182,16 +182,19 @@ for (s in 1:length(species_list)) {
          linetype = 'Type of \n Control \n Rule') +
     theme_bw()
   
-  
   # add panel tags (a) through (f)
-  final_plot <- tag_facet(p = fig, 
-                          hjust = -0.1, 
-                          vjust = 13.25) +    
-    theme(strip.text = element_text(), strip.background = element_rect())
+  fig2 <- tag_facet(p = fig1, hjust = -0.2, vjust = 1.6) +    
+    theme(strip.text = element_text(), strip.background = element_rect())  
   
-  ggsave(final_plot, 
-         filename = 'figS1_Canary Rockfish.png',
-         path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
-         width = png_width, height = png_height)
+  # add MSY label with cowplot
+  final_plot <- ggdraw(fig2) + 
+    draw_label(label = "MSY", x = .15, y = .71, size = 8.5)
+    
+
+    
+    ggsave(final_plot, 
+           filename = 'figS1_Canary Rockfish.png',
+           path = 'C:/Users/Vic/Box Sync/Quennessen_Thesis/MS thesis/publication manuscript/figures',
+           width = png_width, height = png_height)
   
 }

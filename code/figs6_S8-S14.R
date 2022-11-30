@@ -10,6 +10,7 @@ remotes::install_github('vquennessen/densityratio')
 library(densityratio)
 library(egg)
 library(viridis)
+library(cowplot)
 
 ###############################################################################
 # CHECK THESE EVERY TIME
@@ -24,6 +25,16 @@ cluster <- TRUE
 png_width <- 7
 png_height <- 6
 alfa <- 0.25
+
+# plotting things
+# figs S12, S11, S13, and S14
+MSY_x_v1 <- c(0.09, 0.105, 0.105, 0.09)
+MSY_y_v1 <- c(0.705, 0.705, 0.715, 0.73)
+
+# figs S8, 6, S9, S10
+MSY_x_v2 <- c(0.09, 0.105, 0.09, 0.09)
+MSY_y_v2 <- c(0.705, 0.705, 0.705, 0.735)
+
 ###############################################################################
 
 # species to compare
@@ -206,7 +217,7 @@ for (v in 1:2) {
     
     if (v == 1) {
       
-      final_plot <- ggplot(data = new_DF, aes(x = Year, y = Value, 
+      fig1 <- ggplot(data = new_DF, aes(x = Year, y = Value, 
                                               linetype = Type, color = FDR)) +
         geom_hline(data = MSY_DF, aes(yintercept = Value), 
                    size = 0.75, linetype = 'twodash') +
@@ -224,6 +235,14 @@ for (v in 1:2) {
                linetype = guide_legend(order = 2)) +
         labs(color = expression('D'[final]), 
              linetype = 'Type of \n Control Rule')
+      
+      # facet tags
+      fig2 <- tag_facet(fig1) + 
+        theme(strip.text = element_text(), strip.background = element_rect())
+      
+      # MSY label
+      final_plot <- ggdraw(fig2) + 
+        draw_label(label = "MSY", x = MSY_x_v1[s], y = MSY_y_v1[s], size = 8.5)
       
     } else {
       
@@ -253,7 +272,7 @@ for (v in 1:2) {
       write.csv(x = combined_DF, file = 'combinedDF2.csv')
       
       ##### plot panels ##########################################################
-      final_plot <- ggplot(data = combined_DF, 
+      fig1 <- ggplot(data = combined_DF, 
                            aes(x = Year, y = Value, color = Type, 
                                linetype = Source)) +
         geom_hline(data = MSY_DF, aes(yintercept = Value), 
@@ -272,11 +291,17 @@ for (v in 1:2) {
                linetype = guide_legend(order = 2)) +
         labs(color = 'Type of \n Control Rule', linetype = 'Source')
       
+      # facet tags
+      fig2 <- tag_facet(fig1) + 
+        theme(strip.text = element_text(), strip.background = element_rect())
+      
+      # MSY label
+      final_plot <- ggdraw(fig2) + 
+        draw_label(label = "MSY", x = MSY_x_v2[s], y = MSY_y_v2[s], size = 8.5)
+      
     }
     
-    final_plot <- tag_facet(final_plot)
-    final_plot <- final_plot +
-      theme(strip.text = element_text(), strip.background = element_rect())
+
     
     # figure titles index
     fti <- (v - 1)*length(species_list) + s

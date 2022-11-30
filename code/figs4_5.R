@@ -19,6 +19,9 @@ png_height <- 6
 
 # species to compare
 species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
+# species_list <- c('CR_OR_2015_SSS', 'BR_OR_2015_SSS', 'LING_OW_2017_SSS', 
+#                   'CAB_OR_2019_SSS')
+
 Names <- c('Canary \n Rockfish', 'Black \n Rockfish', 'Lingcod', 'Cabezon')
 years_to_plot <- c(10, 20)
 

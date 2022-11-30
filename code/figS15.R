@@ -6,7 +6,7 @@
 # library(plyr)
 library(ggplot2)
 library(patchwork)
-remotes::install_github('vquennessen/densityratio')
+# remotes::install_github('vquennessen/densityratio')
 library(densityratio)
 library(viridis)
 library(egg)
@@ -22,14 +22,9 @@ png_height <- 5
 ###############################################################################
 
 # species to compare
-species_list <- c('CR_OR_2015', 'BR_OR_2015', 'LING_OW_2017', 'CAB_OR_2019')
-# species_list <- c('CR_OR_2015_SSS', 'BR_OR_2015_SSS', 'LING_OW_2017_SSS', 
-#                   'CAB_OR_2019_SSS')
-
-Names <- c('Canary Rockfish', 'Black Rockfish', 'Lingcod', 'Cabezon')
-titles <- c('old_figS1_', 'fig3_', 'figS2_', 'figS3_')
-# titles <- c('SSS_old_figS1_', 'SSS_fig3_', 'SSS_figS2_', 'SSS_figS3_')
-
+species_list <- c('BR_OR_2015_overfished')
+Names <- c('Black Rockfish')
+titles <- c('figS15_')
 
 # set variables
 A = 5
@@ -74,17 +69,6 @@ base2 <- data.frame(Type = rep(types, each = nF2*nT),
 for (s in 1:length(species_list)) {
   
   # load biomass, yield, and effort files
-  if (cluster == TRUE) {
-    load(paste('~/Documents/MS-thesis/data/', folder, '/', 
-               species_list[s], '/', num_sims, '_biomass.Rda', sep = ''))
-    load(paste('~/Documents/MS-thesis/data/', folder, '/', 
-               species_list[s], '/', num_sims, '_SSB.Rda', sep = ''))
-    load(paste('~/Documents/MS-thesis/data/', folder, '/', 
-               species_list[s], '/', num_sims, '_yield.Rda', sep = ''))
-    load(paste('~/Documents/MS-thesis/data/', folder, '/', 
-               species_list[s], '/', num_sims, '_effort.Rda', sep = ''))
-    
-  } else {
     load(paste('~/Projects/MS-thesis/data/', folder, '/', 
                species_list[s], '/', num_sims, '_biomass.Rda', sep = ''))
     load(paste('~/Projects/MS-thesis/data/', folder, '/', 
@@ -93,11 +77,10 @@ for (s in 1:length(species_list)) {
                species_list[s], '/', num_sims, '_yield.Rda', sep = ''))
     load(paste('~/Projects/MS-thesis/data/', folder, '/', 
                species_list[s], '/', num_sims, '_effort.Rda', sep = ''))
-  }
   
   # set nF value for species 
   nF <- ifelse(s == 4, nF2, nF1)  
-
+  
   ##### relative biomass and median, upper, and lower limits  #####
   
   # pull out sample sims as sums across all areas for particular years
@@ -167,7 +150,7 @@ for (s in 1:length(species_list)) {
       }
     }
   }
-
+  
   # put dataframes together, with new metric and MSY column
   BIOMASS$Metric <- 'Biomass'
   YIELD$Metric <- 'Yield'
@@ -197,11 +180,11 @@ for (s in 1:length(species_list)) {
     theme_bw()
   
   # add panel tags (a) through (f)
-  fig2 <- tag_facet(p = fig1, hjust = -0.3, vjust = facets_v[s]) +
+  fig2 <- tag_facet(p = fig1, hjust = -0.3, vjust = 11) +
     theme(strip.text = element_text(), strip.background = element_rect())  
   
   final_plot <- ggdraw(fig2) + 
-    draw_label(label = "MSY", x = MSY_x[s], y = MSY_y[s], size = 8.5)
+    draw_label(label = "MSY", x = 0.23, y = 0.716, size = 8.5)
   
   ggsave(final_plot, filename = paste(titles[s], Names[s], '.png', 
                                       sep = ''),
